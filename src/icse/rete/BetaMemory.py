@@ -27,7 +27,6 @@ class BetaMemory(ReteNode):
     def leftActivation(self, tok, wme):
         
         new_token = Token(self, tok, wme)
-        
         self.__items.insert(0, new_token)
         
         for child in self.__children:
@@ -65,5 +64,28 @@ class BetaMemory(ReteNode):
         for tok in self.__items:
             self.leftActivation(tok)
         
+    def factory(self, parent):
         
+        assert isinstance(parent, ReteNode), \
+            "parent non e' un ReteNode"
+            
+        for child in parent.get_children():
+            if isinstance(child, BetaMemory):
+                # semplicemente un beta memory node
+                # e un contenitore senza condizioni:
+                # cio che discrimina il contenuto e'
+                # il join-node padre.
+                # quindi se ho gia un nodo betamemory
+                # figlio dello stesso padre, semplicemente
+                # lo condivido
+                return child
         
+        # non ho trovato nessun beta-memory
+        # figlio del padre, quindi ne aggiungo
+        # uno nuovo
+        
+        bm = BetaMemory(parent)
+        parent.add_child(bm)
+        parent.update(bm)
+
+        return bm

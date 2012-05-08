@@ -57,8 +57,67 @@ class Token(object):
         
         
     def get_wme(self):
+        '''
+        Restituisce la WME rappresentata in questo token
+        @return WME
+        '''
         return self.__wme
     
+    def get_parent(self):
+        '''
+        Restituisce il Token padre
+        @return: Token
+        '''
+        return self.__parent
+    
+    def add_njresult(self, njr):
+        '''
+        Aggiunge una nuova NegativeJoinResult
+        nella lista delle negative-join-results
+        '''
+        assert isinstance(njr, NegativeJoinResult), \
+            "njr non e' un NegativeJoinResult"
+            
+        self.__njresults.insert(0, njr)
+        
+    def remove_njresult(self, njr):
+        '''
+        Rimuove una NegativeJoinResult
+        dalla lista
+        '''
+        self.__njresults.remove(njr)
+        
+    def count_njresults(self):
+        '''
+        Conta il numero di NegativeJoinResult in lista
+        '''
+        return len(self.__njresults)
+        
+    def add_nccresult(self, nccr):
+        '''
+        Inserisce un Token nella lista di risultati ncc
+        '''
+        assert isinstance(nccr, Token), \
+            "nccr non e' un Token"
+        self.__nccresults.insert(0, nccr)
+    
+    def remove_nccresult(self, nccr):
+        '''
+        Rimuove un Token dalla lista dei risultati ncc
+        '''
+        self.__nccresults.remove(nccr)
+        
+    def count_nccresults(self):
+        return len(self.__nccresults)
+    
+    def set_owner(self, t):
+        '''
+        Flagga un Token come owner di questo
+        '''
+        assert isinstance(t, Token), \
+            "t non e' un Token"
+            
+        self.__owner = t
         
     def delete(self):
         '''
@@ -114,9 +173,15 @@ class Token(object):
             # e chiama la rivalutazione del nodo
             # (in modo che se non ci siano match l'evento venga propagato)
             assert isinstance(self.__node, NccPartnerNode)
-            if self.__owner._remove_nccresult(self):
-                # devo rivalutare
-                self.__node.get_nccnode().revalutate(self.__owner)
+            self.__owner.remove_nccresult(self)
+            if self.__owner.count_nccresults() == 0:
+                # devo propagare l'attivazione ai figli in quanto
+                # non ho piu' match per il nodo negativo
+                # dopo la rimozione di questo
+                for child in self.__node.get_nccnode().get_children():
+                    assert isinstance(child, ReteNode), \
+                        "child non e' un ReteNode"
+                    child.leftActivation(self.__owner)
         
     def deleteDescendents(self):
         '''
@@ -132,6 +197,3 @@ class Token(object):
     def _remove_child(self, t):
         self.__children.remove(t)
         
-    def _remove_nccresult(self, t):
-        self.__nccresults.remove(t)
-        return (len(self.__nccresults) == 0) 

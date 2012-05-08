@@ -22,11 +22,44 @@ class AlphaMemory(AlphaNode):
         AlphaNode.__init__(self, parent)
         # contiene i riferimenti a tutte le wme
         self.__items = []
-        # contiene i riferimenti a tutti i nodi successori (nodi beta)
+        # contiene i riferimenti a tutti i nodi successori (nodi beta [JoinNode])
         self.__successors = []
 
     def get_items(self):
+        '''
+        Restituisce la lista di elementi memorizzati
+        nella AlphaMemory
+        @return: WME[]
+        '''
         return self.__items
+    
+    def add_successor(self, succ):
+        '''
+        Aggiunge un nuovo elemento nella lista
+        dei successori
+        @param succ: ReteNode (JoinNode)
+        '''
+        # aggiungo in testa in modo da evitare la duplicazione
+        # di wme evitando di dover fare controlli per evitare
+        # la duplicazione.
+        # Riferimento:
+        #    paragrafo 2.4.1 pagina 25
+        self.__successors.insert(0, succ)
+
+    def remove_successor(self, succ):
+        '''
+        Rimuove il successore dalla lista
+        '''
+        self.__successors.remove(succ)
+
+    def is_useless(self):
+        '''
+        Controlla se il nodo puo' essere rimosso:
+        il nodo diventa inutile se non ha
+        successori
+        @return: boolean
+        '''
+        return (len(self.__successors) == 0)
 
     @staticmethod
     def factory(c, node):

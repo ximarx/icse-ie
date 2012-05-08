@@ -22,6 +22,27 @@ class ReteNode(object):
         self.__parent = parent
         
         
+    def get_children(self):
+        '''
+        Getter per children
+        '''
+        return self.__children
+    
+    def add_child(self, child):
+        assert isinstance(child, ReteNode), \
+            "child non e' un ReteNode"
+            
+        self.__children.insert(0, child)
+        
+    def append_child(self, child):
+        '''
+        Aggiunge il figlio nella lista in ultima posizione
+        '''
+        assert isinstance(child, ReteNode), \
+            "child non e' un ReteNode"
+            
+        self.__children.append(child)
+        
     def leftActivation(self, tok, wme):
         '''
         Attiva il nodo da sinistra (l'attivazione da sinistra corrisponde

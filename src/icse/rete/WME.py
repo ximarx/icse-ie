@@ -52,8 +52,35 @@ class WME(object):
             jr.get_owner().remove_njresult(jr)
         
     def add_token(self, t):
+        '''
+        Aggiunge un nuovo token alla lista dei riferimenti
+        dei tokens in cui questa WME e' rappresentata
+        '''
         self.__tokens.insert(0, t)
         
     def remove_token(self, t):
+        '''
+        Rimuove il riferimento ad un token dalla lista
+        dei token in cui questa WME e' rappresentata
+        '''
         self.__tokens.remove(t)
         
+    def add_njresult(self, njr):
+        '''
+        Aggiunge una NegativeJoinResult alla lista
+        '''
+        self.__njresults.insert(0, njr)
+        
+    def remove_njresult(self, njr):
+        '''
+        Rimuove una NegativeJoinResult dalla lista
+        '''
+        self.__njresults.remove(njr)
+
+    def get_field(self, field):
+        '''
+        Restituisce il valore rappresentato dal field
+        @param field: simbol il campo 
+        @return: simbol
+        '''
+        return self.__fields[field]
