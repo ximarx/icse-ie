@@ -1,4 +1,5 @@
 from icse.rete.ReteNode import ReteNode
+from icse.rete.BetaMemory import BetaMemory
 
 
 def network_factory(parent, conditions, earlier_conditions = None):
@@ -23,14 +24,14 @@ def network_factory(parent, conditions, earlier_conditions = None):
 
     # probabilmente dovro super classare
     # AlphaNode e ReteNode con Node
-    assert isinstance(parent, ReteNode), \
-        "parent non e' un ReteNode"
+    #assert isinstance(parent, ReteNode), \
+    #    "parent non e' un ReteNode"
+    
+    current_node = parent
     
         
-    #TODO implementare
-    
-    raise NotImplementedError
-    
+            
+        
     
     
     

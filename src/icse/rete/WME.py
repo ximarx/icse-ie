@@ -50,6 +50,12 @@ class WME(object):
                 "jr non e' una NegativeJoinResult"
                 
             jr.get_owner().remove_njresult(jr)
+            # eseguo l'attivazione della negative-join
+            # se non ci sono altri token
+            if jr.get_owner().count_njresults() == 0:
+                # bisogna propagare
+                for child in jr.get_owner().get_node().get_children():
+                    child.leftActivation(jr.get_owner())
         
     def add_token(self, t):
         '''
@@ -84,3 +90,12 @@ class WME(object):
         @return: simbol
         '''
         return self.__fields[field]
+    
+    def __hash__(self):
+        return hash(tuple(self.__fields))
+        
+    def __eq__(self, other):
+        return ( isinstance(other, WME) and tuple(self.__fields) == tuple(other.__fields))
+
+    def __neq__(self, other):
+        return not self.__eq__(other)

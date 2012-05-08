@@ -78,7 +78,7 @@ class NccNode(BetaMemory):
     def leftActivation(self, tok, wme):
         
         new_token = Token(self, tok, wme)
-        self.__items.insert(0, new_token)
+        self._items.insert(0, new_token)
         
         results = self.get_partner().flush_resultbuffer()
         for r in results:
@@ -101,7 +101,7 @@ class NccNode(BetaMemory):
         se vengono trovati token che non hanno match per nccresult
         (il nodo e' negativo)
         '''
-        for t in self.__items:
+        for t in self._items:
             assert isinstance(t, Token), \
                 "t non e' un Token"
                 

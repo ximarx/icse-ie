@@ -38,6 +38,7 @@ class Token(object):
         self.__parent = parent
         self.__wme = w
         # e' probabile che questo vada riferito ad una BetaMemory/Join direttamente
+        # di appartenenza
         self.__node = node
         
         # lista di Token
@@ -119,6 +120,9 @@ class Token(object):
             
         self.__owner = t
         
+    def get_node(self):
+        return self.__node
+        
     def delete(self):
         '''
         Cancella questo token e tutti i discendenti
@@ -135,9 +139,12 @@ class Token(object):
             child.delete()
             del child
         
-        # TODO valutare aggiunta di TokenStorage per l'interfaccia remove_token
+        # Il nodo in self.__node per forza di cose deve
+        # poter memorizzare il token, quindi e' legittimo
+        # pensare  che possiamo chiamare il remove_item senza
+        # porci molti problemi 
         if not isinstance(self.__node, NccPartnerNode):
-            self.__node.remove_token(self)
+            self.__node.remove_item(self)
         
         # rimuove il riferimento a questo token che c'e' nella wme
         if self.__wme != None:

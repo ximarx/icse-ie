@@ -35,6 +35,13 @@ class NegativeNode(JoinNode):
         @return: Token[]
         '''
         return self.__items
+    
+    def remove_item(self, tok):
+        '''
+        Rimuove un token dagli items
+        '''
+        self.__items.remove(tok)
+    
         
     @staticmethod
     def factory(parent, amem, tests):

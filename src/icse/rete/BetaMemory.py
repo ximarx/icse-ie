@@ -19,15 +19,21 @@ class BetaMemory(ReteNode):
         ReteNode.__init__(self, parent)
         
         # lista di token mantenuti nella beta memory
-        self.__items = []
+        self._items = []
         
     def get_items(self):
-        return self.__items
+        return self._items
+    
+    def remove_item(self, tok):
+        '''
+        Rimuove un token dagli items
+        '''
+        self._items.remove(tok)
     
     def leftActivation(self, tok, wme):
         
         new_token = Token(self, tok, wme)
-        self.__items.insert(0, new_token)
+        self._items.insert(0, new_token)
         
         for child in self.__children:
             assert isinstance(child, ReteNode), \
@@ -44,8 +50,8 @@ class BetaMemory(ReteNode):
         Cancella tutti i token memorizzati in questo nodo (e chiaramente i successori)
         '''
         
-        while len(self.__items) > 0:
-            tok = self.__items.pop(0)
+        while len(self._items) > 0:
+            tok = self._items.pop(0)
             assert isinstance(tok, Token), \
                 "tok non e' un Token"
                 
@@ -61,10 +67,11 @@ class BetaMemory(ReteNode):
         assert isinstance(child, ReteNode), \
             "child non e' un ReteNode"
         
-        for tok in self.__items:
+        for tok in self._items:
             self.leftActivation(tok)
         
-    def factory(self, parent):
+    @staticmethod
+    def factory(parent):
         
         assert isinstance(parent, ReteNode), \
             "parent non e' un ReteNode"
