@@ -5,8 +5,8 @@ Created on 07/mag/2012
 '''
 from icse.rete.AlphaNode import AlphaNode
 from icse.rete.ConstantTestNode import ConstantTestNode
-from icse.rete.RootNode import RootNode
-from Queue import Queue
+from icse.rete.predicati.Variable import Variable
+from icse.rete.AlphaRootNode import AlphaRootNode
 
 class AlphaMemory(AlphaNode):
     '''
@@ -64,29 +64,31 @@ class AlphaMemory(AlphaNode):
         return (len(self.__successors) == 0)
 
     @staticmethod
-    def factory(node):
-    #def factory(c, node):
+    def factory(c, node):
         '''
         Factory di AlphaMemory:
         costruisce un nuovo nodo AlphaMemory solo se non
         e' possibile utilizzare un nodo gia presente
         condividendolo
         
-        #@param c: Condition la condizione che rappresenta il nodo
-        @param node: AlphaNode il nodo fra i quali figli vogliamo cercare
-            un nodo che rappresenti la condizione c in modo da poterlo condividere
+        @param c: la condizione che rappresenta il nodo (espressa come lista di atomi [condizioni su singoli campi])
+        @param node: la radice della alpha-network
         @return: AlphaMemory
         '''
         #TODO riferimento:
         #    build-or-share-alpha-memory(c: condition) pagina 35
-        assert isinstance(node, ConstantTestNode), \
-            "node non e' un ConstantTestNode"
-            
+
+        for field_index, (atom_type, atom_cont) in enumerate(c):
+            if not issubclass(atom_type, Variable):
+                # filtra tutte le variabili
+                node = ConstantTestNode.factory(node, field_index, atom_cont, atom_type)
+                
+        # al termine del ramo di valutazione costante, l'ultimo nodo ha gia una
+        # alpha-memory: condividiamo quella
         if node.has_alphamemory():
-            # semplicemente la condivido
             return node.get_alphamemory()
         
-        # non c'e' una alphamemory collegata, la creo e l'aggiunto
+        # altrimenti ne aggiungiamo una nuova
         am = AlphaMemory(node)
         # provvedo a collegarla ad un test-node
         node.set_alphamemory(am)
@@ -97,12 +99,12 @@ class AlphaMemory(AlphaNode):
         # ricostruisco semplicemente la sequenza di test node che porta a questa alpha-memory
         stack = []
         tree_cursor = node
-        while not isinstance(tree_cursor, RootNode):
+        while not isinstance(tree_cursor, AlphaRootNode):
             stack.insert(0, tree_cursor)
             tree_cursor = tree_cursor.get_parent()
             
         # tree_cursor e' un RootNode
-        assert isinstance(tree_cursor, RootNode)
+        assert isinstance(tree_cursor, AlphaRootNode)
         
         network = tree_cursor.get_network()
             
@@ -166,7 +168,7 @@ class AlphaMemory(AlphaNode):
             
         #TODO propagazione al ConstantTestNode a cui si riferisce
         #    questa amem
-        #    probabilmente mi servirà un riferimento verso l'alto
+        #    probabilmente mi servira' un riferimento verso l'alto
         parent = self.get_parent()
         assert isinstance(parent, ConstantTestNode), \
             "parent non e' un ConstantTestNode"

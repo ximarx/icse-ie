@@ -31,14 +31,12 @@ class NccNode(BetaMemory):
         '''
         return self.__partner
     
-    def factory(self, parent, cond, earlier_conds):
+    @staticmethod
+    def factory(parent, conds, earlier_conds, builtins, alpha_root):
         
         assert isinstance(parent, ReteNode), \
             "parent non e' un ReteNode"
             
-        #assert isinstance(cond, NccCondition), \
-        #    "c non e' una Condition"
-        
         assert isinstance(earlier_conds, list), \
             "earlier_conds non e' una list"
             
@@ -46,7 +44,7 @@ class NccNode(BetaMemory):
         # come se fossero normali condizioni (e non interne ad una NCC)
         # in modo da poterle condividerle con altre condizioni positive
         # se presenti (o aggiunte in futuro)
-        last_node = rete.network_factory(parent, cond.get_conditions(), earlier_conds )
+        last_node = rete.network_factory(alpha_root, parent, conds, earlier_conds, builtins )
         
         assert isinstance(last_node, ReteNode)
                 
@@ -61,7 +59,7 @@ class NccNode(BetaMemory):
 
         # nada, niente da condividere (almeno a livello di NCC)
         
-        ncc = NccNode(parent, last_node, len(cond.get_conditions()))
+        ncc = NccNode(parent, last_node, len(conds))
 
         # inserisco i vari riferimenti dei figli nei padri
         parent.append_child(ncc)

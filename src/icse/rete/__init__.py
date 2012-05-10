@@ -1,15 +1,19 @@
 from icse.rete.ReteNode import ReteNode
 from icse.rete.BetaMemory import BetaMemory
-from icse.rete.predicati.PositivePredicate import PositivePredicate
 from icse.rete.ConstantTestNode import ConstantTestNode
 from icse.rete.predicati.Variable import Variable
 from icse.rete.AlphaMemory import AlphaMemory
 from icse.rete.JoinTest import JoinTest
 from icse.rete.predicati.Eq import Eq
 from icse.rete.JoinNode import JoinNode
+from icse.rete.predicati.Not import Not
+from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
+    NegativePredicate
+from icse.rete.NegativeNode import NegativeNode
+from icse.rete.NccNode import NccNode
 
 
-def network_factory(parent, conditions, earlier_conditions = None, builtins = None):
+def network_factory(alpha_root, parent, conditions, earlier_conditions = None, builtins = None):
     '''
     Crea una sottorete di nodi (appropriati)
     in base alle nuove condizioni (e alle precedenti)
@@ -55,96 +59,45 @@ def network_factory(parent, conditions, earlier_conditions = None, builtins = No
     # quello che ci arriva dalla lhs
     '''
     [
-        [(Eq.__class__, "sym"), (Eq.__class__, "p"), (Variable.__class__, "b") ],
-        [(Eq.__class__, "sym"), (Eq.__class__, "c"), (Variable.__class__, "b") ],
-        [(Eq.__class__, "sym"), (Eq.__class__, "a"), (Not.__class__, (Variable.__class__, "b"))],
-        [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
+        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "p"), (Variable.__class__, "b") ]),
+        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "c"), (Variable.__class__, "b") ]),
+        (NegativePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "a"), (Not.__class__, (Variable.__class__, "b"))]),
+        (NccPredicate.__class__, [
+            [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
+            [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
+            ),
     ]
     '''
 
     current_node = parent
-    bottom_prec_condition = None
     
     # ciclo per ogni condizione separatamente
-    cond_index = 0 
-    for c in conditions:
-        # ciclo per ogni elemento di una condizione
-        field_index = 0
-        for sb in c:
-            predicate = sb[0]
-            op = sb[1]
+    for ctype, c in conditions:
+        if issubclass(ctype, PositivePredicate):
+            # siamo in una condizione positiva
+            
+            current_node = BetaMemory.factory(current_node)
+            tests = JoinTest.build_tests(c, earlier_conditions, builtins)
+            amem = AlphaMemory.factory(c, alpha_root)
+            JoinNode.factory(current_node, amem, tests)
+            
+        elif issubclass(ctype, NegativePredicate):
+            # siamo in una negazione semplice
+            # cioe la negazione di una sola condizione
+            
+            tests = JoinTest(c, earlier_conditions, builtins)
+            amem = AlphaMemory.factory(c, alpha_root)
+            current_node = NegativeNode.factory(current_node, amem, tests)
+            
+        elif issubclass(ctype, NccPredicate):
+            # siamo in una ncc
+            # cioe la negazione di un insieme di condizioni
+
+            current_node = NccNode.factory(parent, c, earlier_conditions, builtins)
         
-            # valuto il tipo del predicato
-            if issubclass(predicate, PositivePredicate):
-                # devo creare il ConstantTestNode
-                current_node = ConstantTestNode.factory(current_node, field_index, op, predicate)
-                
-            elif issubclass(predicate, Variable):
-                # devo controllare se e' una nuova variabile
-                # se lo e' semplicemente creo una joinnode finta
-                if builtins.has_key(op):
-                    # la variabile c'e' gia... 
-                    # ho bisogno di una join per linkarla
-                    # all'altra presenza
-                
-                    # ultima corrispondenza
-                    where = builtins[op][-1]
-                    
-                    # construisco il test
-                    tests = [JoinTest(field_index, where[1], cond_index - where[0], Eq.__class__)]
-                    
-                    # devo valutare il dove l'ho trovata
-                    # se e' nella stessa condizione, allora posso anche risolvere il tutto con una
-                    # join-finta
-                    if where[0] == cond_index:
-                        ''
-                    else:
-                        # condizione differente, devo costruire una join-vera
-                        # per prima cosa mi serve un alpha-memory
-                        # per questo sotto albero di costant-test-node
-                        
-                        am = AlphaMemory.factory(current_node)
-                        
-                        # a questo punto ho una vista su tutte le wme
-                        # che soddisfano le condizioni
-                        # fino a questo punto (am)
-                        
-                        # mi serve sapere la parte sinistra della join
-                        # il join deve essere collegato alla fine della porzione
-                        # del network ottenuto dalla precedente condizione
-                        jn = JoinNode.factory(bottom_prec_condition, am, tests)
-                        
-                        assert isinstance(bottom_prec_condition, ReteNode), \
-                            "bottom_prec_condition non e' un ReteNode"
-                        
-                        # a questo punto devo impostare l'ultimo nodo come un
-                        current_node = jn
-                    
-                
-                else:
-                    # prima volta che trovo questa variabile
-                    # la memorizzo nella lista di variabili
-                    builtins[op] = [(cond_index, field_index)] 
-                
-                    # inoltre visto che c'e' una variabile, so gia
-                    # che mi servira' una alpha-memory con un relativo
-                    # join-node (falso... senza ingresso da sinistra)
-                    
-                    #am = AlphaMemory.factory(current_node)
-                    
-                    #assert isinstance(current_node, ConstantTestNode), \
-                        #"current_node non e' un ConstantTestNode"
-                        
-                    #current_node.set_alphamemory(am)
-                    
-                    #RETTIFICA:
-                    # fino a quando non mi serve per davvero
-                    # non aggiungo proprio nessun memory.node
-                    
-                
-            field_index +=1
-        cond_index += 1
+        earlier_conditions.append(c)
         
+    return current_node
     
     
     

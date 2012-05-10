@@ -3,12 +3,6 @@ Created on 07/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.WME import WME
-from icse.rete.ReteNode import ReteNode
-from icse.rete.NccPartnerNode import NccPartnerNode
-from icse.rete.NccNode import NccNode
-from icse.rete.NegativeNode import NegativeNode
-from icse.rete.NegativeJoinResult import NegativeJoinResult
 
 class Token(object):
     '''
@@ -28,12 +22,12 @@ class Token(object):
         @param parent: Token
         @param w: WME 
         '''
-        assert isinstance(parent, Token), \
-            "parent non e' un Token"
-        assert isinstance(w, WME), \
-            "w non e' una WME"
-        assert isinstance(node, ReteNode), \
-            "node non e' un ReteNode"
+#        assert isinstance(parent, Token), \
+#            "parent non e' un Token"
+#        assert isinstance(w, WME), \
+#            "w non e' una WME"
+#        assert isinstance(node, ReteNode), \
+#            "node non e' un ReteNode"
         
         self.__parent = parent
         self.__wme = w
@@ -76,8 +70,8 @@ class Token(object):
         Aggiunge una nuova NegativeJoinResult
         nella lista delle negative-join-results
         '''
-        assert isinstance(njr, NegativeJoinResult), \
-            "njr non e' un NegativeJoinResult"
+#        assert isinstance(njr, NegativeJoinResult), \
+#            "njr non e' un NegativeJoinResult"
             
         self.__njresults.insert(0, njr)
         
@@ -132,6 +126,15 @@ class Token(object):
         '''
         #riferimento:
         #    delete-token-and-descendents pagina 51 [modificato]
+
+        # import qui per i cicli
+        
+        from icse.rete.NccPartnerNode import NccPartnerNode
+        from icse.rete.NegativeNode import NegativeNode
+        from icse.rete.NegativeJoinResult import NegativeJoinResult
+        from icse.rete.NccNode import NccNode
+        from icse.rete.ReteNode import ReteNode
+        
         
         while len(self.__children) > 0 :
             child = self.__children.pop(0)

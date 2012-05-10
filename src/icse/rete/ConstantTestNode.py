@@ -5,8 +5,7 @@ Created on 07/mag/2012
 '''
 from icse.rete.AlphaNode import AlphaNode
 from icse.rete.predicati.Predicate import Predicate
-from icse.rete.WME import WME
-from icse.rete.AlphaMemory import AlphaMemory
+
 
 class ConstantTestNode(AlphaNode):
     '''
@@ -46,8 +45,8 @@ class ConstantTestNode(AlphaNode):
         return self.__value
     
     def set_alphamemory(self, amem):
-        assert isinstance(amem, AlphaMemory), \
-            "amem non e' un AlphaMemory"
+        #assert isinstance(amem, AlphaMemory), \
+        #    "amem non e' un AlphaMemory"
             
         self.__alphamemory = amem
         
@@ -99,8 +98,8 @@ class ConstantTestNode(AlphaNode):
         e nel caso lo sia l'aggiunge alla AlphaMemory collegata
         e propaga ai figli di questo nodo 
         '''
-        assert isinstance(w, WME), \
-            "w non e' una WME"
+        #assert isinstance(w, WME), \
+            #"w non e' una WME"
         
         if self.is_valid(w):
             # la wme ha superato il test, quindi e' valida per questa condizione
@@ -109,8 +108,8 @@ class ConstantTestNode(AlphaNode):
             #    (e quindi ho dei betanode che derivano da questo)
             #    attivo la alpha memory
             if self.has_alphamemory():
-                assert isinstance(self.__alphamemory, AlphaMemory), \
-                    "alphamemory non e' una AlphaMemory"
+                #assert isinstance(self.__alphamemory, AlphaMemory), \
+                #    "alphamemory non e' una AlphaMemory"
                 self.__alphamemory.activation(w)
 
             # propago ai figli

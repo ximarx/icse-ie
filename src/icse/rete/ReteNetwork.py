@@ -3,11 +3,12 @@ Created on 08/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.RootNode import RootNode
 from icse.rete.WME import WME
 from icse import rete
 from icse.rete.PNode import PNode
 from icse.rete.ReteNode import ReteNode
+from icse.rete.BetaRootNode import BetaRootNode
+from icse.rete.AlphaRootNode import AlphaRootNode
 
 class ReteNetwork(object):
     '''
@@ -25,7 +26,8 @@ class ReteNetwork(object):
         self.__activables = []
         self.__wme_nextid = 0
         
-        self.__root = RootNode(self)
+        self.__alpha_root = AlphaRootNode(self)
+        self.__beta_root = BetaRootNode(self)
         
     def get_wmes(self):
         return self.__wmes_map.keys()
@@ -79,7 +81,7 @@ class ReteNetwork(object):
         Aggiunge una nuova produzione al network
         @param production: Production
         '''
-        last_node = rete.network_factory(self.__root, production.get_lhs())
+        last_node = rete.network_factory(self.__alpha_root, self.__beta_root, production.get_lhs())
         
         pnode = PNode(last_node, production.get_rhs(),
                       onActive=self.add_activable,

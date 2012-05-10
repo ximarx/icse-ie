@@ -5,7 +5,7 @@ Created on 08/mag/2012
 '''
 from icse.rete.ConstantTestNode import ConstantTestNode
 
-class RootNode(ConstantTestNode):
+class AlphaRootNode(ConstantTestNode):
     '''
     Finto alpha node che semplicemente propaga qualsiasi segnale ai figli
     '''

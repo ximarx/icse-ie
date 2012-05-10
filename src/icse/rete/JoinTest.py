@@ -6,6 +6,8 @@ Created on 08/mag/2012
 from icse.rete.Token import Token
 from icse.rete.WME import WME
 from icse.rete.predicati.Predicate import Predicate
+from icse.rete.predicati.Variable import Variable
+from icse.rete.predicati.Eq import Eq
 
 class JoinTest(object):
     '''
@@ -70,7 +72,23 @@ class JoinTest(object):
         
         return self.__predicate.compare(arg1, arg2)
         
-        
+    @staticmethod        
+    def build_tests(atoms, prec_conditions, builtins):
+        tests = []
+        atom_index = 0
+        for atom in atoms:
+            if isinstance(atom[0], Variable):
+                # ho trovato una variabile
+                symbol = atom[1]
+                if builtins.has_key(symbol):
+                    # la variabile l'ho gia trovata prima
+                    cond_index, field_index = builtins[symbol]
+                    jt = JoinTest(atom_index, field_index, len(prec_conditions) - cond_index, Eq.__class__)
+                    tests.append(jt)
+            
+            atom_index += 1
+        return tests
+                
         
     def __eq__(self, other):
         if isinstance(other, JoinTest):

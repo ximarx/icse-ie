@@ -8,6 +8,8 @@ from icse.rete.predicati.Eq import Eq
 from icse.rete.predicati.Variable import Variable
 from icse.rete.predicati.Not import Not
 from icse.rete.ReteNetwork import ReteNetwork
+from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
+    NegativePredicate
 
 if __name__ == '__main__':
 
@@ -23,15 +25,14 @@ if __name__ == '__main__':
     
     p = Production(name='produzione-di-test',
                    lhs=[
-                        # verificata per le wme di tipo (sym p *)
-                        [(Eq.__class__, "sym"), (Eq.__class__, "p"), (Variable.__class__, "b") ],
-                        # verificata per le wme di tipo (sym c *)
-                        [(Eq.__class__, "sym"), (Eq.__class__, "c"), (Variable.__class__, "b") ],
-                        # verificata per le wme di tipo (sym a *)
-                        [(Eq.__class__, "sym"), (Eq.__class__, "a"), (Not.__class__, (Variable.__class__, "b"))],
-                        # verificata per le wme di tipo (sym l *)
-                        [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
-                    ],
+                        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "p"), (Variable.__class__, "b") ]),
+                        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "c"), (Variable.__class__, "b") ]),
+                        (NegativePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "a"), (Not.__class__, (Variable.__class__, "b"))]),
+                        (NccPredicate.__class__, [
+                                [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
+                                [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
+                            ]),
+                        ],
                    rhs=[],
                    description="Una produzione di test"
                    )

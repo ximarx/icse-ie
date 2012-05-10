@@ -3,8 +3,6 @@ Created on 08/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.WME import WME
-from icse.rete.Token import Token
 
 class NegativeJoinResult(object):
     '''
@@ -17,11 +15,11 @@ class NegativeJoinResult(object):
         Constructor
         '''
         
-        assert isinstance(owner, Token), \
-            "owner non e' un Token"
+        #assert isinstance(owner, Token), \
+        #    "owner non e' un Token"
             
-        assert isinstance(wme, WME), \
-            "wme non e' un WME"
+        #assert isinstance(wme, WME), \
+        #    "wme non e' un WME"
         
         self.__owner = owner
         self.__wme = wme
@@ -40,3 +38,4 @@ class NegativeJoinResult(object):
         @return: WME
         '''
         return self.__wme
+    
