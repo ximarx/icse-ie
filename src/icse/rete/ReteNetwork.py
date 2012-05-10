@@ -25,8 +25,10 @@ class ReteNetwork(object):
         self.__activables = []
         self.__wme_nextid = 0
         
-        self.__root = RootNode()
+        self.__root = RootNode(self)
         
+    def get_wmes(self):
+        return self.__wmes_map.keys()
         
     def assert_fact(self, fact):
         '''

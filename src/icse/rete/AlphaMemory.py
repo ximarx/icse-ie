@@ -5,6 +5,8 @@ Created on 07/mag/2012
 '''
 from icse.rete.AlphaNode import AlphaNode
 from icse.rete.ConstantTestNode import ConstantTestNode
+from icse.rete.RootNode import RootNode
+from Queue import Queue
 
 class AlphaMemory(AlphaNode):
     '''
@@ -62,21 +64,69 @@ class AlphaMemory(AlphaNode):
         return (len(self.__successors) == 0)
 
     @staticmethod
-    def factory(c, node):
+    def factory(node):
+    #def factory(c, node):
         '''
         Factory di AlphaMemory:
         costruisce un nuovo nodo AlphaMemory solo se non
         e' possibile utilizzare un nodo gia presente
         condividendolo
         
-        @param c: Condition la condizione che rappresenta il nodo
+        #@param c: Condition la condizione che rappresenta il nodo
         @param node: AlphaNode il nodo fra i quali figli vogliamo cercare
             un nodo che rappresenti la condizione c in modo da poterlo condividere
         @return: AlphaMemory
         '''
         #TODO riferimento:
         #    build-or-share-alpha-memory(c: condition) pagina 35
-        return AlphaMemory()
+        assert isinstance(node, ConstantTestNode), \
+            "node non e' un ConstantTestNode"
+            
+        if node.has_alphamemory():
+            # semplicemente la condivido
+            return node.get_alphamemory()
+        
+        # non c'e' una alphamemory collegata, la creo e l'aggiunto
+        am = AlphaMemory(node)
+        # provvedo a collegarla ad un test-node
+        node.set_alphamemory(am)
+        
+        # a questo punto devo forzare l'aggiornamento dell'intera rete
+        # ora capisco perche il factory aveva come condizione l'intera rete di condizioni...
+        
+        # ricostruisco semplicemente la sequenza di test node che porta a questa alpha-memory
+        stack = []
+        tree_cursor = node
+        while not isinstance(tree_cursor, RootNode):
+            stack.insert(0, tree_cursor)
+            tree_cursor = tree_cursor.get_parent()
+            
+        # tree_cursor e' un RootNode
+        assert isinstance(tree_cursor, RootNode)
+        
+        network = tree_cursor.get_network()
+            
+        # a questo punto devo testarli tutti per tutte le wme :(
+        wmes = network.get_wmes()
+        
+        for w in wmes:
+            isValid = True
+            for t in stack:
+                assert isinstance(t, ConstantTestNode), \
+                    "t no e' un ConstantTestNode"
+                
+                if not t.is_valid(w):
+                    isValid = False
+                    break
+        
+            if isValid:
+                # la wme ha passato tutti i test
+                # triggo questa alpha-memory come se fosse
+                # stata appena aggiunta normalmente
+                am.activation(w)
+                
+        return am
+        
     
     def activation(self, w):
         '''

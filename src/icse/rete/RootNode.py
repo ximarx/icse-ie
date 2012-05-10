@@ -11,10 +11,14 @@ class RootNode(ConstantTestNode):
     '''
 
 
-    def __init__(self):
+    def __init__(self, network):
         '''
         Constructor
         '''
+        self.__network = network
+        
+    def get_network(self):
+        return self.__network
         
     def get_parent(self):
         return self

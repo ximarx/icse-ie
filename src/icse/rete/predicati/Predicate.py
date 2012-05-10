@@ -9,11 +9,7 @@ class Predicate(object):
     Classe base per l'implementazioni di tutti i predicati
     '''
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
-
+    @staticmethod
     def compare(self, value1, value2):
         '''
         Esegue la comparazione fra due valori
@@ -23,3 +19,19 @@ class Predicate(object):
         @return: boolean
         '''
         raise NotImplementedError
+    
+    
+class PositivePredicate(Predicate):
+    '''
+    Classe base di tutti i predicati positivi
+    '''
+
+class NegativePredicate(Predicate):
+    '''
+    Classe base di tutti i predicati negativi
+    '''
+
+class NccPredicate(Predicate):
+    '''
+    Rappresenta una sottorete di predicati negativi
+    '''
