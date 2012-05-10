@@ -13,15 +13,18 @@ class Production(object):
     '''
 
 
-    def __init__(self, name, lhs, rhs, salience = 0, description = None):
+    def __init__(self, name, lhs, rhs, salience=0, description=None):
         '''
         Constructor
         '''
         self.__name = str(name)
-        self.__rhs = [] # lista di Action
-        self.__lhs = [] # lista di (Condition, *)
+        self.__rhs = rhs
+        self.__lhs = lhs
         self.__salience = salience
         self.__description = str(description)
+        
+    def get_name(self):
+        return self.__name
         
     def get_rhs(self):
         return self.__rhs

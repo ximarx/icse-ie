@@ -4,7 +4,8 @@ Created on 08/mag/2012
 @author: Francesco Capozzo
 '''
 from icse.rete.Token import Token
-from icse.rete.BetaMemory import BetaMemory
+from icse.rete.Nodes import BetaMemory
+
 
 class PNode(BetaMemory):
     '''

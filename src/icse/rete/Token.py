@@ -3,6 +3,7 @@ Created on 07/mag/2012
 
 @author: Francesco Capozzo
 '''
+from icse.rete.NegativeJoinResult import NegativeJoinResult
 
 class Token(object):
     '''
@@ -126,15 +127,9 @@ class Token(object):
         '''
         #riferimento:
         #    delete-token-and-descendents pagina 51 [modificato]
+        
+        from icse.rete.Nodes import NccPartnerNode, NegativeNode, NccNode, ReteNode
 
-        # import qui per i cicli
-        
-        from icse.rete.NccPartnerNode import NccPartnerNode
-        from icse.rete.NegativeNode import NegativeNode
-        from icse.rete.NegativeJoinResult import NegativeJoinResult
-        from icse.rete.NccNode import NccNode
-        from icse.rete.ReteNode import ReteNode
-        
         
         while len(self.__children) > 0 :
             child = self.__children.pop(0)

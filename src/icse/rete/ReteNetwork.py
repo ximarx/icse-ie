@@ -5,10 +5,9 @@ Created on 08/mag/2012
 '''
 from icse.rete.WME import WME
 from icse import rete
+from icse.rete.Nodes import AlphaRootNode, BetaRootNode, ReteNode
 from icse.rete.PNode import PNode
-from icse.rete.ReteNode import ReteNode
-from icse.rete.BetaRootNode import BetaRootNode
-from icse.rete.AlphaRootNode import AlphaRootNode
+
 
 class ReteNetwork(object):
     '''
@@ -81,9 +80,13 @@ class ReteNetwork(object):
         Aggiunge una nuova produzione al network
         @param production: Production
         '''
-        last_node = rete.network_factory(self.__alpha_root, self.__beta_root, production.get_lhs())
+        symbols = {}
+        last_node = rete.network_factory(self.__alpha_root, self.__beta_root, production.get_lhs(), builtins=symbols)
         
-        pnode = PNode(last_node, production.get_rhs(),
+        pnode = PNode(last_node,
+                      production.get_name(),
+                      production.get_rhs(),
+                      symbols,
                       onActive=self.add_activable,
                       onDeactive=self.remove_activable,
                       assertFunc=self.assert_fact,

@@ -3,9 +3,9 @@ Created on 07/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.AlphaMemory import AlphaMemory
 from icse.rete.Token import Token
 from icse.rete.NegativeJoinResult import NegativeJoinResult
+
 
 class WME(object):
     '''
@@ -29,6 +29,9 @@ class WME(object):
         '''
         # rimuovo questa wme da tutte le alphamemory
         # in cui e' presente
+        
+        from icse.rete.Nodes import AlphaMemory
+        
         for amem in self.__alphamemories:
             assert isinstance(amem, AlphaMemory), \
                 "amem non e' AlphaMemory"

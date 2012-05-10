@@ -1,16 +1,10 @@
-from icse.rete.ReteNode import ReteNode
-from icse.rete.BetaMemory import BetaMemory
-from icse.rete.ConstantTestNode import ConstantTestNode
-from icse.rete.predicati.Variable import Variable
-from icse.rete.AlphaMemory import AlphaMemory
-from icse.rete.JoinTest import JoinTest
 from icse.rete.predicati.Eq import Eq
-from icse.rete.JoinNode import JoinNode
 from icse.rete.predicati.Not import Not
 from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
     NegativePredicate
-from icse.rete.NegativeNode import NegativeNode
-from icse.rete.NccNode import NccNode
+from icse.rete.Nodes import BetaMemory, AlphaMemory, JoinNode, NegativeNode,\
+    NccNode
+from icse.rete.JoinTest import JoinTest
 
 
 def network_factory(alpha_root, parent, conditions, earlier_conditions = None, builtins = None):
@@ -59,12 +53,12 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
     # quello che ci arriva dalla lhs
     '''
     [
-        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "p"), (Variable.__class__, "b") ]),
-        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "c"), (Variable.__class__, "b") ]),
-        (NegativePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "a"), (Not.__class__, (Variable.__class__, "b"))]),
-        (NccPredicate.__class__, [
-            [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
-            [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
+        (PositivePredicate, [(Eq, "sym"), (Eq, "p"), (Variable, "b") ]),
+        (PositivePredicate, [(Eq, "sym"), (Eq, "c"), (Variable, "b") ]),
+        (NegativePredicate, [(Eq, "sym"), (Eq, "a"), (Not, (Variable, "b"))]),
+        (NccPredicate, [
+            [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))],
+            [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))],
             ),
     ]
     '''
@@ -72,8 +66,8 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
     current_node = parent
     
     # ciclo per ogni condizione separatamente
-    for ctype, c in conditions:
-        if issubclass(ctype, PositivePredicate):
+    for c_type, c in conditions:
+        if issubclass(c_type, PositivePredicate):
             # siamo in una condizione positiva
             
             current_node = BetaMemory.factory(current_node)
@@ -81,7 +75,7 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
             amem = AlphaMemory.factory(c, alpha_root)
             JoinNode.factory(current_node, amem, tests)
             
-        elif issubclass(ctype, NegativePredicate):
+        elif issubclass(c_type, NegativePredicate):
             # siamo in una negazione semplice
             # cioe la negazione di una sola condizione
             
@@ -89,11 +83,15 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
             amem = AlphaMemory.factory(c, alpha_root)
             current_node = NegativeNode.factory(current_node, amem, tests)
             
-        elif issubclass(ctype, NccPredicate):
+        elif issubclass(c_type, NccPredicate):
             # siamo in una ncc
             # cioe la negazione di un insieme di condizioni
 
             current_node = NccNode.factory(parent, c, earlier_conditions, builtins)
+            
+        else:
+            print "Regola non riconosciuta"
+            print  
         
         earlier_conditions.append(c)
         

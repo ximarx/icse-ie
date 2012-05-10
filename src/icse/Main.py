@@ -25,12 +25,12 @@ if __name__ == '__main__':
     
     p = Production(name='produzione-di-test',
                    lhs=[
-                        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "p"), (Variable.__class__, "b") ]),
-                        (PositivePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "c"), (Variable.__class__, "b") ]),
-                        (NegativePredicate.__class__, [(Eq.__class__, "sym"), (Eq.__class__, "a"), (Not.__class__, (Variable.__class__, "b"))]),
-                        (NccPredicate.__class__, [
-                                [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
-                                [(Eq.__class__, "sym"), (Eq.__class__, "l"), (Not.__class__, (Variable.__class__, "b"))],
+                        (PositivePredicate, [(Eq, "sym"), (Eq, "p"), (Variable, "b") ]),
+                        (PositivePredicate, [(Eq, "sym"), (Eq, "c"), (Variable, "b") ]),
+                        (NegativePredicate, [(Eq, "sym"), (Eq, "a"), (Not, (Variable, "b"))]),
+                        (NccPredicate, [
+                                [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))],
+                                [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))],
                             ]),
                         ],
                    rhs=[],
