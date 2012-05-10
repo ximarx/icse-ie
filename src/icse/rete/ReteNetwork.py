@@ -26,7 +26,7 @@ class ReteNetwork(object):
         self.__wme_nextid = 0
         
         self.__alpha_root = AlphaRootNode(self)
-        self.__beta_root = BetaRootNode(self)
+        self.__beta_root = BetaRootNode(self, self.__alpha_root)
         
     def get_wmes(self):
         return self.__wmes_map.keys()
@@ -50,7 +50,7 @@ class ReteNetwork(object):
             self.__wmes_map[wme] = self.__wme_nextid
             
             # ...e propago
-            self.__root.activation(wme)
+            self.__alpha_root.activation(wme)
             
             return (self.__wme_nextid, wme, True)
 

@@ -4,7 +4,7 @@ Created on 10/mag/2012
 @author: Francesco Capozzo
 '''
 from icse.rete.predicati.Predicate import Predicate
-from icse.rete.Token import Token
+from icse.rete.Token import Token, DummyToken
 from icse.rete.WME import WME
 from icse.rete.predicati.Variable import Variable
 from icse.rete.JoinTest import JoinTest
@@ -16,12 +16,12 @@ class AlphaNode(object):
     '''
     
     def __init__(self, parent):
-        assert isinstance(parent, AlphaNode), \
-            "parent non e' AlphaNode"
-        self.__parent = parent
+        #assert isinstance(parent, AlphaNode), \
+        #    "parent non e' AlphaNode"
+        self._parent = parent
         
     def get_parent(self):
-        return self.__parent
+        return self._parent
     
     def activation(self, w):
         '''
@@ -49,43 +49,46 @@ class ConstantTestNode(AlphaNode):
         Constructor
         '''
         
-        assert isinstance(parent, AlphaNode), \
-            "parent non e' un AlphaNode"
+        #assert isinstance(parent, AlphaNode), \
+        #    "parent non e' un AlphaNode"
             
-        assert isinstance(predicate, Predicate), \
-            "predicate non e' un Predicate"
+        #assert isinstance(predicate, Predicate), \
+        #    "predicate non e' un Predicate"
         
         AlphaNode.__init__(self, parent)
         
-        self.__value = value
-        self.__predicate = predicate
-        self.__field = field
+        self._value = value
+        self._predicate = predicate
+        self._field = field
         
         # list aid figli ConstantTestNode
-        self.__children = []
+        self._children = []
         
-        self.__alphamemory = None
+        self._alphamemory = None
         
     def get_predicate(self):
-        return self.__predicate
+        return self._predicate
+    
+    def get_children(self):
+        return self._children
     
     def get_field(self):
-        return self.__field
+        return self._field
     
     def get_value(self):
-        return self.__value
+        return self._value
     
     def set_alphamemory(self, amem):
         #assert isinstance(amem, AlphaMemory), \
         #    "amem non e' un AlphaMemory"
             
-        self.__alphamemory = amem
+        self._alphamemory = amem
         
     def has_alphamemory(self):
-        return self.__alphamemory != None
+        return self._alphamemory != None
     
     def get_alphamemory(self):
-        return self.__alphamemory
+        return self._alphamemory
         
     @staticmethod
     def factory(node, field, value, predicate):
@@ -97,7 +100,7 @@ class ConstantTestNode(AlphaNode):
         
         assert isinstance(node, AlphaNode), \
             "node non e' un AlphaNode"
-        assert isinstance(predicate, Predicate), \
+        assert issubclass(predicate, Predicate), \
             "predicate non e' un Predicato"
         
         for child in node.get_parent().get_children():
@@ -139,12 +142,12 @@ class ConstantTestNode(AlphaNode):
             #    (e quindi ho dei betanode che derivano da questo)
             #    attivo la alpha memory
             if self.has_alphamemory():
-                #assert isinstance(self.__alphamemory, AlphaMemory), \
+                #assert isinstance(self._alphamemory, AlphaMemory), \
                 #    "alphamemory non e' una AlphaMemory"
-                self.__alphamemory.activation(w)
+                self._alphamemory.activation(w)
 
             # propago ai figli
-            for child in self.__children:
+            for child in self._children:
                 assert isinstance(child, ConstantTestNode), \
                     "child non e' un ConstantTestNode"
                     
@@ -152,10 +155,10 @@ class ConstantTestNode(AlphaNode):
                 
     def is_valid(self, w):
         
-        predicate = self.__predicate
+        predicate = self._predicate
         assert isinstance(predicate, Predicate.__class__)
         
-        return predicate.compare(w.get_field(self.__field), self.__value)
+        return predicate.compare(w.get_field(self._field), self._value)
         
     def delete(self):
         '''
@@ -163,23 +166,23 @@ class ConstantTestNode(AlphaNode):
         dalla rete
         '''
         #il parent di questo e' per forza un ConstantTestNode
-        self.__parent._remove_child(self)
+        self._parent._remove_child(self)
         
         # rimuovo l'eventuale riferimento all'alpha memory
-        self.__alphamemory = None
+        self._alphamemory = None
         
     def add_child(self, child):
         '''
         Aggiunge un nuovo figlio alla lista
         '''
-        self.__children.insert(0, child)
+        self._children.insert(0, child)
         
     def _remove_child(self, child):
-        self.__children.remove(child)
+        self._children.remove(child)
         
         # se no ho altri figli e nemmeno una alphamemory
         # allora questo nodo e' inutile e lo poto
-        if len(self.__children) == 0 and self.__alphamemory == None:
+        if len(self._children) == 0 and self._alphamemory == None:
             self.delete()
             
 class AlphaMemory(AlphaNode):
@@ -197,9 +200,9 @@ class AlphaMemory(AlphaNode):
         # prepara il parent
         AlphaNode.__init__(self, parent)
         # contiene i riferimenti a tutte le wme
-        self.__items = []
+        self._items = []
         # contiene i riferimenti a tutti i nodi successori (nodi beta [JoinNode])
-        self.__successors = []
+        self._successors = []
 
     def get_items(self):
         '''
@@ -207,7 +210,7 @@ class AlphaMemory(AlphaNode):
         nella AlphaMemory
         @return: WME[]
         '''
-        return self.__items
+        return self._items
     
     def add_successor(self, succ):
         '''
@@ -220,13 +223,13 @@ class AlphaMemory(AlphaNode):
         # la duplicazione.
         # Riferimento:
         #    paragrafo 2.4.1 pagina 25
-        self.__successors.insert(0, succ)
+        self._successors.insert(0, succ)
 
     def remove_successor(self, succ):
         '''
         Rimuove il successore dalla lista
         '''
-        self.__successors.remove(succ)
+        self._successors.remove(succ)
 
     def is_useless(self):
         '''
@@ -235,7 +238,7 @@ class AlphaMemory(AlphaNode):
         successori
         @return: boolean
         '''
-        return (len(self.__successors) == 0)
+        return (len(self._successors) == 0)
 
     @staticmethod
     def factory(c, node):
@@ -319,12 +322,12 @@ class AlphaMemory(AlphaNode):
         #    "w non di tipo WME"
         
         # inserisce il nuovo elemento in testa della lista di elementi
-        self.__items.insert(0, w)
+        self._items.insert(0, w)
         # inserisce questa amem nella lista delle amem di w
         # in modo che realizzare una tree-based removal
         w.add_alphamemory(self)
         
-        for succ in self.__successors:
+        for succ in self._successors:
             #assert isinstance(succ, ReteNode), \
             #    "succ non di tipo ReteNode"
             succ.rightActivation(w)
@@ -336,8 +339,8 @@ class AlphaMemory(AlphaNode):
         e propaga la cancellazione al padre se
         il padre non e' condiviso con altri nodi
         '''
-        while len(self.__items) > 0:
-            item = self.__items.pop(0)
+        while len(self._items) > 0:
+            item = self._items.pop(0)
             item.remove_alphamemory(self)
             
         #TODO propagazione al ConstantTestNode a cui si riferisce
@@ -359,7 +362,7 @@ class AlphaMemory(AlphaNode):
         #assert isinstance(w, WME), \
         #    "w non di tipo WME"
         
-        self.__items.remove(w)
+        self._items.remove(w)
                     
             
 class AlphaRootNode(ConstantTestNode):
@@ -367,21 +370,22 @@ class AlphaRootNode(ConstantTestNode):
     Finto alpha node che semplicemente propaga qualsiasi segnale ai figli
     '''
 
-
     def __init__(self, network):
         '''
         Constructor
         '''
-        self.__network = network
+        self._network = network
+        ConstantTestNode.__init__(self, None, None, None, None)
+        self.set_alphamemory(AlphaMemory(None))
         
     def get_network(self):
-        return self.__network
+        return self._network
         
     def get_parent(self):
         return self
     
     def activation(self, w):
-        for child in self.__children:
+        for child in self._children:
             assert isinstance(child, ConstantTestNode), \
                 "child non e' un ConstantTestNode"
             child.activation(w)
@@ -408,21 +412,21 @@ class ReteNode(object):
         #    "parent non e' un ReteNode"
         
         # @ivar __children: [ReteNode] 
-        self.__children = []
-        self.__parent = parent
+        self._children = []
+        self._parent = parent
         
         
     def get_children(self):
         '''
         Getter per children
         '''
-        return self.__children
+        return self._children
     
     def add_child(self, child):
         assert isinstance(child, ReteNode), \
             "child non e' un ReteNode"
             
-        self.__children.insert(0, child)
+        self._children.insert(0, child)
         
     def append_child(self, child):
         '''
@@ -431,7 +435,7 @@ class ReteNode(object):
         assert isinstance(child, ReteNode), \
             "child non e' un ReteNode"
             
-        self.__children.append(child)
+        self._children.append(child)
         
     def leftActivation(self, tok, wme):
         '''
@@ -456,8 +460,8 @@ class ReteNode(object):
             - rimozione del riferimento dalla lista di figli del padre
             - rimozione di tutti i nodi sopra questo che non abbiano utilita'
         '''
-        self.__parent._remove_child(self)
-        self.__parent._delete_useless()
+        self._parent._remove_child(self)
+        self._parent._delete_useless()
         
     
     def update(self, child):
@@ -468,10 +472,10 @@ class ReteNode(object):
         raise NotImplementedError
     
     def _remove_child(self, child):
-        self.__children.remove(child)
+        self._children.remove(child)
         
     def _delete_useless(self):
-        if len(self.__children) == 0:
+        if len(self._children) == 0:
             self.delete()
                     
                     
@@ -507,7 +511,7 @@ class JoinNode(ReteNode):
             
         for w in self._amem.get_items():
             if self._perform_tests(w, tok):
-                for child in self.__children:
+                for child in self._children:
                     assert isinstance(child, ReteNode), \
                         "child non e' un ReteNode"
                     
@@ -520,13 +524,13 @@ class JoinNode(ReteNode):
         assert isinstance(wme, WME), \
             "wme non e' un WME"
             
-        assert isinstance(self.__parent, BetaMemory), \
+        assert isinstance(self._parent, BetaMemory), \
             "parent non e' un BetaMemory"
             
-        for tok in self.__parent.get_items():
+        for tok in self._parent.get_items():
             
             if self._perform_tests(wme, tok):
-                for child in self.__children:
+                for child in self._children:
                     assert isinstance(child, ReteNode), \
                         "child non e' un ReteNode"
                     
@@ -600,9 +604,9 @@ class JoinNode(ReteNode):
         
         # memorizzo temporaneamente la lista
         # attuale di figli
-        saved_children = self.__children
+        saved_children = self.get_children()
         
-        self.__children = [child]
+        self._children = [child]
         
         for wme in self._amem.get_items():
             assert isinstance(wme, WME), \
@@ -616,7 +620,7 @@ class JoinNode(ReteNode):
         # ho aggiornato il figlio, a questo punto
         # ripristino la vecchia lista
         
-        self.__children = saved_children
+        self._children = saved_children
         
                             
                             
@@ -649,7 +653,7 @@ class BetaMemory(ReteNode):
         new_token = Token(self, tok, wme)
         self._items.insert(0, new_token)
         
-        for child in self.__children:
+        for child in self._children:
             assert isinstance(child, ReteNode), \
                 "child non e' un ReteNode"
                 
@@ -724,7 +728,7 @@ class NegativeNode(JoinNode):
         '''
         
         # lista di Token
-        self.__items = []
+        self._items = []
         
         # amem e tests dal JoinNode come proprieta' "protette"
         # self._amem
@@ -736,13 +740,13 @@ class NegativeNode(JoinNode):
         Restituisce la lista di match (come fosse una beta-memory)
         @return: Token[]
         '''
-        return self.__items
+        return self._items
     
     def remove_item(self, tok):
         '''
         Rimuove un token dagli items
         '''
-        self.__items.remove(tok)
+        self._items.remove(tok)
     
         
     @staticmethod
@@ -783,7 +787,7 @@ class NegativeNode(JoinNode):
         
         new_token = Token(self, tok, wme)
         
-        self.__items.insert(0, new_token)
+        self._items.insert(0, new_token)
         
         for w in self._amem.get_items():
             if self._perform_tests(w, new_token):
@@ -794,7 +798,7 @@ class NegativeNode(JoinNode):
                 
         # attiva solo se non ci sono match (e' un nodo negativo)
         if new_token.count_njresults() == 0 :
-            for child in self.__children:
+            for child in self._children:
                 assert isinstance(child, ReteNode), \
                     "child non e' un ReteNode"
                     
@@ -808,7 +812,7 @@ class NegativeNode(JoinNode):
         assert isinstance(wme, WME), \
             "wme non e' un WME"
             
-        for t in self.__items:
+        for t in self._items:
             assert isinstance(t, Token), \
                 "t non e' un Token"
                 
@@ -832,7 +836,7 @@ class NegativeNode(JoinNode):
         se vengono trovati token che non hanno match per njresult
         (il nodo e' negativo)
         '''
-        for t in self.__items:
+        for t in self._items:
             assert isinstance(t, Token), \
                 "t non e' un Token"
                 
@@ -849,8 +853,8 @@ class NegativeNode(JoinNode):
         # a quello per la pulizia della BetaMemory
         # ma questo elemento non e' derivato
         # ho cercato di evitare da doppia ereditariera'
-        while len(self.__items) > 0:
-            tok = self.__items.pop(0)
+        while len(self._items) > 0:
+            tok = self._items.pop(0)
             assert isinstance(tok, Token), \
                 "tok non e' un Token"
                 
@@ -870,7 +874,7 @@ class NccNode(BetaMemory):
         '''
         Constructor
         '''
-        self.__partner = NccPartnerNode(partner_parent, partner_subnet_count, self)
+        self._partner = NccPartnerNode(partner_parent, partner_subnet_count, self)
         
         BetaMemory.__init__(self, parent)
         
@@ -880,7 +884,7 @@ class NccNode(BetaMemory):
         Restituisce il partner di questo nodo
         @return: NccPartnerNode
         '''
-        return self.__partner
+        return self._partner
     
     @staticmethod
     def factory(parent, conds, earlier_conds, builtins, alpha_root):
@@ -924,6 +928,8 @@ class NccNode(BetaMemory):
         
         parent.update(ncc)
         last_node.update(ncc.get_partner())
+        
+        return ncc
         
     def leftActivation(self, tok, wme):
         
@@ -988,21 +994,21 @@ class NccPartnerNode(ReteNode):
         '''
         ReteNode.__init__(self, parent)
         
-        self.__nccnode = nccnode
-        self.__conjuctions = cond_count
+        self._nccnode = nccnode
+        self._conjuctions = cond_count
         
         # list of partial-match wating to be read from
         # the ncc-node
-        self.__resultbuffer = []
+        self._resultbuffer = []
         
         
     def flush_resultbuffer(self):
-        rb = self.__resultbuffer
-        self.__resultbuffer = []
+        rb = self._resultbuffer
+        self._resultbuffer = []
         return rb
     
     def get_nccnode(self):
-        return self.__nccnode
+        return self._nccnode
     
     def leftActivation(self, tok, wme):
         
@@ -1021,14 +1027,14 @@ class NccPartnerNode(ReteNode):
         
         owner_t = tok
         owner_w = wme
-        for _ in range(0, self.__conjuctions):
+        for _ in range(0, self._conjuctions):
             owner_w = owner_t.get_wme()
             owner_t = owner_t.get_parent()
         
         # cerchiamo per un token nella memoria del nodo ncc
         # che abbia gia come owner owner_t trovato e
         # come wme l'wme trovato
-        for ncc_token in self.__nccnode.get_items():
+        for ncc_token in self._nccnode.get_items():
             assert isinstance(ncc_token, Token)
             if ncc_token.get_parent() == owner_t \
                     and ncc_token.get_wme() == owner_w:
@@ -1061,7 +1067,7 @@ class NccPartnerNode(ReteNode):
         # memorizzo il risultato nel buffer e aspetto
         # pazientemente l'attivazione
         # del ncc-node
-        self.__resultbuffer.insert(0, new_result)
+        self._resultbuffer.insert(0, new_result)
         
         
     def delete(self):
@@ -1070,11 +1076,11 @@ class NccPartnerNode(ReteNode):
         e poi elimino il nodo tramite il 
         delete base
         '''
-        while len(self.__resultbuffer) > 0:
+        while len(self._resultbuffer) > 0:
             # il contenuto del buffer
             # sono token... e per eliminarli
             # chiamo la delete direttamente 
-            self.__resultbuffer.pop(0).delete()
+            self._resultbuffer.pop(0).delete()
 
         # propago la chiamata al metodo
         # base per pulizia di base
@@ -1085,20 +1091,36 @@ class BetaRootNode(JoinNode):
     Rappresenta la 
     '''
 
-    def __init__(self, network):
+    def __init__(self, network, alpha_root):
         '''
         Constructor
         '''
-        self.__network = network
-        ReteNode.__init__(self, None)
+        assert isinstance(alpha_root, AlphaRootNode)
         
-    def get_children(self):
-        return ReteNode.get_children(self)
+        self._network = network
+        JoinNode.__init__(self, None, alpha_root.get_alphamemory(), [])
         
     def get_network(self):
-        return self.__network
+        return self._network
         
     def get_parent(self):
         return self
+        
+    def rightActivation(self, wme):
+        
+        assert isinstance(wme, WME), \
+            "wme non e' un WME"
             
+        # creo un DummyToken :(
+        t = DummyToken(wme, self)
+            
+        for child in self.get_children():
+            assert isinstance(child, ReteNode), \
+                "child non e' un ReteNode"
+            
+            # attiva a sinistra i figli
+            # (che sono join-node o simili)
+            
+            child.leftActivation(t)
+
     

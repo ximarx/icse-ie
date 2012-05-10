@@ -29,8 +29,8 @@ if __name__ == '__main__':
                         (PositivePredicate, [(Eq, "sym"), (Eq, "c"), (Variable, "b") ]),
                         (NegativePredicate, [(Eq, "sym"), (Eq, "a"), (Not, (Variable, "b"))]),
                         (NccPredicate, [
-                                [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))],
-                                [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))],
+                                (PositivePredicate, [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))]),
+                                (PositivePredicate, [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))]),
                             ]),
                         ],
                    rhs=[],

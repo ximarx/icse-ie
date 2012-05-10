@@ -202,3 +202,10 @@ class Token(object):
     def _remove_child(self, t):
         self.__children.remove(t)
         
+
+class DummyToken(Token):
+    
+    def __init__(self, w, beta_root):
+        Token.__init__(self, beta_root, None, w)
+        
+    
