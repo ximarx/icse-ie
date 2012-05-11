@@ -23,15 +23,31 @@ if __name__ == '__main__':
     #    get_lhs(): [] lista di azioni
     
     
+    '''
+    (defrule r1
+        (A ?v ?v)
+        (A ?v B)
+    =>
+    )
+    
+    (defrule r2
+        (A ?v B)
+        (A B ?v)
+    =>
+    )
+    
+    (deffacts init-facts
+        (A B B)
+        (A)
+    )    
+    '''
+    
+    rete = ReteNetwork()
+    
     p = Production(name='produzione-di-test',
                    lhs=[
-                        (PositivePredicate, [(Eq, "sym"), (Eq, "p"), (Variable, "b") ]),
-                        (PositivePredicate, [(Eq, "sym"), (Eq, "c"), (Variable, "b") ]),
-                        (NegativePredicate, [(Eq, "sym"), (Eq, "a"), (Not, (Variable, "b"))]),
-                        (NccPredicate, [
-                                (PositivePredicate, [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))]),
-                                (PositivePredicate, [(Eq, "sym"), (Eq, "l"), (Not, (Variable, "b"))]),
-                            ]),
+                        (PositivePredicate, [(Eq, "a"),  (Variable, "v"),  (Variable, "v") ]),
+                        (PositivePredicate, [(Eq, "a"),  (Eq, "b"),  (Variable, "v") ])
                         ],
                    rhs=[],
                    description="Una produzione di test"
@@ -39,18 +55,39 @@ if __name__ == '__main__':
     
     # costruiamo la rete
     
-    rete = ReteNetwork()
-    
     rete.add_production(p)
+    
+    print
+    print
+    
+    p2 = Production(name='produzione-di-test-2',
+                   lhs=[
+                        (PositivePredicate, [(Eq, "a"),  (Variable, "v"),  (Eq, "b") ]),
+                        (PositivePredicate, [(Eq, "a"),  (Eq, "b"),  (Variable, "v") ])
+                        ],
+                   rhs=[],
+                   description="Una produzione di test 2"
+                   )
+ 
+    rete.add_production(p2)
+    
+    
+    
+    
 
     # dopo di che asseriamo una serie di fatti che dovrebbero
     # permettere un match della produzione
     
-    rete.assert_fact( ('sym', 'p', 'vicino') )
-    rete.assert_fact( ('sym', 'c', 'vicino') )
-    rete.assert_fact( ('sym', 'a', 'lontano') )
-    rete.assert_fact( ('sym', 'l', 'lontano') )
+    rete.assert_fact( ('a', 'b', 'b') )
+    rete.assert_fact( ('a', 'b', 'c') )
+    rete.assert_fact( ('a', 'c', 'b') )
     
+    rete.assert_fact( ('a') )
+    
+    agenda = rete.agenda()
+    
+    for (node, token) in agenda:
+        print "{0}: {1}".format(node.get_name(), token.linearize())
     
     
     

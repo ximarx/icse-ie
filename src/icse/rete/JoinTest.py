@@ -26,7 +26,7 @@ class JoinTest(object):
         @param predicate: il predicato che eseguira' il confronto 
         '''
         
-        assert isinstance(predicate, Predicate), \
+        assert issubclass(predicate, Predicate), \
             "predicate non e' un Predicate"
         
         self.__cond1_field = field1
@@ -48,10 +48,6 @@ class JoinTest(object):
             
         assert isinstance(wme, WME), \
             "wme non e' un WME"
-            
-        # il primo elemento da confrontare e' di facile
-        # individuazione
-        arg1 = wme.get_field(self.__cond1_field)
         
         # individuo il campo di confronto
         # risalendo tanti livelli nell'albero dei token
@@ -66,27 +62,43 @@ class JoinTest(object):
         # ora in t_tok ho proprio il token
         # in cui e' rappresentata la wme che mi serve
         wme2 = t_tok.get_wme()
-        arg2 = wme2.get_field(self.__cond2_field)
-        
-        assert isinstance(self.__predicate, Predicate)
-        
-        return self.__predicate.compare(arg1, arg2)
+        try:
+            
+            # il primo elemento da confrontare e' di facile
+            # individuazione
+            arg1 = wme.get_field(self.__cond1_field)
+            
+            arg2 = wme2.get_field(self.__cond2_field)
+            
+            assert issubclass(self.__predicate, Predicate)
+            
+            return self.__predicate.compare(arg1, arg2)
+        except IndexError:
+            # Il confronto non e' nemmeno necessario
+            # visto che una delle wme non ha nemmeno
+            # il numero di campi richiesto per il confronto
+            return False
         
     @staticmethod        
     def build_tests(atoms, prec_conditions, builtins):
         tests = []
         atom_index = 0
         for atom in atoms:
-            if isinstance(atom[0], Variable):
+            if issubclass(atom[0], Variable):
                 # ho trovato una variabile
                 symbol = atom[1]
                 if builtins.has_key(symbol):
                     # la variabile l'ho gia trovata prima
                     cond_index, field_index = builtins[symbol]
-                    jt = JoinTest(atom_index, field_index, len(prec_conditions) - cond_index, Eq.__class__)
+                    jt = JoinTest(atom_index, field_index, len(prec_conditions) - cond_index, Eq)
                     tests.append(jt)
+                else:
+                    builtins[symbol] = (len(prec_conditions), atom_index)
             
             atom_index += 1
+            
+        print tests
+        
         return tests
                 
         

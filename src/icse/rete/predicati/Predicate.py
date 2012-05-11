@@ -10,7 +10,7 @@ class Predicate(object):
     '''
 
     @staticmethod
-    def compare(self, value1, value2):
+    def compare(value1, value2):
         '''
         Esegue la comparazione fra due valori
         secondo le specifiche del predicato

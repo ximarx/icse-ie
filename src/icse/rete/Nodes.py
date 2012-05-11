@@ -9,6 +9,7 @@ from icse.rete.WME import WME
 from icse.rete.predicati.Variable import Variable
 from icse.rete.JoinTest import JoinTest
 from icse.rete.NegativeJoinResult import NegativeJoinResult
+from icse.rete.Ubigraph import Ubigraph
 
 class AlphaNode(object):
     '''
@@ -103,7 +104,9 @@ class ConstantTestNode(AlphaNode):
         assert issubclass(predicate, Predicate), \
             "predicate non e' un Predicato"
         
-        for child in node.get_parent().get_children():
+        print "Cerco un CostantTestNode per: ",
+        print "campo: {0}, predicato: {1}, valore: {2}".format(field, predicate, value)
+        for child in node.get_children():
             # controllo che nn ci sia gia un nodo che mi controlla la stessa cosa
             # se c'e' provvedo semplicemente ad usare quello
             if isinstance(child, ConstantTestNode) \
@@ -113,13 +116,27 @@ class ConstantTestNode(AlphaNode):
                 # il nodo di confronto e' lo stesso
                 # posso condividerlo
                 return child
-            
+            else:
+                print "Stavo valutando: ",
+                print "campo: {0}, predicato: {1}, valore: {2}".format(child.get_field(), child.get_predicate(), child.get_value())
+                if child.get_field() != field:
+                    print "I campi erano diversi: ({0} vs {1})".format(child.get_field(), field)
+                elif child.get_predicate() != predicate:
+                    print "I predicati erano diversi: ({0} vs {1})".format(child.get_predicate(), predicate)
+                elif child.get_value() != value:
+                    print "I valori erano diversi: ({0} vs {1})".format(child.get_value(), value)
+                    
             
         # non abbiamo trovato nessun nodo che verifica le stesse
         # caratteristiche
         
         ctn = ConstantTestNode(node, field, value, predicate)
         node.add_child(ctn)
+        
+        
+        #print "Creo un ConstantTestNode "+repr(ctn)+" (linkandolo a: "+repr(node)
+        
+        Ubigraph.i().add_node(ctn, node)
         
         # il ctn non conserva wme, quindi non devo aggiornarlo
         
@@ -156,9 +173,14 @@ class ConstantTestNode(AlphaNode):
     def is_valid(self, w):
         
         predicate = self._predicate
-        assert isinstance(predicate, Predicate.__class__)
+        assert issubclass(predicate, Predicate)
         
-        return predicate.compare(w.get_field(self._field), self._value)
+        try:
+            return predicate.compare(w.get_field(self._field), self._value)
+        except IndexError:
+            # la wme non ha nemmeno abbastanza campi
+            # per controllarla
+            return False
         
     def delete(self):
         '''
@@ -304,6 +326,8 @@ class AlphaMemory(AlphaNode):
                 # stata appena aggiunta normalmente
                 am.activation(w)
                 
+        Ubigraph.i().add_node(am, node)
+                
         return am
         
     
@@ -385,6 +409,12 @@ class AlphaRootNode(ConstantTestNode):
         return self
     
     def activation(self, w):
+        
+        if self.has_alphamemory():
+            #assert isinstance(self._alphamemory, AlphaMemory), \
+            #    "alphamemory non e' una AlphaMemory"
+            self._alphamemory.activation(w)
+        
         for child in self._children:
             assert isinstance(child, ConstantTestNode), \
                 "child non e' un ConstantTestNode"
@@ -415,6 +445,8 @@ class ReteNode(object):
         self._children = []
         self._parent = parent
         
+    def get_parent(self):
+        return self._parent
         
     def get_children(self):
         '''
@@ -507,7 +539,7 @@ class JoinNode(ReteNode):
     def leftActivation(self, tok, wme = None):
         
         assert isinstance(tok, Token), \
-            "tok non e' un Token"
+            "tok non e' un Token, "+str(tok)
             
         for w in self._amem.get_items():
             if self._perform_tests(w, tok):
@@ -583,6 +615,10 @@ class JoinNode(ReteNode):
         parent.add_child(jn)
         amem.add_successor(jn)
         
+        vertexjn = Ubigraph.i().add_node(jn, amem, 1)
+        Ubigraph.i().add_edge(vertexjn, Ubigraph.i().get_vertex(parent), -1)
+        
+        
         return jn
         
     def delete(self):
@@ -650,7 +686,11 @@ class BetaMemory(ReteNode):
     
     def leftActivation(self, tok, wme):
         
-        new_token = Token(self, tok, wme)
+        if tok == None and isinstance(self.get_parent(), BetaRootNode):
+            new_token = DummyToken(wme, self)
+        else:
+            new_token = Token(self, tok, wme)
+        
         self._items.insert(0, new_token)
         
         for child in self._children:
@@ -660,7 +700,7 @@ class BetaMemory(ReteNode):
             # attenzione, la leftActivation viene fornita senza la WME
             # quindi solo i join node sono preparati a riceverla?????
             # TODO refactoring
-            child.leftActivation(tok)
+            child.leftActivation(new_token)
             
         
     def delete(self):
@@ -712,6 +752,8 @@ class BetaMemory(ReteNode):
         bm = BetaMemory(parent)
         parent.add_child(bm)
         parent.update(bm)
+        
+        Ubigraph.i().add_node(bm, parent, -1)
 
         return bm
     
@@ -777,6 +819,10 @@ class NegativeNode(JoinNode):
         
         # aggiorna
         parent.update(njn)
+        
+        vertexjn = Ubigraph.i().add_node(njn, amem, 1)
+        Ubigraph.i().add_edge(vertexjn, Ubigraph.i().get_vertex(parent), -1)
+        
         
         return njn
 
@@ -928,6 +974,13 @@ class NccNode(BetaMemory):
         
         parent.update(ncc)
         last_node.update(ncc.get_partner())
+        
+
+        vertexncc = Ubigraph.i().add_node(ncc, parent, -1)
+        vertexpartner = Ubigraph.i().add_node(ncc.get_partner(), last_node, -1)
+        Ubigraph.i().add_edge(vertexpartner, vertexncc)
+        
+        
         
         return ncc
         
@@ -1111,8 +1164,6 @@ class BetaRootNode(JoinNode):
         assert isinstance(wme, WME), \
             "wme non e' un WME"
             
-        # creo un DummyToken :(
-        t = DummyToken(wme, self)
             
         for child in self.get_children():
             assert isinstance(child, ReteNode), \
@@ -1121,6 +1172,6 @@ class BetaRootNode(JoinNode):
             # attiva a sinistra i figli
             # (che sono join-node o simili)
             
-            child.leftActivation(t)
+            child.leftActivation(None, wme)
 
     

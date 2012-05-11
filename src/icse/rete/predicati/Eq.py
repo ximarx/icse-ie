@@ -12,7 +12,7 @@ class Eq(PositivePredicate):
     '''
         
     @staticmethod
-    def compare(self, value1, value2):
+    def compare(value1, value2):
         '''
         Restituisce (value1==value2)
         @param value1: simbolo

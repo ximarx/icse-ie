@@ -22,6 +22,13 @@ class WME(object):
         self.__alphamemories = []
         self.__tokens = []
         self.__njresults = []
+        self.__factid = 0
+        
+    def set_factid(self, newid):
+        self.__factid = newid
+        
+    def get_factid(self):
+        return self.__factid
         
     def remove(self):
         '''
@@ -74,6 +81,12 @@ class WME(object):
         '''
         self.__tokens.remove(t)
         
+    def add_alphamemory(self, am):
+        self.__alphamemories.insert(0, am)
+        
+    def remove_alphamemory(self, am):
+        self.__alphamemories.remove(am)
+        
     def add_njresult(self, njr):
         '''
         Aggiunge una NegativeJoinResult alla lista
@@ -102,3 +115,6 @@ class WME(object):
 
     def __neq__(self, other):
         return not self.__eq__(other)
+    
+    def __repr__(self):
+        return repr(self.__fields)

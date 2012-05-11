@@ -48,7 +48,8 @@ class Token(object):
         
         # prepara tutti i riferimenti incrociati che servono per la
         # tree-based removal
-        self.__parent._add_child(self)
+        if self.__parent != None:
+            self.__parent._add_child(self)
         self.__wme.add_token(self)
         
         
@@ -202,6 +203,15 @@ class Token(object):
     def _remove_child(self, t):
         self.__children.remove(t)
         
+        
+    def linearize(self):
+        current = self
+        wmes = []
+        while current.get_parent() != None:
+            wmes.insert(0, current.get_wme())
+            current = current.get_parent()
+        
+        return wmes
 
 class DummyToken(Token):
     

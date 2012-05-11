@@ -7,6 +7,7 @@ from icse.rete.WME import WME
 from icse import rete
 from icse.rete.Nodes import AlphaRootNode, BetaRootNode, ReteNode
 from icse.rete.PNode import PNode
+from icse.rete.Ubigraph import Ubigraph
 
 
 class ReteNetwork(object):
@@ -22,11 +23,17 @@ class ReteNetwork(object):
         '''
         self.__wmes_map = {}
         self.__rules_map = {}
-        self.__activables = []
+        self.__activables = set()
         self.__wme_nextid = 0
         
         self.__alpha_root = AlphaRootNode(self)
         self.__beta_root = BetaRootNode(self, self.__alpha_root)
+        self.__alpha_root.get_alphamemory().add_successor(self.__beta_root)
+        
+        Ubigraph.i().add_node(self.__alpha_root, None)
+        Ubigraph.i().add_node(self.__alpha_root.get_alphamemory(), self.__alpha_root)
+        Ubigraph.i().add_node(self.__beta_root, self.__alpha_root, 1)
+        
         
     def get_wmes(self):
         return self.__wmes_map.keys()
@@ -38,7 +45,7 @@ class ReteNetwork(object):
         '''
 
         # converte il fatto in una WME
-        wme = WME([])
+        wme = WME(fact)
         
         # controllo che non sia un duplicato
         if not self.__wmes_map.has_key(wme):
@@ -48,6 +55,8 @@ class ReteNetwork(object):
 
             # inserisco nella map wme -> ID
             self.__wmes_map[wme] = self.__wme_nextid
+            
+            wme.set_factid(self.__wme_nextid)
             
             # ...e propago
             self.__alpha_root.activation(wme)
@@ -101,6 +110,8 @@ class ReteNetwork(object):
         
         last_node.update(pnode)
         
+        Ubigraph.i().add_node(pnode, last_node, -1)
+        
         
     def remove_production(self, pnode):
         '''
@@ -113,7 +124,8 @@ class ReteNetwork(object):
         Aggiunge un nuovo elemento <PNode, token>
         alla lista delle produzioni attivabili
         '''
-        self.__activables.append( (pnode, token) )
+        #print "Nuova regola attivabile: {0} => {1}".format(pnode.get_name(), token.linearize())
+        self.__activables.add( (pnode, token) )
         
     def remove_activable(self, pnode, token ):
         '''
@@ -122,4 +134,6 @@ class ReteNetwork(object):
         '''
         self.__activables.remove((pnode, token))
         
+    def agenda(self):
+        return self.__activables
     

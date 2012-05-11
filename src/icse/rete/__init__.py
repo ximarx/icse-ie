@@ -73,7 +73,7 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
             current_node = BetaMemory.factory(current_node)
             tests = JoinTest.build_tests(c, earlier_conditions, builtins)
             amem = AlphaMemory.factory(c, alpha_root)
-            JoinNode.factory(current_node, amem, tests)
+            current_node = JoinNode.factory(current_node, amem, tests)
             
         elif issubclass(c_type, NegativePredicate):
             # siamo in una negazione semplice
@@ -87,7 +87,7 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
             # siamo in una ncc
             # cioe la negazione di un insieme di condizioni
 
-            current_node = NccNode.factory(parent, c, earlier_conditions, builtins, alpha_root)
+            current_node = NccNode.factory(current_node, c, earlier_conditions, builtins, alpha_root)
             
         else:
             print "Regola non riconosciuta"

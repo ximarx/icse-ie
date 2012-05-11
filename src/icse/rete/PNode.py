@@ -59,6 +59,8 @@ class PNode(BetaMemory):
         
         self.__onDeactive(tok)
         
+    def get_name(self):
+        return self.__name
         
     def factory(self, parent):
         raise NotImplementedError
