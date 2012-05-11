@@ -50,7 +50,8 @@ class Token(object):
         # tree-based removal
         if self.__parent != None:
             self.__parent._add_child(self)
-        self.__wme.add_token(self)
+        if self.__wme != None:
+            self.__wme.add_token(self)
         
         
     def get_wme(self):
@@ -215,7 +216,7 @@ class Token(object):
 
 class DummyToken(Token):
     
-    def __init__(self, w, beta_root):
-        Token.__init__(self, beta_root, None, w)
+    def __init__(self, wme):
+        Token.__init__(self, None, None, wme)
         
     

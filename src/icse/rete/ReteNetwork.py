@@ -5,9 +5,9 @@ Created on 08/mag/2012
 '''
 from icse.rete.WME import WME
 from icse import rete
-from icse.rete.Nodes import AlphaRootNode, BetaRootNode, ReteNode
+from icse.rete.Nodes import AlphaRootNode, ReteNode
 from icse.rete.PNode import PNode
-from icse.rete.Ubigraph import Ubigraph
+from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 
 
 class ReteNetwork(object):
@@ -27,12 +27,12 @@ class ReteNetwork(object):
         self.__wme_nextid = 0
         
         self.__alpha_root = AlphaRootNode(self)
-        self.__beta_root = BetaRootNode(self, self.__alpha_root)
-        self.__alpha_root.get_alphamemory().add_successor(self.__beta_root)
+        #self.__beta_root = BetaRootNode(self, self.__alpha_root)
+        #self.__alpha_root.get_alphamemory().add_successor(self.__beta_root)
         
-        Ubigraph.i().add_node(self.__alpha_root, None)
-        Ubigraph.i().add_node(self.__alpha_root.get_alphamemory(), self.__alpha_root)
-        Ubigraph.i().add_node(self.__beta_root, self.__alpha_root, 1)
+        NetworkXGraphWrapper.i().add_node(self.__alpha_root, None)
+        #Ubigraph.i().add_node(self.__alpha_root.get_alphamemory(), self.__alpha_root)
+        #Ubigraph.i().add_node(self.__beta_root, self.__alpha_root, 1)
         
         
     def get_wmes(self):
@@ -90,7 +90,7 @@ class ReteNetwork(object):
         @param production: Production
         '''
         symbols = {}
-        last_node = rete.network_factory(self.__alpha_root, self.__beta_root, production.get_lhs(), builtins=symbols)
+        last_node = rete.network_factory(self.__alpha_root, None, production.get_lhs(), builtins=symbols)
         
         pnode = PNode(last_node,
                       production.get_name(),
@@ -110,7 +110,7 @@ class ReteNetwork(object):
         
         last_node.update(pnode)
         
-        Ubigraph.i().add_node(pnode, last_node, -1)
+        NetworkXGraphWrapper.i().add_node(pnode, last_node, -1)
         
         
     def remove_production(self, pnode):

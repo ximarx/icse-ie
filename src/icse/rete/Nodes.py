@@ -9,7 +9,7 @@ from icse.rete.WME import WME
 from icse.rete.predicati.Variable import Variable
 from icse.rete.JoinTest import JoinTest
 from icse.rete.NegativeJoinResult import NegativeJoinResult
-from icse.rete.Ubigraph import Ubigraph
+from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 
 class AlphaNode(object):
     '''
@@ -136,7 +136,7 @@ class ConstantTestNode(AlphaNode):
         
         #print "Creo un ConstantTestNode "+repr(ctn)+" (linkandolo a: "+repr(node)
         
-        Ubigraph.i().add_node(ctn, node)
+        NetworkXGraphWrapper.i().add_node(ctn, node)
         
         # il ctn non conserva wme, quindi non devo aggiornarlo
         
@@ -326,7 +326,7 @@ class AlphaMemory(AlphaNode):
                 # stata appena aggiunta normalmente
                 am.activation(w)
                 
-        Ubigraph.i().add_node(am, node)
+        NetworkXGraphWrapper.i().add_node(am, node)
                 
         return am
         
@@ -400,7 +400,7 @@ class AlphaRootNode(ConstantTestNode):
         '''
         self._network = network
         ConstantTestNode.__init__(self, None, None, None, None)
-        self.set_alphamemory(AlphaMemory(None))
+        #self.set_alphamemory(AlphaMemory(None))
         
     def get_network(self):
         return self._network
@@ -556,9 +556,6 @@ class JoinNode(ReteNode):
         assert isinstance(wme, WME), \
             "wme non e' un WME"
             
-        assert isinstance(self._parent, BetaMemory), \
-            "parent non e' un BetaMemory"
-            
         for tok in self._parent.get_items():
             
             if self._perform_tests(wme, tok):
@@ -590,33 +587,37 @@ class JoinNode(ReteNode):
     @staticmethod
     def factory(parent, amem, tests):
 
-        assert isinstance(parent, ReteNode), \
-            "parent non e' un ReteNode"
         assert isinstance(amem, AlphaMemory), \
             "amem non e' una AlphaMemory"
         assert isinstance(tests, list), \
             "tests non e' una list"
 
-        for child in parent.get_children():
-            # escludo che un join node possa essere condiviso da un
-            # NegativeNode con gli stessi test e alpha-memory
-            if isinstance(child, JoinNode) and not isinstance(child, NegativeNode):
-                #assert isinstance(child, JoinNode)
-                if child._amem == amem:
-                    if child.__tests == tests:
-                        # stessi test, testa amem... condivido il nodo
-                        return child
+        if parent != None:
+            for child in parent.get_children():
+                # escludo che un join node possa essere condiviso da un
+                # NegativeNode con gli stessi test e alpha-memory
+                if isinstance(child, JoinNode) and not isinstance(child, NegativeNode):
+                    #assert isinstance(child, JoinNode)
+                    if child._amem == amem:
+                        if child.__tests == tests:
+                            # stessi test, testa amem... condivido il nodo
+                            return child
                 
-        # non posso condividere un nuovo gia esistente
-        # con queste informazioni, quindi ne creo uno nuovo
-        # e lo aggiunto alla rete
+            # non posso condividere un nuovo gia esistente
+            # con queste informazioni, quindi ne creo uno nuovo
+            # e lo aggiunto alla rete
         
-        jn = JoinNode(parent, amem, tests)
-        parent.add_child(jn)
+            jn = JoinNode(parent, amem, tests)
+            parent.add_child(jn)
+        else:
+            jn = DummyJoinNode(amem, tests)
+        
         amem.add_successor(jn)
         
-        vertexjn = Ubigraph.i().add_node(jn, amem, 1)
-        Ubigraph.i().add_edge(vertexjn, Ubigraph.i().get_vertex(parent), -1)
+        NetworkXGraphWrapper.i().add_node(jn, amem, 1)
+        
+        if parent != None:
+            NetworkXGraphWrapper.i().add_edge(jn, parent, -1)
         
         
         return jn
@@ -635,6 +636,9 @@ class JoinNode(ReteNode):
         
         
         ReteNode.delete(self)
+        
+    def get_tests(self):
+        return self._tests
         
     def update(self, child):
         
@@ -686,10 +690,7 @@ class BetaMemory(ReteNode):
     
     def leftActivation(self, tok, wme):
         
-        if tok == None and isinstance(self.get_parent(), BetaRootNode):
-            new_token = DummyToken(wme, self)
-        else:
-            new_token = Token(self, tok, wme)
+        new_token = Token(self, tok, wme)
         
         self._items.insert(0, new_token)
         
@@ -731,8 +732,8 @@ class BetaMemory(ReteNode):
     @staticmethod
     def factory(parent):
         
-        assert isinstance(parent, ReteNode), \
-            "parent non e' un ReteNode"
+        if parent == None:
+            return None
             
         for child in parent.get_children():
             if isinstance(child, BetaMemory):
@@ -753,7 +754,7 @@ class BetaMemory(ReteNode):
         parent.add_child(bm)
         parent.update(bm)
         
-        Ubigraph.i().add_node(bm, parent, -1)
+        NetworkXGraphWrapper.i().add_node(bm, parent, -1)
 
         return bm
     
@@ -820,8 +821,8 @@ class NegativeNode(JoinNode):
         # aggiorna
         parent.update(njn)
         
-        vertexjn = Ubigraph.i().add_node(njn, amem, 1)
-        Ubigraph.i().add_edge(vertexjn, Ubigraph.i().get_vertex(parent), -1)
+        NetworkXGraphWrapper.i().add_node(njn, amem, 1)
+        NetworkXGraphWrapper.i().add_edge(njn, parent, -1)
         
         
         return njn
@@ -976,9 +977,9 @@ class NccNode(BetaMemory):
         last_node.update(ncc.get_partner())
         
 
-        vertexncc = Ubigraph.i().add_node(ncc, parent, -1)
-        vertexpartner = Ubigraph.i().add_node(ncc.get_partner(), last_node, -1)
-        Ubigraph.i().add_edge(vertexpartner, vertexncc)
+        NetworkXGraphWrapper.i().add_node(ncc, parent, -1)
+        NetworkXGraphWrapper.i().add_node(ncc.get_partner(), last_node, -1)
+        NetworkXGraphWrapper.i().add_edge(ncc.get_partner(), ncc)
         
         
         
@@ -1139,39 +1140,36 @@ class NccPartnerNode(ReteNode):
         # base per pulizia di base
         ReteNode.delete(self)
 
-class BetaRootNode(JoinNode):
+class DummyJoinNode(JoinNode):
     '''
     Rappresenta la 
     '''
 
-    def __init__(self, network, alpha_root):
+    def __init__(self, amem, tests):
         '''
         Constructor
         '''
-        assert isinstance(alpha_root, AlphaRootNode)
-        
-        self._network = network
-        JoinNode.__init__(self, None, alpha_root.get_alphamemory(), [])
-        
-    def get_network(self):
-        return self._network
-        
-    def get_parent(self):
-        return self
+        JoinNode.__init__(self, None, amem, tests)
         
     def rightActivation(self, wme):
         
         assert isinstance(wme, WME), \
             "wme non e' un WME"
             
+        # converto la wme in un token dummy per
+        # iniziare ad elaborare la beta-network
+        
+        tok = DummyToken(wme)
             
         for child in self.get_children():
             assert isinstance(child, ReteNode), \
                 "child non e' un ReteNode"
             
-            # attiva a sinistra i figli
-            # (che sono join-node o simili)
-            
-            child.leftActivation(None, wme)
+            if self._perform_tests(wme, tok):
+    
+                child.leftActivation(tok, wme)
+
+    def get_tests(self):
+        return self._tests
 
     

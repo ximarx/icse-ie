@@ -3,7 +3,7 @@ Created on 08/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.Token import Token
+from icse.rete.Token import Token, DummyToken
 from icse.rete.WME import WME
 from icse.rete.predicati.Predicate import Predicate
 from icse.rete.predicati.Variable import Variable
@@ -52,16 +52,22 @@ class JoinTest(object):
         # individuo il campo di confronto
         # risalendo tanti livelli nell'albero dei token
         # quanti sono i rel_cond_index
-        
-        t_tok = tok
-        i = self.__cond2_rel_index
-        while i != 0:
-            t_tok = t_tok.get_parent()
-            i -= 1
+        if self.__cond2_rel_index == 0 \
+            and isinstance(tok, DummyToken): 
+
+            wme2 = wme
             
-        # ora in t_tok ho proprio il token
-        # in cui e' rappresentata la wme che mi serve
-        wme2 = t_tok.get_wme()
+        else:
+            t_tok = tok
+            i = self.__cond2_rel_index - 1
+            while i > 0:
+                t_tok = t_tok.get_parent()
+                i -= 1
+                
+            # ora in t_tok ho proprio il token
+            # in cui e' rappresentata la wme che mi serve
+            wme2 = t_tok.get_wme()
+        
         try:
             
             # il primo elemento da confrontare e' di facile
@@ -97,10 +103,17 @@ class JoinTest(object):
             
             atom_index += 1
             
-        print tests
+        print [("["+str(x.__cond2_field)+"] di -"+str(x.__cond2_rel_index), x.__predicate, "["+ str(x.__cond1_field)+"]") for x in tests]
         
         return tests
-                
+             
+    def __repr__(self):
+        return "[{0}] di {1} {2} [{3}]".format(
+                                         str(self.__cond2_field),
+                                         str(self.__cond2_rel_index * -1),
+                                         str(self.__predicate.__name__).split('.')[-1],
+                                         str(self.__cond1_field)
+                                         )
         
     def __eq__(self, other):
         if isinstance(other, JoinTest):
