@@ -216,7 +216,7 @@ class Token(object):
 
 class DummyToken(Token):
     
-    def __init__(self, wme):
-        Token.__init__(self, None, None, wme)
+    def __init__(self):
+        Token.__init__(self, None, None, None)
         
     

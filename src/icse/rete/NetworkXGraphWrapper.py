@@ -24,7 +24,7 @@ class NetworkXGraphWrapper(object):
 
         try:
             import networkx as nx
-            G = nx.Graph()
+            G = nx.DiGraph()
             self._G = G
         except:
             print "NetworkX init fallito"
@@ -114,9 +114,9 @@ class NetworkXGraphWrapper(object):
         if self._nodemap.has_key(parent):
             parent = self._nodemap[parent]
         
-        self._G.add_edge(parent, child)
+        self._G.add_edge(child, parent)
         
-        self._G.edge[parent][child]["type"] = linkType
+        self._G.edge[child][parent]["type"] = linkType
             
             
             
@@ -178,6 +178,7 @@ class NetworkXGraphWrapper(object):
         ndjns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'DummyJoinNode']
         npnodes=[n for (n,d) in G.nodes(data=True) if d['type'] == 'PNode']
         nnjns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'NegativeNode']
+        ndnjns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'DummyNegativeNode']
         nccs=[n for (n,d) in G.nodes(data=True) if d['type'] == 'NccNode']
         nccps=[n for (n,d) in G.nodes(data=True) if d['type'] == 'NccPartnerNode']
         
@@ -208,7 +209,7 @@ class NetworkXGraphWrapper(object):
 
         # DUMMY JOINS
         nx.draw_networkx_nodes(G,pos,nodelist=ndjns,
-                               node_size=300,alpha=0.7,node_color='b',node_shape='o')
+                               node_size=900,alpha=0.7,node_color='b',node_shape='v')
         
         # JOINS
         nx.draw_networkx_nodes(G,pos,nodelist=njns,
@@ -217,6 +218,10 @@ class NetworkXGraphWrapper(object):
         # BETA MEMORIES
         nx.draw_networkx_nodes(G,pos,nodelist=nbmems,
                                node_size=600,alpha=0.7,node_color='r',node_shape='s')
+
+        # DUMMY NEGATIVE JOINS
+        nx.draw_networkx_nodes(G,pos,nodelist=ndnjns,
+                               node_size=900,alpha=0.7,node_color='b',node_shape='^')
         
         # NEGATIVE JOINS
         nx.draw_networkx_nodes(G,pos,nodelist=nnjns,

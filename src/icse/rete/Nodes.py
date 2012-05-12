@@ -246,6 +246,9 @@ class AlphaMemory(AlphaNode):
         # Riferimento:
         #    paragrafo 2.4.1 pagina 25
         self._successors.insert(0, succ)
+        
+    def get_successors(self):
+        return self._successors
 
     def remove_successor(self, succ):
         '''
@@ -599,7 +602,7 @@ class JoinNode(ReteNode):
                 if isinstance(child, JoinNode) and not isinstance(child, NegativeNode):
                     #assert isinstance(child, JoinNode)
                     if child._amem == amem:
-                        if child.__tests == tests:
+                        if child.get_tests() == tests:
                             # stessi test, testa amem... condivido il nodo
                             return child
                 
@@ -610,8 +613,22 @@ class JoinNode(ReteNode):
             jn = JoinNode(parent, amem, tests)
             parent.add_child(jn)
         else:
+            # perche non cercare anche fra le amem
+            # per un dummy node che condivida la stessa amem?
+            for succ in amem.get_successors():
+                # escludo che un join node possa essere condiviso da un
+                # NegativeNode con gli stessi test e alpha-memory
+                if isinstance(succ, DummyJoinNode):
+                    #assert isinstance(child, JoinNode)
+                    if succ.get_tests() == tests:
+                        # stessi test, testa amem... condivido il nodo
+                        return succ
+
+            
             jn = DummyJoinNode(amem, tests)
         
+        # questo lo fa indipendentemente da questto che
+        # trova (se join normale o dummy)
         amem.add_successor(jn)
         
         NetworkXGraphWrapper.i().add_node(jn, amem, 1)
@@ -795,35 +812,62 @@ class NegativeNode(JoinNode):
     @staticmethod
     def factory(parent, amem, tests):
         
-        assert isinstance(parent, ReteNode), \
-            "parent non e' un ReteNode"
         assert isinstance(amem, AlphaMemory), \
             "amem non e' una AlphaMemory"
         assert isinstance(tests, list), \
             "tests non e' una list"
 
-        for child in parent.get_children():
-            if  isinstance(child, NegativeNode):
-                #assert isinstance(child, JoinNode)
-                if child._amem == amem:
-                    if child.__tests == tests:
-                        # stessi test, testa amem... condivido il nodo
-                        return child
+        # controllo che non sia il primo elemento della
+        # beta-network
+        if parent != None:
+
+            for child in parent.get_children():
+                if  isinstance(child, NegativeNode):
+                    if child._amem == amem:
+                        if child.__tests == tests:
+                            # stessi test, testa amem... condivido il nodo
+                            return child
                 
-        # non posso condividere un nuovo gia esistente
-        # con queste informazioni, quindi ne creo uno nuovo
-        # e lo aggiunto alla rete
-        
-        njn = NegativeNode(parent, amem, tests)
-        parent.add_child(njn)
+            # non posso condividere un nuovo gia esistente
+            # con queste informazioni, quindi ne creo uno nuovo
+            # e lo aggiunto alla rete
+            
+            njn = NegativeNode(parent, amem, tests)
+            parent.add_child(njn)
+            
+        else:
+            # cerco se la alphamemory ha gia degli elementi
+            # uguale a quello che andrei a creare e
+            # lo condivido se c'e'
+            for succ in amem.get_successors():
+                if isinstance(succ, NegativeNode) \
+                    and succ.get_tests() == tests:
+                        return child
+                    
+            # creo un nuovo DummyNegativeNode
+            njn = DummyNegativeNode(amem, tests)
+            
         amem.add_successor(njn)
         
-        # aggiorna
-        parent.update(njn)
+        # aggiorna: aggiorna da sinistra se ho un padre 
+        if parent != None:
+            parent.update(njn)
+        else:
+            # se non ho padre, allora sono un dummy
+            # quindi devo provvedere a leggere solo
+            # dall'alpha memory e attivare
+            # per tutti gli elementi
+            for w in amem.get_items():
+                # in questo modo gli elementi dell'alpha
+                # vegono trasferiti e preparati
+                # (tramite negativejoinresult)
+                # nella memory di questo nodo (che integra
+                # una beta-memory)
+                njn.rightActivation(w)
         
         NetworkXGraphWrapper.i().add_node(njn, amem, 1)
-        NetworkXGraphWrapper.i().add_edge(njn, parent, -1)
-        
+        if parent != None:
+            NetworkXGraphWrapper.i().add_edge(njn, parent, -1)
         
         return njn
 
@@ -1159,7 +1203,7 @@ class DummyJoinNode(JoinNode):
         # converto la wme in un token dummy per
         # iniziare ad elaborare la beta-network
         
-        tok = DummyToken(wme)
+        tok = DummyToken()
             
         for child in self.get_children():
             assert isinstance(child, ReteNode), \
@@ -1171,5 +1215,35 @@ class DummyJoinNode(JoinNode):
 
     def get_tests(self):
         return self._tests
+    
+class DummyNegativeNode(NegativeNode):
+    
+    def __init__(self, amem, tests):
+        NegativeNode.__init__(self, None, amem, tests)
+        
+        
+    def rightActivation(self, wme):
+        
+        assert isinstance(wme, WME), \
+            "wme non e' un WME"
+            
+        t = DummyToken()
+                
+        if self._perform_tests(wme, t):
+            # controllo se prima c'erano match
+            if t.count_njresults() == 0:
+                # se non c'erano match
+                # allora il token e' stato propagato
+                # e quindi devo revocarlo
+                t.deleteDescendents()
 
+            # creo il NegativeJoinResult
+            njr = NegativeJoinResult(t, wme)
+            
+            t.add_njresult(njr)
+            wme.add_njresult(njr)
+        
+        
+    
+    
     

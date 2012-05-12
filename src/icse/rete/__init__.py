@@ -1,5 +1,4 @@
 from icse.rete.predicati.Eq import Eq
-from icse.rete.predicati.Not import Not
 from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
     NegativePredicate
 from icse.rete.Nodes import BetaMemory, AlphaMemory, JoinNode, NegativeNode,\

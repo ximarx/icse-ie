@@ -99,7 +99,7 @@ class JoinTest(object):
                 if builtins.has_key(symbol):
                     # la variabile l'ho gia trovata prima
                     cond_index, field_index = builtins[symbol]
-                    jt = JoinTest(atom_index, field_index, len(prec_conditions) - cond_index, Eq)
+                    jt = JoinTest(atom_index, field_index, len(prec_conditions) - cond_index, atom[0].get_predicate())
                     tests.append(jt)
                 else:
                     builtins[symbol] = (len(prec_conditions), atom_index)
