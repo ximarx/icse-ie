@@ -48,16 +48,10 @@ class JoinTest(object):
             
         assert isinstance(wme, WME), \
             "wme non e' un WME"
-        
-        # individuo il campo di confronto
-        # risalendo tanti livelli nell'albero dei token
-        # quanti sono i rel_cond_index
-        if self.__cond2_rel_index == 0 \
-            and isinstance(tok, DummyToken): 
-
-            wme2 = wme
             
-        else:
+        if self.__cond2_rel_index > 0:
+            # cerco fra i token precedenti
+
             t_tok = tok
             i = self.__cond2_rel_index - 1
             while i > 0:
@@ -67,6 +61,15 @@ class JoinTest(object):
             # ora in t_tok ho proprio il token
             # in cui e' rappresentata la wme che mi serve
             wme2 = t_tok.get_wme()
+        
+        else:
+            # il confronto e' sulla
+            # stessa wme
+            wme2 = wme
+        
+        # individuo il campo di confronto
+        # risalendo tanti livelli nell'albero dei token
+        # quanti sono i rel_cond_index
         
         try:
             

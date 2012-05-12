@@ -14,42 +14,21 @@ from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 
 if __name__ == '__main__':
 
-    # diciamo che vogliamo
-    # aggiungere una nuova produzione alla rete
-    
-    
-    # il formato della produzione e':
-    # class Production
-    #    get_rhs(): [] lista di condizioni
-    #    get_lhs(): [] lista di azioni
-    
-    
-    '''
-    (defrule r1
-        (A ?v ?v)
-        (A ?v B)
-    =>
-    )
-    
-    (defrule r2
-        (A ?v B)
-        (A B ?v)
-    =>
-    )
-    
-    (deffacts init-facts
-        (A B B)
-        (A)
-    )    
-    '''
     
     rete = ReteNetwork()
     
-    p = Production(name="transitivita",
+    '''
+    (defrule r3
+        (A ?ap ?ap)
+        (A ?bp ?bp)
+        (test (neq ?ap ?bp))
+    =>
+    )    
+    '''
+    p = Production(name="r3",
                    lhs=[
-                        (PositivePredicate, [(Variable, "A"), (Eq, "per"), (Variable, "B")]),
-                        (PositivePredicate, [(Variable, "B"), (Eq, "per"), (Variable, "C")]),
-                        (PositivePredicate, [(Variable, "A"), (Eq, "per"), (Variable, "C")])
+                        (PositivePredicate, [(Eq, "A"), (Variable, "ap"), (Variable, "ap")]),
+                        (PositivePredicate, [(Eq, "A"), (Variable, "bp"), (Variable, "bp")])
                         ],
                    rhs=[],
                    description=""
@@ -57,11 +36,16 @@ if __name__ == '__main__':
     
     rete.add_production(p)
     
-    
 
-    p = Production(name="variabile-interna",
+    '''
+    (defrule r4
+        (A ?a ?a)
+    =>
+    )
+    '''
+    p = Production(name="r4",
                    lhs=[
-                        (PositivePredicate, [(Variable, "A"), (Eq, "uguale"), (Variable, "A")])
+                        (PositivePredicate, [(Eq, "A"), (Variable, "ap"), (Variable, "ap")]),
                         ],
                    rhs=[],
                    description=""
@@ -69,64 +53,10 @@ if __name__ == '__main__':
     
     rete.add_production(p)
 
-
-    p = Production(name="variabile-interna-2",
-                   lhs=[
-                        (PositivePredicate, [(Variable, "zz"), (Eq, "uguale"), (Variable, "wz")]),
-                        (PositivePredicate, [(Variable, "wz"), (Eq, "uguale"), (Variable, "wz")])
-                        ],
-                   rhs=[],
-                   description=""
-                   )
     
-    rete.add_production(p)
-    
-    p = Production(name='produzione-di-test',
-                   lhs=[
-                        (PositivePredicate, [(Eq, "a"),  (Variable, "v"),  (Variable, "v") ]),
-                        (PositivePredicate, [(Eq, "a"),  (Eq, "b"),  (Variable, "v") ])
-                        ],
-                   rhs=[],
-                   description="Una produzione di test"
-                   )
-    
-    # costruiamo la rete
-    
-    rete.add_production(p)
-    
-    p2 = Production(name='produzione-di-test-2',
-                   lhs=[
-                        (PositivePredicate, [(Eq, "a"),  (Variable, "v"),  (Eq, "b") ]),
-                        (PositivePredicate, [(Eq, "a"),  (Eq, "b"),  (Variable, "v") ])
-                        ],
-                   rhs=[],
-                   description="Una produzione di test 2"
-                   )
- 
-    rete.add_production(p2)
-    
-
-    rete.assert_fact("A per B".split(" "))
-    rete.assert_fact("B per Z".split(" "))
-    rete.assert_fact("A per Z".split(" "))
-
-    rete.assert_fact("G uguale G".split(" "))
-    rete.assert_fact("G uguale R".split(" "))
-
-    rete.assert_fact("G uguale T".split(" "))
-    rete.assert_fact("T uguale R".split(" "))
-    
-    
-    
-
-    # dopo di che asseriamo una serie di fatti che dovrebbero
-    # permettere un match della produzione
-    
-    rete.assert_fact( ('a', 'b', 'b') )
-    rete.assert_fact( ('a', 'b', 'c') )
-    rete.assert_fact( ('a', 'c', 'b') )
-    
-    rete.assert_fact( ('a') )
+    rete.assert_fact("A 1 1".split(" "))
+    rete.assert_fact("A 2 2".split(" "))
+    rete.assert_fact("A 1 2".split(" "))
     
     NetworkXGraphWrapper.i().draw()    
     
