@@ -1,9 +1,10 @@
 from icse.rete.predicati.Eq import Eq
 from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
-    NegativePredicate
+    NegativePredicate, TestPredicate
 from icse.rete.Nodes import BetaMemory, AlphaMemory, JoinNode, NegativeNode,\
-    NccNode
+    NccNode, FilterNode
 from icse.rete.JoinTest import JoinTest
+from icse.rete.FilterTest import FilterTest
 
 
 def network_factory(alpha_root, parent, conditions, earlier_conditions = None, builtins = None):
@@ -74,6 +75,12 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
             amem = AlphaMemory.factory(c, alpha_root)
             current_node = JoinNode.factory(current_node, amem, tests)
             
+        elif issubclass(c_type, TestPredicate):
+            
+            current_node = BetaMemory.factory(current_node)
+            tests = FilterTest.build_tests(c, earlier_conditions, builtins, c_type.get_predicate())
+            current_node = FilterNode.factory(current_node, tests)
+            
         elif issubclass(c_type, NegativePredicate):
             # siamo in una negazione semplice
             # cioe la negazione di una sola condizione
@@ -98,3 +105,6 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
     
     
     
+    
+class SimboloNonTrovatoError(Exception):
+    pass

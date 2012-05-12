@@ -70,6 +70,9 @@ class NetworkXGraphWrapper(object):
             if str(node.__class__.__name__).split(".")[-1] == "ConstantTestNode":
                 self._G.node[self._nodeid]['label'] = '[{0}] {1} {2}'.format(node.get_field(), str(node.get_predicate().__name__).split(".")[-1], node.get_value() )
 
+            if str(node.__class__.__name__).split(".")[-1] == "LengthTestNode":
+                self._G.node[self._nodeid]['label'] = '# = {0}'.format(node.get_length())
+
             if str(node.__class__.__name__).split(".")[-1] == "PNode":
                 self._G.node[self._nodeid]['label'] = node.get_name()
 
@@ -138,6 +141,9 @@ class NetworkXGraphWrapper(object):
             
     def draw(self):
         
+        if not self.is_ready():
+            return
+        
         import networkx as nx
         import matplotlib.pyplot as plt
         #import pylab as P
@@ -172,13 +178,14 @@ class NetworkXGraphWrapper(object):
         
         nroots=[n for (n,d) in G.nodes(data=True) if d['type'] == 'AlphaRootNode']
         namems=[n for (n,d) in G.nodes(data=True) if d['type'] == 'AlphaMemory']
-        nctns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'ConstantTestNode']
+        nctns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'ConstantTestNode' or d['type'] == 'LengthTestNode']
         nbmems=[n for (n,d) in G.nodes(data=True) if d['type'] == 'BetaMemory']
         njns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'JoinNode']
         ndjns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'DummyJoinNode']
         npnodes=[n for (n,d) in G.nodes(data=True) if d['type'] == 'PNode']
         nnjns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'NegativeNode']
         ndnjns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'DummyNegativeNode']
+        fns=[n for (n,d) in G.nodes(data=True) if d['type'] == 'FilterNode']
         nccs=[n for (n,d) in G.nodes(data=True) if d['type'] == 'NccNode']
         nccps=[n for (n,d) in G.nodes(data=True) if d['type'] == 'NccPartnerNode']
         
@@ -226,6 +233,10 @@ class NetworkXGraphWrapper(object):
         # NEGATIVE JOINS
         nx.draw_networkx_nodes(G,pos,nodelist=nnjns,
                                node_size=900,alpha=0.7,node_color='w',node_shape='^')
+        
+        # FILTER NODES
+        nx.draw_networkx_nodes(G,pos,nodelist=fns,
+                               node_size=900,alpha=0.7,node_color='g',node_shape='p')
         
         # PNODES
         nx.draw_networkx_nodes(G,pos,nodelist=npnodes,

@@ -107,6 +107,9 @@ class WME(object):
         '''
         return self.__fields[field]
     
+    def get_length(self):
+        return len(self.__fields)
+    
     def __hash__(self):
         return hash(tuple(self.__fields))
         

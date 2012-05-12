@@ -10,6 +10,8 @@ from icse.rete.predicati.Variable import Variable
 from icse.rete.JoinTest import JoinTest
 from icse.rete.NegativeJoinResult import NegativeJoinResult
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
+from icse.rete.FilterTest import FilterTest
+from icse.rete.predicati.Eq import Eq
 
 class AlphaNode(object):
     '''
@@ -207,6 +209,60 @@ class ConstantTestNode(AlphaNode):
         if len(self._children) == 0 and self._alphamemory == None:
             self.delete()
             
+class LengthTestNode(ConstantTestNode):
+    '''
+    Un tipo speciale di ConstantTestNode che al posto di controllare
+    il valore in un campo della wme, controlla
+    la lunghezza della wme
+    '''
+    
+    def __init__(self, parent, wmelength):
+        # passo le cose piu umane, per evitare problemi,
+        # anche se non verranno mai usate
+        ConstantTestNode.__init__(self, parent, 0, 0, Eq)
+        
+        self._length = wmelength
+        
+        
+    def is_valid(self, w):
+        return w.get_length() == self._length
+    
+    def get_length(self):
+        return self._length
+    
+    @staticmethod
+    def factory(node, length):
+        '''
+        Cerca un LengthTestNode che e' possibile condividere
+        oppure ne crea uno nuovo con le informazioni a disposizione
+        e lo inserisce nel Network
+        '''
+        
+        print "Cerco un LengthTestNode per: "+str(length)
+        for child in node.get_children():
+            # controllo che nn ci sia gia un nodo che mi controlla la stessa cosa
+            # se c'e' provvedo semplicemente ad usare quello
+            if isinstance(child, LengthTestNode) \
+                and child.get_length() == length:
+                # il nodo di confronto e' lo stesso
+                # posso condividerlo
+                return child
+                    
+            
+        # non abbiamo trovato nessun nodo che verifica le stesse
+        # caratteristiche
+        
+        ctn = LengthTestNode(node, length)
+        node.add_child(ctn)
+        
+        #print "Creo un ConstantTestNode "+repr(ctn)+" (linkandolo a: "+repr(node)
+        
+        NetworkXGraphWrapper.i().add_node(ctn, node)
+        
+        # il ctn non conserva wme, quindi non devo aggiornarlo
+        
+        return ctn    
+            
 class AlphaMemory(AlphaNode):
     '''
     Nodo AlphaMemory dell'AlphaNetwork
@@ -284,6 +340,10 @@ class AlphaMemory(AlphaNode):
             if not issubclass(atom_type, Variable):
                 # filtra tutte le variabili
                 node = ConstantTestNode.factory(node, field_index, atom_cont, atom_type)
+                
+        # a questo punto devo aggiungere
+        # un nodo condizione sulla lunghezza
+        node = LengthTestNode.factory(node, field_index + 1)
                 
         # al termine del ramo di valutazione costante, l'ultimo nodo ha gia una
         # alpha-memory: condividiamo quella
@@ -634,7 +694,7 @@ class JoinNode(ReteNode):
         NetworkXGraphWrapper.i().add_node(jn, amem, 1)
         
         if parent != None:
-            NetworkXGraphWrapper.i().add_edge(jn, parent, -1)
+            NetworkXGraphWrapper.i().add_edge(parent, jn, -1)
         
         
         return jn
@@ -753,7 +813,10 @@ class BetaMemory(ReteNode):
             return None
             
         for child in parent.get_children():
-            if isinstance(child, BetaMemory):
+            
+            from icse.rete.PNode import PNode
+            if isinstance(child, BetaMemory) \
+                and not isinstance(child, PNode):
                 # semplicemente un beta memory node
                 # e un contenitore senza condizioni:
                 # cio che discrimina il contenuto e'
@@ -1243,7 +1306,123 @@ class DummyNegativeNode(NegativeNode):
             t.add_njresult(njr)
             wme.add_njresult(njr)
         
+class FilterNode(ReteNode):
+    '''
+    JoinNode: rappresenta un nodo giunzione fra uno
+    proveniente dall'AlphaNetwork e uno proveniente da
+    BetaNetwork 
+    '''
+
+    def __init__(self, parent, tests):
+        '''
+        Constructor
+        '''
+        assert isinstance(tests, list), \
+            "tests non e' una list"
+        
+        # filtra tutti gli elementi non JoinTest
+        self._tests = [x for x in tests if isinstance(x, FilterTest)]
+        ReteNode.__init__(self, parent)
         
     
+    def leftActivation(self, tok, wme = None):
+        
+        assert isinstance(tok, Token), \
+            "tok non e' un Token, "+str(tok)
+            
+        if self._perform_tests(tok):
+            for child in self._children:
+                assert isinstance(child, ReteNode), \
+                    "child non e' un ReteNode"
+                    
+                # attiva a sinistra i figli
+                # (che sono betamemory o riconducibili)
+                child.leftActivation(tok, None)
+
+    def _perform_tests(self, tok):
+        
+        assert isinstance(tok, Token), \
+            "tok non e' un Token"
+        
+        for t in self._tests:
+            
+            if not t.perform(tok):
+                return False
+        
+        return True
     
+    @staticmethod
+    def factory(parent, tests):
+
+        assert isinstance(parent, ReteNode), \
+            "Un FilterNode deve avere per forza un parent ReteNode"
+
+        assert isinstance(tests, list), \
+            "tests non e' una list"
+
+        for child in parent.get_children():
+            # escludo che un join node possa essere condiviso da un
+            # NegativeNode con gli stessi test e alpha-memory
+            if isinstance(child, JoinNode) and not isinstance(child, NegativeNode):
+                if child.get_tests() == tests:
+                    # stessi test, testa amem... condivido il nodo
+                    return child
+            
+        # non posso condividere un nuovo gia esistente
+        # con queste informazioni, quindi ne creo uno nuovo
+        # e lo aggiunto alla rete
     
+        fn = FilterNode(parent, tests)
+        parent.add_child(fn)
+
+        NetworkXGraphWrapper.i().add_node(fn, parent, -1)
+        
+        return fn
+        
+    def delete(self):
+        '''
+        Esegue la cancellazione del nodo
+        propagando la cancellazione all'alpha-memory
+        se non e' condivisa con altri nodi
+        '''
+        
+        self._amem.remove_successor(self)
+        
+        if self._amem.is_useless():
+            self._amem.delete()
+        
+        
+        ReteNode.delete(self)
+        
+    def get_tests(self):
+        return self._tests
+        
+    def update(self, child):
+
+        # questo nodo e' collegamento direttamente da un betanode
+        # quindi per eseguire l'aggiornamento
+        # devo leggere i token dal padre
+        # e mandarli al figlio
+        
+        saved_children = self.get_children()
+        
+        self._children = [child]
+        
+        for tok in self.get_parent().get_items():
+            assert isinstance(tok, Token), \
+                "tok non e' un Token"
+            
+            # forzo l'aggiornamento di ogni wme che
+            # verra' propagata ai figli (che in questo
+            # caso sono solo quello nuovo... temporaneamente)    
+            self.leftActivation(tok)
+            
+        # ho aggiornato il figlio, a questo punto
+        # ripristino la vecchia lista
+        self._children = saved_children
+        
+                                    
+        
+        
+        
+        

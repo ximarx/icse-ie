@@ -14,10 +14,6 @@ class Variable(object):
     _predicate = Eq
     _variable_variance = {}
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
         
     @staticmethod
     def withPredicate(p):

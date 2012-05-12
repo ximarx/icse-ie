@@ -8,9 +8,10 @@ from icse.rete.predicati.Eq import Eq
 from icse.rete.predicati.Variable import Variable
 from icse.rete.ReteNetwork import ReteNetwork
 from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
-    NegativePredicate
+    NegativePredicate, TestPredicate
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.rete.predicati.NotEq import NotEq
+from icse.rete.predicati.Great import Gt
 
 
 if __name__ == '__main__':
@@ -19,17 +20,18 @@ if __name__ == '__main__':
     rete = ReteNetwork()
     
     '''
-    (defrule r3
+    (defrule r1
         (A ?ap ?ap)
         (A ?bp ?bp)
-        (test (neq ?ap ?bp))
+        (test (<> ?ap ?bp))
     =>
     )    
     '''
-    p = Production(name="r3",
+    p = Production(name="r1: A?a?a & A?b?b & ?a<>?b",
                    lhs=[
                         (PositivePredicate, [(Eq, "A"), (Variable, "ap"), (Variable, "ap")]),
-                        (PositivePredicate, [(Eq, "A"), (Variable, "bp"), (Variable, "bp")])
+                        (PositivePredicate, [(Eq, "A"), (Variable, "bp"), (Variable, "bp")]),
+                        (TestPredicate.withPredicate(NotEq), [(Variable, "ap"), (Variable, "bp") ]),
                         ],
                    rhs=[],
                    description=""
@@ -39,14 +41,14 @@ if __name__ == '__main__':
     
 
     '''
-    (defrule r4
+    (defrule r2
         (A ?a ?a)
     =>
     )
     '''
-    p = Production(name="r4",
+    p = Production(name="r2: A?a?a",
                    lhs=[
-                        (PositivePredicate, [(Eq, "A"), (Variable, "ap"), (Variable, "ap")]),
+                        (PositivePredicate, [(Eq, "A"), (Variable, "a"), (Variable, "a")]),
                         ],
                    rhs=[],
                    description=""
@@ -56,12 +58,12 @@ if __name__ == '__main__':
 
 
     '''
-    (defrule r5
+    (defrule r3
         (A)
     =>
     )
     '''
-    p = Production(name="r5",
+    p = Production(name="r3: A",
                    lhs=[
                         (PositivePredicate, [(Eq, "A")]),
                         ],
@@ -73,12 +75,12 @@ if __name__ == '__main__':
 
 
     '''
-    (defrule r6
+    (defrule r4
         (~A)
     =>
     )
     '''
-    p = Production(name="r6",
+    p = Production(name="r4: not-A",
                    lhs=[
                         (PositivePredicate, [(NotEq, "A")]),
                         ],
@@ -90,12 +92,12 @@ if __name__ == '__main__':
 
 
     '''
-    (defrule r7
+    (defrule r5
         (?a ~?a ?b)
     =>
     )
     '''
-    p = Production(name="r7",
+    p = Production(name="r5: ?a ~?a ?b",
                    lhs=[
                         (PositivePredicate, [(Variable, "a"), (Variable.withPredicate(NotEq), "a"), (Variable, "b") ]),
                         ],
@@ -105,15 +107,37 @@ if __name__ == '__main__':
     
     rete.add_production(p)
 
-    print Variable._variable_variance
-
+    '''
+    (defrule r6
+        (A ?a ?b)
+        (test (> ?a ?b))
+        (B ?a ?b)
+    =>
+    )
+    '''
+    p = Production(name="r6: A?a?b && ?a > ?b",
+                   lhs=[
+                        (PositivePredicate, [(Eq, 'A'), (Variable, "a"), (Variable, "b") ]),
+                        (TestPredicate.withPredicate(Gt), [(Variable, "a"), (Variable, "b") ]),
+                        (PositivePredicate, [(Eq, 'B'), (Variable, "a"), (Variable, "b") ]),
+                        ],
+                   rhs=[],
+                   description=""
+                   )
     
+    rete.add_production(p)
+
+    rete.assert_fact("A 2 1".split(" "))
     rete.assert_fact("A 1 1".split(" "))
     rete.assert_fact("A 2 2".split(" "))
     rete.assert_fact("A 1 2".split(" "))
+    rete.assert_fact("B 2 1".split(" "))
+    rete.assert_fact("B 2 2".split(" "))
+    rete.assert_fact("A 2 1 5".split(" "))
     rete.assert_fact("A A Z".split(" "))
     rete.assert_fact("A".split(" "))
     rete.assert_fact("E".split(" "))
+    
     
     agenda = rete.agenda()
     
@@ -121,6 +145,14 @@ if __name__ == '__main__':
         print "{0}: {1}".format(node.get_name(), token.linearize())
 
     NetworkXGraphWrapper.i().draw()    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
