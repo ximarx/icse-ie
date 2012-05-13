@@ -10,31 +10,15 @@ import sys
 
 def execute_test(filepath):
     
-    parsedItems = clipsparser.parseFile(filepath, False)
+    DEBUG = False
+    
+    parsedItems = clipsparser.parseFile(filepath, DEBUG)
+    if DEBUG:
+        clipsparser.debug_parsed(parsedItems)
     
     rete = ReteNetwork()
     
     for (item_type, item) in parsedItems:
-        if isinstance(item, dict):
-            for (k,v) in item.items():
-                if isinstance(v, dict):
-                    print "{0} : {{\n{1}\n}}".format(k,
-                                        "\n".join(
-                                            ["\t{0} : {1}".format(kk, vv) for (kk,vv) in v.items()]
-                                        )
-                                    )
-                elif isinstance(v, list):
-                    print "{0} : [\n\t{1}\n]".format(k,
-                                        "\n\t".join([repr(x) for x in v])
-                                    )
-                else:
-                    print "{0} : {1}".format(k, v)
-        elif isinstance(item, list):
-            for x in item:
-                print x
-        else:
-            print item
-                
         if item_type == 'defrule':
             rule = item
             default_rule = {'name': '', 'lhs': [], 'rhs': [], 'declare': {'salience': 0}, 'description': ''}

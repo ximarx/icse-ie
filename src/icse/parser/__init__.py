@@ -80,6 +80,29 @@ def parseFile(filepath, debug=False):
     
     
     
+def debug_parsed(items):
+    
+    for (_, item) in items:
+        if isinstance(item, dict):
+            for (k,v) in item.items():
+                if isinstance(v, dict):
+                    print "{0} : {{\n{1}\n}}".format(k,
+                                        "\n".join(
+                                            ["\t{0} : {1}".format(kk, vv) for (kk,vv) in v.items()]
+                                        )
+                                    )
+                elif isinstance(v, list):
+                    print "{0} : [\n\t{1}\n]".format(k,
+                                        "\n\t".join([repr(x) for x in v])
+                                    )
+                else:
+                    print "{0} : {1}".format(k, v)
+        elif isinstance(item, list):
+            for x in item:
+                print x
+        else:
+            print item
+    
     
     
     
