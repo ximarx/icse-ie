@@ -21,3 +21,21 @@
 	(serve-acquisizione pecora)
 )
 
+(defrule torna-agricoltore-solo "Sposta l'agricoltore dalla sponda lontana a quella vicina"
+	?agricoltore <- (su-riva agricoltore lontana)
+	(not
+		(and
+			(su-riva pecora lontana)
+			(su-riva cavolo lontana)
+			(su-riva lupo vicina)
+		)
+	)
+	(not
+		(and
+			(su-riva lupo lontana)
+			(su-riva pecora lontana)
+			(su-riva cavolo vicina)
+		)
+	)
+=>
+)
