@@ -4,7 +4,7 @@
 **************************)
 
 number = (integer | float);
-symbol = string;
+(*symbol = string;*)
 
 (*************************
 		DEFRULE
@@ -17,7 +17,7 @@ defrule_construct = '(defrule', rule_name, [comment],
 	    action_group,
 	')';
 
-rule_name = string;
+rule_name = symbol;
 comment = quoted_text;
 declaration = '(declare', (rule_property, {rule_property}), ')';
 rule_property = '(', string, (number | string ), ')';
@@ -56,7 +56,7 @@ deffacts_construct = '(deffacts', deffacts_name, [comment],
 rhs_pattern_group = ({rhs_pattern});
 rhs_pattern = '(', (rhs_field, {rhs_field}), ')';
 
-deffacts_name = string;
-rhs_field = number | string;
+deffacts_name = symbol;
+rhs_field = number | symbol;
 
 CLIPS_program = ({defrule_construct | deffacts_construct});

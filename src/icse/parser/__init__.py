@@ -2,6 +2,7 @@
 import ebnf
 
 import pyparsing as pp
+import string
 
 
 def _compile_parser(debug=False):
@@ -23,6 +24,7 @@ def _compile_parser(debug=False):
     table['float'] = pp.Regex(r'\d+(\.\d*)?([eE]\d+)?').setParseAction(lambda s,l,t:float(t[0])) 
     table['integer'] = pp.Word(pp.nums).setParseAction(lambda s,l,t:int(t[0][:]))
     table['string'] = pp.Word(pp.alphas, pp.alphanums)
+    table['symbol'] = pp.Word("".join( [ c for c in string.printable if c not in string.whitespace and c not in "\"'()&?|<~;" ] ))
     table['variable_symbol'] = pp.Word('?', pp.alphanums, 2)
     table['variable_undef'] = pp.Literal('?')
     table['quoted_text'] = ("'" + pp.CharsNotIn("'") + "'" ^ \

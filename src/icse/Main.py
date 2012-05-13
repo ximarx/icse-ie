@@ -10,13 +10,14 @@ import sys
 
 def execute_test(filepath):
     
-    DEBUG = False
+    DEBUG = True
     
     parsedItems = clipsparser.parseFile(filepath, DEBUG)
     if DEBUG:
         clipsparser.debug_parsed(parsedItems)
     
     rete = ReteNetwork()
+    facts_count = 0
     
     for (item_type, item) in parsedItems:
         if item_type == 'defrule':
@@ -28,13 +29,21 @@ def execute_test(filepath):
             rete.add_production(p)
         elif item_type == 'deffacts':
             for fact in item:
+                facts_count += 1
                 rete.assert_fact(fact)
+
+    print
+    print "-------------------"
+    print "Statistiche:"
+    print "    defrule:     ", len([x for (x,_) in parsedItems if x == 'defrule' ])
+    print "    deffacts:    ", len([x for (x,_) in parsedItems if x == 'deffacts' ])
+    print "    facts:       ", facts_count
     
-    agenda = rete.agenda()
     
     print
     print "-------------------"
     print "Agenda: "
+    agenda = rete.agenda()
     for (node, token) in agenda:
         print "{0}: {1}".format(node.get_name(), token.linearize())
     
