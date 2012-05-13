@@ -238,6 +238,14 @@ class NetworkXGraphWrapper(object):
         nx.draw_networkx_nodes(G,pos,nodelist=fns,
                                node_size=900,alpha=0.7,node_color='g',node_shape='p')
         
+        # NCC-NODES
+        nx.draw_networkx_nodes(G,pos,nodelist=nccs,
+                               node_size=600,alpha=0.7,node_color='g',node_shape='s')
+
+        # NCCP-NODES
+        nx.draw_networkx_nodes(G,pos,nodelist=nccps,
+                               node_size=600,alpha=0.7,node_color='g',node_shape='d')
+        
         # PNODES
         nx.draw_networkx_nodes(G,pos,nodelist=npnodes,
                                node_size=900,alpha=0.7,node_color='w',node_shape='8')
@@ -261,6 +269,9 @@ class NetworkXGraphWrapper(object):
         nx.draw_networkx_labels(G,pos,labels=ldynlabels,font_size=10)
         
         plt.axis('off')
+        plt.box("off")
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1,
+                      wspace=0, hspace=0)
         #plt.savefig("weighted_graph.png") # save as png
         plt.show() # display        
         

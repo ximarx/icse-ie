@@ -4,7 +4,17 @@
 **************************)
 
 number = (integer | float);
-(*symbol = string;*)
+
+(***************** 
+Altre definizioni base in icse.parser.__init__.py
+	- symbol
+	- float
+	- integer
+	- string
+	- variable_symbol
+	- variable_undef
+	- quoted_text
+******************)
 
 (*************************
 		DEFRULE

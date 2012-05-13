@@ -61,7 +61,7 @@ def main_loop():
     print "TESTS_DIR: ", TESTS_DIR
     print 
     
-    print os.listdir(TESTS_DIR)
+    #print os.listdir(TESTS_DIR)
     tests = [x for x in os.listdir(TESTS_DIR) if isfile(TESTS_DIR + "/" +x) and x[-4:] == '.clp']
     
     if len(tests) < 1:
