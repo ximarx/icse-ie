@@ -106,8 +106,8 @@ class ConstantTestNode(AlphaNode):
         assert issubclass(predicate, Predicate), \
             "predicate non e' un Predicato"
         
-        print "Cerco un CostantTestNode per: ",
-        print "campo: {0}, predicato: {1}, valore: {2}".format(field, predicate, value)
+        #print "Cerco un CostantTestNode per: ",
+        #print "campo: {0}, predicato: {1}, valore: {2}".format(field, predicate, value)
         for child in node.get_children():
             # controllo che nn ci sia gia un nodo che mi controlla la stessa cosa
             # se c'e' provvedo semplicemente ad usare quello
@@ -118,15 +118,15 @@ class ConstantTestNode(AlphaNode):
                 # il nodo di confronto e' lo stesso
                 # posso condividerlo
                 return child
-            else:
-                print "Stavo valutando: ",
-                print "campo: {0}, predicato: {1}, valore: {2}".format(child.get_field(), child.get_predicate(), child.get_value())
-                if child.get_field() != field:
-                    print "I campi erano diversi: ({0} vs {1})".format(child.get_field(), field)
-                elif child.get_predicate() != predicate:
-                    print "I predicati erano diversi: ({0} vs {1})".format(child.get_predicate(), predicate)
-                elif child.get_value() != value:
-                    print "I valori erano diversi: ({0} vs {1})".format(child.get_value(), value)
+            #else:
+                #print "Stavo valutando: ",
+                #print "campo: {0}, predicato: {1}, valore: {2}".format(child.get_field(), child.get_predicate(), child.get_value())
+                # child.get_field() != field:
+                    #print "I campi erano diversi: ({0} vs {1})".format(child.get_field(), field)
+                #elif child.get_predicate() != predicate:
+                    #print "I predicati erano diversi: ({0} vs {1})".format(child.get_predicate(), predicate)
+                #elif child.get_value() != value:
+                    #print "I valori erano diversi: ({0} vs {1})".format(child.get_value(), value)
                     
             
         # non abbiamo trovato nessun nodo che verifica le stesse
@@ -238,7 +238,7 @@ class LengthTestNode(ConstantTestNode):
         e lo inserisce nel Network
         '''
         
-        print "Cerco un LengthTestNode per: "+str(length)
+        #print "Cerco un LengthTestNode per: "+str(length)
         for child in node.get_children():
             # controllo che nn ci sia gia un nodo che mi controlla la stessa cosa
             # se c'e' provvedo semplicemente ad usare quello

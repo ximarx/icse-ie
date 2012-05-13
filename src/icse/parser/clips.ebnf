@@ -1,0 +1,38 @@
+
+number = (integer | float);
+symbol = string;
+
+defrule_construct = '(defrule', rule_name, [comment], 
+    [declaration],
+    conditional_element_group,
+    '=>',
+    action_group,
+    ')';
+
+rule_name = string;
+comment = quoted_text;
+declaration = '(declare', (rule_property, {rule_property}), ')';
+rule_property = '(', string, (number | string ), ')';
+conditional_element_group = ({conditional_element});
+conditional_element = test_CE | assigned_pattern_CE | not_CE | and_CE | pattern_CE;
+action_group = ({action});
+action = '(', string, ')';
+
+pattern_CE = '(', ({constraint}), ')';
+constraint = not_term | term ;
+not_term = '~', term;
+term = constant | variable_undef | variable_symbol | term_function_call;
+constant = number | symbol;
+term_function_call = ':' | '=', function_call;
+function_call = '(', function_name, (constraint, {constraint}), ')';
+function_name = '<' | '>' | '<>' | '=' | '+' | '-' | '/' | '*' | string;
+
+assigned_pattern_CE = variable_symbol, '<-', pattern_CE;
+
+not_CE = '(not', conditional_element, ')';
+
+and_CE = '(and', (conditional_element, conditional_element, {conditional_element}), ')';
+
+test_CE = '(test', function_call, ')'; 
+
+CLIPS_program = ({defrule_construct});

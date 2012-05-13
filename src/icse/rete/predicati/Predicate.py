@@ -49,7 +49,9 @@ class TestPredicate(Predicate):
         (e memorizza, in modo da riutilizzarlo per
         altre richieste con lo stesso predicato)
         '''
-        assert issubclass(p, Predicate)
+        print p
+        assert issubclass(p, Predicate), \
+            "p non e' un Predicate: "+p.__name__
         
         newclassname = "Variable_dynamic_"+p.__name__.split('.')[-1]
         
@@ -59,7 +61,7 @@ class TestPredicate(Predicate):
                                                         })
             TestPredicate._variable_variance[newclassname] = newclass
         
-        return newclass
+        return TestPredicate._variable_variance[newclassname]
         
     @classmethod
     def get_predicate(cls):

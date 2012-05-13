@@ -106,7 +106,7 @@ class JoinTest(object):
             
             atom_index += 1
             
-        print [("["+str(x.__cond2_field)+"] di -"+str(x.__cond2_rel_index), x.__predicate, "["+ str(x.__cond1_field)+"]") for x in tests]
+        #print [("["+str(x.__cond2_field)+"] di -"+str(x.__cond2_rel_index), x.__predicate, "["+ str(x.__cond1_field)+"]") for x in tests]
         
         return tests
              

@@ -146,7 +146,7 @@ class FilterTest(object):
             
             atom_index += 1
             
-        print [repr(x) for x in tests]
+        #print [repr(x) for x in tests]
         
         return tests
              

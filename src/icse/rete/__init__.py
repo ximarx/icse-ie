@@ -66,7 +66,17 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
     current_node = parent
     
     # ciclo per ogni condizione separatamente
-    for c_type, c in conditions:
+    for cc in conditions:
+        
+        # il terzo campo viene usano
+        # per memorizzare il nome della variabile
+        # per le assigned_pattern_CE
+        # per adesso le ignoro
+        if len(cc) == 2:
+            c_type, c = cc
+        elif len(cc) == 3:
+            c_type, c, _ = cc
+            
         if issubclass(c_type, PositivePredicate):
             # siamo in una condizione positiva
             

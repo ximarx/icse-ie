@@ -33,7 +33,7 @@ class Variable(object):
                                                         })
             Variable._variable_variance[newclassname] = newclass
         
-        return newclass
+        return Variable._variable_variance[newclassname]
         
     @classmethod
     def get_predicate(cls):
