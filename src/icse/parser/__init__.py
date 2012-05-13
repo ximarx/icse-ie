@@ -4,7 +4,7 @@ import ebnf
 import pyparsing as pp
 
 
-def _compile_parser():
+def _compile_parser(debug=False):
     
     from icse.rete.predicati.Predicate import PositivePredicate, TestPredicate,\
         NegativePredicate, NccPredicate
@@ -29,7 +29,7 @@ def _compile_parser():
                         '"' + pp.CharsNotIn('"') + '"')
     
     
-    parsers = ebnf.parse(grammar, table, debug=False)
+    parsers = ebnf.parse(grammar, table, debug)
     
     
     
@@ -52,6 +52,10 @@ def _compile_parser():
     parsers['and_CE'].setParseAction(lambda s,l,t: [t[1][:]] )
     parsers['not_CE'].setParseAction(lambda s,l,t: (NegativePredicate, t[1][1]) if t[1][0] == PositivePredicate else (NccPredicate, t[1]))
     parsers['function_name'].setParseAction(lambda s,l,t: Gt )
+    parsers['deffacts_name'].setParseAction(lambda s,l,t: ('name', t[0]))
+    parsers['rhs_pattern'].setParseAction(lambda s,l,t: [t[1][:]])
+    parsers['rhs_pattern_group'].setParseAction(lambda s,l,t: ('facts', t[0][:]))
+    parsers['deffacts_construct'].setParseAction(lambda s,l,t: ('deffacts', dict([x for x in t if isinstance(x, tuple)]).get('facts')))
     parsers['CLIPS_program'].setParseAction(lambda s,l,t: t[0][:])
     
     #print parsers
@@ -59,20 +63,20 @@ def _compile_parser():
     
 
 
-def parse(text):
+def parse(text, debug=False):
     '''
     Legge una stringa
     '''
     
-    parser = _compile_parser()
+    parser = _compile_parser(debug)
     
     return parser.parseString(text, True)
     
     
-def parseFile(filepath):
+def parseFile(filepath, debug=False):
     
     filer = open(filepath, 'r')
-    return parse(filer.read())
+    return parse(filer.read(), debug)
     
     
     

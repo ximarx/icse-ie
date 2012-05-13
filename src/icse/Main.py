@@ -10,7 +10,7 @@ import sys
 
 def execute_test(filepath):
     
-    parsedItems = clipsparser.parseFile(filepath)
+    parsedItems = clipsparser.parseFile(filepath, False)
     
     rete = ReteNetwork()
     
@@ -29,7 +29,7 @@ def execute_test(filepath):
                                     )
                 else:
                     print "{0} : {1}".format(k, v)
-        elif isinstance(item, dict):
+        elif isinstance(item, list):
             for x in item:
                 print x
         else:
@@ -45,21 +45,6 @@ def execute_test(filepath):
         elif item_type == 'deffacts':
             for fact in item:
                 rete.assert_fact(fact)
-            
-            
-    '''
-    (deffacts stato-iniziale "Stato iniziale"
-        (serveAcquisizione agricoltore)
-        (serveAcquisizione lupo)
-        (serveAcquisizione cavolo)
-        (serveAcquisizione pecora)
-    )
-    '''
-    
-    rete.assert_fact("serveAcquisizione agricoltore".split(" "))
-    rete.assert_fact("serveAcquisizione lupo".split(" "))
-    rete.assert_fact("serveAcquisizione cavolo".split(" "))
-    rete.assert_fact("serveAcquisizione pecora".split(" "))
     
     agenda = rete.agenda()
     
@@ -91,6 +76,7 @@ def main_loop():
         return False
 
     while True:
+    #if True:
     
         print "Questi sono i file che ho trovato:"
         for i, test in enumerate(tests):
@@ -100,6 +86,7 @@ def main_loop():
         
         try:
             choosed = int(raw_input('Cosa vuoi eseguire? '))
+            #choosed = 1
             print "Hai scelto: "+str(tests[choosed])
             print
             print "--------------------------------"

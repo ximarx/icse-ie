@@ -1,13 +1,21 @@
 
+(*************************
+	DEFINIZIONI DI BASE
+**************************)
+
 number = (integer | float);
 symbol = string;
 
+(*************************
+		DEFRULE
+**************************)
+
 defrule_construct = '(defrule', rule_name, [comment], 
-    [declaration],
-    conditional_element_group,
-    '=>',
-    action_group,
-    ')';
+	    [declaration],
+	    conditional_element_group,
+	    '=>',
+	    action_group,
+	')';
 
 rule_name = string;
 comment = quoted_text;
@@ -35,4 +43,20 @@ and_CE = '(and', (conditional_element, conditional_element, {conditional_element
 
 test_CE = '(test', function_call, ')'; 
 
-CLIPS_program = ({defrule_construct});
+
+(*************************
+		DEFFACTS
+**************************)
+
+deffacts_construct = '(deffacts', deffacts_name, [comment],
+		rhs_pattern_group,
+	')';
+
+
+rhs_pattern_group = ({rhs_pattern});
+rhs_pattern = '(', (rhs_field, {rhs_field}), ')';
+
+deffacts_name = string;
+rhs_field = number | string;
+
+CLIPS_program = ({defrule_construct | deffacts_construct});
