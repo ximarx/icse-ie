@@ -49,7 +49,7 @@ class TestPredicate(Predicate):
         (e memorizza, in modo da riutilizzarlo per
         altre richieste con lo stesso predicato)
         '''
-        print p
+        #print p
         assert issubclass(p, Predicate), \
             "p non e' un Predicate: "+p.__name__
         

@@ -95,6 +95,15 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
             # siamo in una negazione semplice
             # cioe la negazione di una sola condizione
             
+            # se questa e' la prima condizione della regola
+            # devo provvedere a linkare il dummy-negative-node
+            # a sinsitra con un dummy-join-node collegato a sua volta con il root-node
+            # perche ogni WME sia ingresso da sinistra
+            if current_node == None:
+                # il negative e' primo in sequenza
+                djn_amem = AlphaMemory.factory([], alpha_root)
+                current_node = JoinNode.factory(None, djn_amem, [])
+            
             tests = JoinTest.build_tests(c, earlier_conditions, builtins)
             amem = AlphaMemory.factory(c, alpha_root)
             current_node = NegativeNode.factory(current_node, amem, tests)
@@ -102,6 +111,15 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
         elif issubclass(c_type, NccPredicate):
             # siamo in una ncc
             # cioe la negazione di un insieme di condizioni
+
+            # se questa e' la prima condizione della regola
+            # devo provvedere a linkare il ncc node
+            # a sinsitra con un dummy-join-node collegato a sua volta con il root-node
+            # perche ogni WME sia ingresso da sinistra
+            if current_node == None:
+                # il negative e' primo in sequenza
+                djn_amem = AlphaMemory.factory([], alpha_root)
+                current_node = JoinNode.factory(None, djn_amem, [])
 
             current_node = NccNode.factory(current_node, c, earlier_conditions, builtins, alpha_root)
             

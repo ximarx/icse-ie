@@ -99,13 +99,14 @@ class JoinTest(object):
             if issubclass(atom[0], Variable):
                 # ho trovato una variabile
                 symbol = atom[1]
-                if builtins.has_key(symbol):
-                    # la variabile l'ho gia trovata prima
-                    cond_index, field_index = builtins[symbol]
-                    jt = JoinTest(atom_index, field_index, len(prec_conditions) - cond_index, atom[0].get_predicate())
-                    tests.append(jt)
-                else:
-                    builtins[symbol] = (len(prec_conditions), atom_index)
+                if symbol != None:
+                    if builtins.has_key(symbol):
+                        # la variabile l'ho gia trovata prima
+                        cond_index, field_index = builtins[symbol]
+                        jt = JoinTest(atom_index, field_index, len(prec_conditions) - cond_index, atom[0].get_predicate())
+                        tests.append(jt)
+                    else:
+                        builtins[symbol] = (len(prec_conditions), atom_index)
             
             #atom_index += 1
             

@@ -133,11 +133,16 @@ class Token(object):
         from icse.rete.Nodes import NccPartnerNode, NegativeNode, NccNode, ReteNode
 
         
-        while len(self.__children) > 0 :
-            child = self.__children.pop(0)
+        # l'onere di rimozione dalla lista sta al figlio (tramite l'invocazione di parent.remove_child
+        #while len(self.__children) > 0 :
+        #    child = self.__children.pop(0)
             # ricorsione... distrugge ogni figlio
+        #    child.delete()
+        #    del child
+
+        for child in self.__children:
             child.delete()
-            del child
+            
         
         # Il nodo in self.__node per forza di cose deve
         # poter memorizzare il token, quindi e' legittimo
@@ -205,7 +210,6 @@ class Token(object):
         self.__children.insert(0, t)
         
     def _remove_child(self, t):
-        print t
         self.__children.remove(t)
         
         

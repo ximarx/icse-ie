@@ -53,7 +53,7 @@ def _compile_parser(debug=False):
     parsers['assigned_pattern_CE'].setParseAction(lambda s,l,t:(PositivePredicate, t[2][1][:], t[0][1]))
     parsers['and_CE'].setParseAction(lambda s,l,t: [t[1][:]] )
     parsers['not_CE'].setParseAction(lambda s,l,t: (NegativePredicate, t[1][1]) if t[1][0] == PositivePredicate else (NccPredicate, t[1]))
-    parsers['function_name'].setParseAction(lambda s,l,t: Gt )
+    parsers['function_name'].setParseAction(lambda s,l,t: Eq )
     parsers['deffacts_name'].setParseAction(lambda s,l,t: ('name', t[0]))
     parsers['rhs_pattern'].setParseAction(lambda s,l,t: [t[1][:]])
     parsers['rhs_pattern_group'].setParseAction(lambda s,l,t: ('facts', t[0][:]))

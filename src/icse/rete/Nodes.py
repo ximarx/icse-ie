@@ -336,6 +336,7 @@ class AlphaMemory(AlphaNode):
         #TODO riferimento:
         #    build-or-share-alpha-memory(c: condition) pagina 35
         #print c
+        field_index = None
         tmp_c = c.items() if isinstance(c, dict) else enumerate(c)
         for field_index, (atom_type, atom_cont) in tmp_c:
             if not issubclass(atom_type, Variable):
@@ -344,6 +345,8 @@ class AlphaMemory(AlphaNode):
                 
         # a questo punto devo aggiungere
         # un nodo condizione sulla lunghezza
+        # MA: mi assicuro che la wme non sia un template
+        # e che c non sia nulla
         if isinstance(field_index, int):
             node = LengthTestNode.factory(node, field_index + 1)
                 
@@ -475,15 +478,21 @@ class AlphaRootNode(ConstantTestNode):
     
     def activation(self, w):
         
-        if self.has_alphamemory():
-            #assert isinstance(self._alphamemory, AlphaMemory), \
-            #    "alphamemory non e' una AlphaMemory"
-            self._alphamemory.activation(w)
-        
         for child in self._children:
             assert isinstance(child, ConstantTestNode), \
                 "child non e' un ConstantTestNode"
             child.activation(w)
+
+        # l'attivazione dell'alpha memory
+        # deve avvenire dopo l'attivazione
+        # dei figli per evitare che una wme
+        # propagata ad un dummynegativenode
+        # poi debba essere ritrattata
+        if self.has_alphamemory():
+            #assert isinstance(self._alphamemory, AlphaMemory), \
+            #    "alphamemory non e' una AlphaMemory"
+            self._alphamemory.activation(w)
+
         
     def delete(self):
         '''
@@ -901,6 +910,7 @@ class NegativeNode(JoinNode):
             parent.add_child(njn)
             
         else:
+            
             # cerco se la alphamemory ha gia degli elementi
             # uguale a quello che andrei a creare e
             # lo condivido se c'e'
@@ -941,6 +951,8 @@ class NegativeNode(JoinNode):
         assert isinstance(wme, WME), \
             "wme non e' un WME"
         
+        # se il token viene da un dummyjoinnode
+        # devo provvedere a convertirlo?
         new_token = Token(self, tok, wme)
         
         self._items.insert(0, new_token)
@@ -961,7 +973,8 @@ class NegativeNode(JoinNode):
                 # attenzione, la leftActivation viene fornita senza la WME
                 # quindi solo i join node sono preparati a riceverla?????
                 # TODO refactoring
-                child.leftActivation(new_token)
+                #print child
+                child.leftActivation(new_token, None)
         
         
     def rightActivation(self, wme):
@@ -1045,8 +1058,8 @@ class NccNode(BetaMemory):
     @staticmethod
     def factory(parent, conds, earlier_conds, builtins, alpha_root):
         
-        assert isinstance(parent, ReteNode), \
-            "parent non e' un ReteNode"
+        #assert isinstance(parent, ReteNode), \
+        #    "parent non e' un ReteNode"
             
         assert isinstance(earlier_conds, list), \
             "earlier_conds non e' una list"
@@ -1060,14 +1073,16 @@ class NccNode(BetaMemory):
         
         assert isinstance(last_node, ReteNode)
                 
-        for child in parent.get_children():
-            # c'e' gia un figlio che e' un NCC
-            # e il cui partner mangia dalla stessa sottorete
-            # che rappresenta le condizioni di questa NCC
-            if isinstance(child, NccNode) \
-                    and child.get_partner().get_parent() == last_node:
-                # la condivido!
-                return child
+        # controllo che non sia il primo beta-node
+        if parent != None:
+            for child in parent.get_children():
+                # c'e' gia un figlio che e' un NCC
+                # e il cui partner mangia dalla stessa sottorete
+                # che rappresenta le condizioni di questa NCC
+                if isinstance(child, NccNode) \
+                        and child.get_partner().get_parent() == last_node:
+                    # la condivido!
+                    return child
 
         # nada, niente da condividere (almeno a livello di NCC)
         
@@ -1112,7 +1127,7 @@ class NccNode(BetaMemory):
             # e nel caso non ci siano attivo i figlioli
             
             for child in self.get_children():
-                child.leftActivation(new_token)
+                child.leftActivation(new_token, None)
 
     def update(self, child):
         '''

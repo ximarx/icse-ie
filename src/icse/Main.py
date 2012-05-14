@@ -10,11 +10,22 @@ import sys
 
 def execute_test(filepath):
     
-    DEBUG = True
-    
-    parsedItems = clipsparser.parseFile(filepath, DEBUG)
+    DEBUG = False
+    try:
+        parsedItems = clipsparser.parseFile(filepath, DEBUG)
+    except Exception:
+        # in caso di eccezione del parser, e debug falso
+        # eseguo nuovamente
+        if not DEBUG:
+            parsedItems = clipsparser.parseFile(filepath, True)            
+        else:
+            raise    
+        
     if DEBUG:
         clipsparser.debug_parsed(parsedItems)
+            
+    
+    NetworkXGraphWrapper.i().set_debug(DEBUG)
     
     rete = ReteNetwork()
     facts_count = 0

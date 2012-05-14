@@ -21,6 +21,7 @@ class NetworkXGraphWrapper(object):
         self._edgemap = {}
         self._G = None
         self._nodeid = 1
+        self._debug = False
 
         try:
             import networkx as nx
@@ -40,12 +41,15 @@ class NetworkXGraphWrapper(object):
             NetworkXGraphWrapper._instance = NetworkXGraphWrapper()
         return NetworkXGraphWrapper._instance
         
+        
+    def set_debug(self, debug):
+        self._debug = debug
 
     def is_ready(self):
         return self._isReady
 
     def add_node(self, node, parent, linkType=0):
-        if not self.is_ready():
+        if not self.is_ready() or self._debug:
             return self._fallback_add_node(node, parent, linkType)
         
         assert not isinstance(node, int) 
@@ -106,7 +110,7 @@ class NetworkXGraphWrapper(object):
             
             
     def add_edge(self, child, parent, linkType=0):
-        if not self.is_ready():
+        if not self.is_ready() or self._debug:
             return self._fallback_add_edge(child, parent, linkType)
         
         if child == None or parent == None:
@@ -127,6 +131,12 @@ class NetworkXGraphWrapper(object):
         if child == None or parent == None:
             return
 
+        if self._nodemap.has_key(child):
+            child = self._nodemap[child]
+        if self._nodemap.has_key(parent):
+            parent = self._nodemap[parent]
+
+
         triple = (parent, child, linkType)
         if not self._edgemap.has_key(triple):
 
@@ -141,7 +151,7 @@ class NetworkXGraphWrapper(object):
             
     def draw(self):
         
-        if not self.is_ready():
+        if not self.is_ready() or self._debug:
             return
         
         import networkx as nx
