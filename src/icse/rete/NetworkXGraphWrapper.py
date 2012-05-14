@@ -275,7 +275,15 @@ class NetworkXGraphWrapper(object):
         #plt.savefig("weighted_graph.png") # save as png
         plt.show() # display        
         
+    def clear(self):
         
+        if not self.is_ready():
+            return
         
-
+        import networkx as nx
+        import matplotlib.pyplot as plt
+        
+        plt.clf()
+    
+        self._G = nx.DiGraph()
             

@@ -335,15 +335,17 @@ class AlphaMemory(AlphaNode):
         '''
         #TODO riferimento:
         #    build-or-share-alpha-memory(c: condition) pagina 35
-
-        for field_index, (atom_type, atom_cont) in enumerate(c):
+        #print c
+        tmp_c = c.items() if isinstance(c, dict) else enumerate(c)
+        for field_index, (atom_type, atom_cont) in tmp_c:
             if not issubclass(atom_type, Variable):
                 # filtra tutte le variabili
                 node = ConstantTestNode.factory(node, field_index, atom_cont, atom_type)
                 
         # a questo punto devo aggiungere
         # un nodo condizione sulla lunghezza
-        node = LengthTestNode.factory(node, field_index + 1)
+        if isinstance(field_index, int):
+            node = LengthTestNode.factory(node, field_index + 1)
                 
         # al termine del ramo di valutazione costante, l'ultimo nodo ha gia una
         # alpha-memory: condividiamo quella

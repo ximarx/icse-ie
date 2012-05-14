@@ -49,7 +49,8 @@ def execute_test(filepath):
     
     
     
-    NetworkXGraphWrapper.i().draw()    
+    NetworkXGraphWrapper.i().draw()
+    NetworkXGraphWrapper.i().clear()
                 
                 
 def main_loop():                

@@ -57,7 +57,7 @@ class PNode(BetaMemory):
         # dopo la rimozione devo anche notificare
         # che l'attivazione non e' piu disponibile
         
-        self.__onDeactive(tok)
+        self.__onDeactive(self, tok)
         
     def get_name(self):
         return self.__name

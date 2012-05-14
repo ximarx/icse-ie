@@ -195,13 +195,17 @@ class Token(object):
         Rimuove tutti i discendenti di questo token
         dalla rete
         '''
-        while len(self.__children) > 0:
-            self.__children.pop(0).delete()
+        #while len(self.__children) > 0:
+            #self.__children.pop(0).delete()
+            
+        for child in self.__children:
+            child.delete()
             
     def _add_child(self, t):
         self.__children.insert(0, t)
         
     def _remove_child(self, t):
+        print t
         self.__children.remove(t)
         
         

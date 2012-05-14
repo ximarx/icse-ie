@@ -91,8 +91,11 @@ class JoinTest(object):
     @staticmethod        
     def build_tests(atoms, prec_conditions, builtins):
         tests = []
-        atom_index = 0
-        for atom in atoms:
+        #atom_index = 0
+        tmp_atoms = atoms.keys() if isinstance(atoms, dict) else range(0, len(atoms))
+        for key in tmp_atoms:
+            atom = atoms[key]
+            atom_index = key
             if issubclass(atom[0], Variable):
                 # ho trovato una variabile
                 symbol = atom[1]
@@ -104,7 +107,7 @@ class JoinTest(object):
                 else:
                     builtins[symbol] = (len(prec_conditions), atom_index)
             
-            atom_index += 1
+            #atom_index += 1
             
         #print [("["+str(x.__cond2_field)+"] di -"+str(x.__cond2_rel_index), x.__predicate, "["+ str(x.__cond1_field)+"]") for x in tests]
         

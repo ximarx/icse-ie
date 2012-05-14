@@ -21,34 +21,13 @@ if __name__ == '__main__':
     
     '''
     (defrule r1
-        (A ?ap ?ap)
-        (A ?bp ?bp)
-        (test (<> ?ap ?bp))
+        ((A uno) (B due))
     =>
     )    
     '''
-    p = Production(name="r1: A?a?a & A?b?b & ?a<>?b",
+    p = Production(name="r1:",
                    lhs=[
-                        (PositivePredicate, [(Eq, "A"), (Variable, "ap"), (Variable, "ap")]),
-                        (PositivePredicate, [(Eq, "A"), (Variable, "bp"), (Variable, "bp")]),
-                        (TestPredicate.withPredicate(NotEq), [(Variable, "ap"), (Variable, "bp") ]),
-                        ],
-                   rhs=[],
-                   description=""
-                   )
-    
-    rete.add_production(p)
-    
-
-    '''
-    (defrule r2
-        (A ?a ?a)
-    =>
-    )
-    '''
-    p = Production(name="r2: A?a?a",
-                   lhs=[
-                        (PositivePredicate, [(Eq, "A"), (Variable, "a"), (Variable, "a")]),
+                        (PositivePredicate, {'_': (Eq, 'template_id'), 'A': (Eq, "uno"), 'B': (Variable, "due")}),
                         ],
                    rhs=[],
                    description=""
@@ -57,86 +36,11 @@ if __name__ == '__main__':
     rete.add_production(p)
 
 
-    '''
-    (defrule r3
-        (A)
-    =>
-    )
-    '''
-    p = Production(name="r3: A",
-                   lhs=[
-                        (PositivePredicate, [(Eq, "A")]),
-                        ],
-                   rhs=[],
-                   description=""
-                   )
-    
-    rete.add_production(p)
-
-
-    '''
-    (defrule r4
-        (~A)
-    =>
-    )
-    '''
-    p = Production(name="r4: not-A",
-                   lhs=[
-                        (PositivePredicate, [(NotEq, "A")]),
-                        ],
-                   rhs=[],
-                   description=""
-                   )
-    
-    rete.add_production(p)
-
-
-    '''
-    (defrule r5
-        (?a ~?a ?b)
-    =>
-    )
-    '''
-    p = Production(name="r5: ?a ~?a ?b",
-                   lhs=[
-                        (PositivePredicate, [(Variable, "a"), (Variable.withPredicate(NotEq), "a"), (Variable, "b") ]),
-                        ],
-                   rhs=[],
-                   description=""
-                   )
-    
-    rete.add_production(p)
-
-    '''
-    (defrule r6
-        (A ?a ?b)
-        (test (> ?a ?b))
-        (B ?a ?b)
-    =>
-    )
-    '''
-    p = Production(name="r6: A?a?b && ?a > ?b",
-                   lhs=[
-                        (PositivePredicate, [(Eq, 'A'), (Variable, "a"), (Variable, "b") ]),
-                        (TestPredicate.withPredicate(Gt), [(Variable, "a"), (Variable, "b") ]),
-                        (PositivePredicate, [(Eq, 'B'), (Variable, "a"), (Variable, "b") ]),
-                        ],
-                   rhs=[],
-                   description=""
-                   )
-    
-    rete.add_production(p)
-
-    rete.assert_fact("A 2 1".split(" "))
-    rete.assert_fact("A 1 1".split(" "))
-    rete.assert_fact("A 2 2".split(" "))
-    rete.assert_fact("A 1 2".split(" "))
-    rete.assert_fact("B 2 1".split(" "))
-    rete.assert_fact("B 2 2".split(" "))
-    rete.assert_fact("A 2 1 5".split(" "))
-    rete.assert_fact("A A Z".split(" "))
-    rete.assert_fact("A".split(" "))
-    rete.assert_fact("E".split(" "))
+    rete.assert_fact({
+                      '_': 'template_id',
+                      'A': 'uno',
+                      'B': 'due'
+                      })
     
     
     agenda = rete.agenda()
