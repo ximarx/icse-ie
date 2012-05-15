@@ -6,12 +6,13 @@ Created on 10/mag/2012
 from icse.predicates.Predicate import Predicate
 from icse.rete.Token import Token, DummyToken
 from icse.rete.WME import WME
-from icse.predicates.Variable import Variable
+from icse.Variable import Variable
 from icse.rete.JoinTest import JoinTest
 from icse.rete.NegativeJoinResult import NegativeJoinResult
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.rete.FilterTest import FilterTest
 from icse.predicates.Eq import Eq
+from icse.Function import Function
 
 class AlphaNode(object):
     '''
@@ -104,7 +105,7 @@ class ConstantTestNode(AlphaNode):
         assert isinstance(node, AlphaNode), \
             "node non e' un AlphaNode"
         assert issubclass(predicate, Predicate), \
-            "predicate non e' un Predicato"
+            "predicate non e' un Predicato, "+str(predicate)
         
         #print "Cerco un CostantTestNode per: ",
         #print "campo: {0}, predicato: {1}, valore: {2}".format(field, predicate, value)
@@ -339,7 +340,7 @@ class AlphaMemory(AlphaNode):
         field_index = None
         tmp_c = c.items() if isinstance(c, dict) else enumerate(c)
         for field_index, (atom_type, atom_cont) in tmp_c:
-            if not issubclass(atom_type, Variable):
+            if not issubclass(atom_type, (Variable, Function)):
                 # filtra tutte le variabili
                 node = ConstantTestNode.factory(node, field_index, atom_cont, atom_type)
                 

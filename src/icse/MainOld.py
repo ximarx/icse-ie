@@ -5,13 +5,15 @@ Created on 10/mag/2012
 '''
 from icse.Production import Production
 from icse.predicates.Eq import Eq
-from icse.predicates.Variable import Variable
+from icse.Variable import Variable
 from icse.rete.ReteNetwork import ReteNetwork
 from icse.predicates.Predicate import NccPredicate, PositivePredicate,\
     NegativePredicate, TestPredicate
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.predicates.NotEq import NotEq
 from icse.predicates.Great import Gt
+from icse.functions.Addition import Addition
+from icse.Function import Function
 
 
 if __name__ == '__main__':
@@ -21,13 +23,14 @@ if __name__ == '__main__':
     
     '''
     (defrule r1
-        ((A uno) (B due))
+        (A =(+ 1 1) B)
     =>
-    )    
+    )
     '''
     p = Production(name="r1:",
                    lhs=[
-                        (PositivePredicate, {'_': (Eq, 'template_id'), 'A': (Eq, "uno"), 'B': (Variable, "due")}),
+                        (PositivePredicate, [(Eq, 'A'), (Variable, 'var')]),
+                        (PositivePredicate, [(Eq, 'A'), (Function.withFunction(Addition), [(Eq, 1), (Variable, 'var')]), (Eq, "B")]),
                         ],
                    rhs=[],
                    description=""
@@ -36,11 +39,9 @@ if __name__ == '__main__':
     rete.add_production(p)
 
 
-    rete.assert_fact({
-                      '_': 'template_id',
-                      'A': 'uno',
-                      'B': 'due'
-                      })
+    rete.assert_fact(['A', 1])
+    rete.assert_fact(['A', 2,'B'])
+    rete.assert_fact(['A', 1,'B'])
     
     
     agenda = rete.agenda()

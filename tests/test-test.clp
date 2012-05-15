@@ -22,7 +22,7 @@
 
 
 (defrule test-not-eq-silente "Esegue test su diseguaglianza"
-	(A ?primo ?)
+	(A ?primo ?terzo)
 	(A ?secondo ?)
 	(test (neq ?primo ?secondo))
 =>

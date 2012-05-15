@@ -43,7 +43,10 @@ term = constant | variable_undef | variable_symbol | term_function_call;
 constant = number | symbol;
 term_function_call = ':' | '=', function_call;
 function_call = '(', function_name, (constraint, {constraint}), ')';
-function_name = '<' | '>' | '<>' | '=' | '+' | '-' | '/' | '*' | string;
+function_name = string;
+
+predicate_call = '(', predicate_name, (constraint, {constraint}), ')';
+predicate_name = string;
 
 assigned_pattern_CE = variable_symbol, '<-', pattern_CE;
 
@@ -51,7 +54,7 @@ not_CE = '(not', conditional_element, ')';
 
 and_CE = '(and', (conditional_element, conditional_element, {conditional_element}), ')';
 
-test_CE = '(test', function_call, ')'; 
+test_CE = '(test', predicate_call, ')'; 
 
 
 (*************************

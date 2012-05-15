@@ -6,7 +6,7 @@ Created on 08/mag/2012
 from icse.rete.Token import Token, DummyToken
 from icse.rete.WME import WME
 from icse.predicates.Predicate import Predicate, TestPredicate
-from icse.predicates.Variable import Variable
+from icse.Variable import Variable
 from icse.predicates.Eq import Eq
 
 
