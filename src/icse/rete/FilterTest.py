@@ -170,7 +170,7 @@ class FilterTest(object):
 
         return "{0} {1} {2}".format(
                                 s1,
-                                str(self.__predicate.__name__).split('.')[-1],
+                                self.__predicate.SIGN if hasattr(self.__predicate, 'SIGN') and self.__predicate.SIGN != None else str(self.__predicate.__name__).split('.')[-1],
                                 s2
                             )
         

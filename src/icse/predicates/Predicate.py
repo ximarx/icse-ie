@@ -8,9 +8,14 @@ class Predicate(object):
     '''
     Classe base per l'implementazioni di tutti i predicati
     '''
+    
+    '''
+    Overloading per inserire il simbolo che corrisponda al predicato
+    '''
+    SIGN = None
 
     @staticmethod
-    def compare(value1, value2):
+    def compare(*args):
         '''
         Esegue la comparazione fra due valori
         secondo le specifiche del predicato
@@ -19,6 +24,15 @@ class Predicate(object):
         @return: boolean
         '''
         raise NotImplementedError
+    
+    
+    @classmethod
+    def sign(cls):
+        return {
+                'sign': cls.SIGN,
+                'handler': cls.compare,
+                'cls': cls
+            }    
     
     
 class PositivePredicate(Predicate):
@@ -76,8 +90,12 @@ class NumberPredicate(Predicate):
     '''
     
     @staticmethod
-    def cast_numbers(value1, value2):
-        return (NumberPredicate._try_cast(value1), NumberPredicate._try_cast(value2)) 
+    def cast_numbers(*args):
+        return [NumberPredicate._try_cast(x) for x in list(args)]
+    
+    @staticmethod
+    def cast_couple(arg1, arg2):
+        return tuple(NumberPredicate.cast_numbers(arg1, arg2))
             
     @staticmethod    
     def _try_cast(value):

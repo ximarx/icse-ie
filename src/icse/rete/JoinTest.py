@@ -118,7 +118,7 @@ class JoinTest(object):
         return "[{0}] di {1} {2} [{3}]".format(
                                          str(self.__cond2_field),
                                          str(self.__cond2_rel_index * -1),
-                                         str(self.__predicate.__name__).split('.')[-1],
+                                         self.__predicate.SIGN if hasattr(self.__predicate, 'SIGN') and self.__predicate.SIGN != None else str(self.__predicate.__name__).split('.')[-1],
                                          str(self.__cond1_field)
                                          )
         

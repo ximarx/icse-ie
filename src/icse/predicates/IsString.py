@@ -5,21 +5,21 @@ Created on 10/mag/2012
 '''
 from icse.predicates.Predicate import PositivePredicate
 
-class Eq(PositivePredicate):
+class IsString(PositivePredicate):
     '''
     Predicato di uguaglianza:
         controlla se un valore e' uguale ad un altro
     '''
-    
-    SIGN = None
+        
+    SIGN = 'stringp'
         
     @staticmethod
-    def compare(value1, value2):
+    def compare(value1):
         '''
-        Restituisce (value1==value2)
+        Restituisce True se value1 e' un numero (float o int)
         @param value1: simbolo
         @param value2: simbolo 
         @return: boolean
         '''
-        return (value1 == value2)
+        return isinstance(value1, (str, unicode))
         

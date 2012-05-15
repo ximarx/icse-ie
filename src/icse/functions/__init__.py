@@ -61,8 +61,9 @@ class Proxy(object):
     def set_initied():
         Proxy._initied = True
         
-    def get_functions(self):
-        return self._funzioni
+    @staticmethod
+    def get_functions():
+        return Proxy._funzioni
         
         
 class Function(object):
@@ -137,13 +138,13 @@ if not Proxy.initied():
     
     FUNCS_DIR = os.path.dirname(__file__)
     
-    funzioni = ['.'+x[0:-3] for x in os.listdir(FUNCS_DIR) if isfile(FUNCS_DIR + "/" +x) and x[-3:] == '.py']
+    funzioni = ['.'+x[0:-3] for x in os.listdir(FUNCS_DIR) if isfile(FUNCS_DIR + "/" +x) and x[-3:] == '.py' and x[0] != '_']
     
     
     for modulo in funzioni:
         if modulo.startswith("."):
             classe = modulo[1:]
-            modulo = "icse.funzioni"+modulo
+            modulo = "icse.functions"+modulo
         else:
             lastdot = modulo.rfind('.')
             classe = modulo[lastdot+1:]
@@ -162,7 +163,9 @@ if not Proxy.initied():
                 sign = attr.sign()
                 Proxy.define(sign['sign'], sign['handler'], sign['minParams'])
         except Exception, e:
-            raise
+            # ignoro gli elementi che creano errori
+            #raise
+            pass
         
     Proxy.set_initied()
 

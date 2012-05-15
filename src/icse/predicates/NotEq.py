@@ -11,6 +11,8 @@ class NotEq(NegativePredicate):
     Not condizione
     '''
     
+    SIGN = None
+    
     @staticmethod
     def compare(value1, value2):
         return not Eq.compare(value1, value2)
