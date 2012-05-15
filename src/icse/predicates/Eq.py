@@ -3,7 +3,7 @@ Created on 10/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.predicati.Predicate import PositivePredicate
+from icse.predicates.Predicate import PositivePredicate
 
 class Eq(PositivePredicate):
     '''

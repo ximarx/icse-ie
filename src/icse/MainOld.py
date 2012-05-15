@@ -4,14 +4,14 @@ Created on 10/mag/2012
 @author: Francesco Capozzo
 '''
 from icse.Production import Production
-from icse.rete.predicati.Eq import Eq
-from icse.rete.predicati.Variable import Variable
+from icse.predicates.Eq import Eq
+from icse.predicates.Variable import Variable
 from icse.rete.ReteNetwork import ReteNetwork
-from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
+from icse.predicates.Predicate import NccPredicate, PositivePredicate,\
     NegativePredicate, TestPredicate
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
-from icse.rete.predicati.NotEq import NotEq
-from icse.rete.predicati.Great import Gt
+from icse.predicates.NotEq import NotEq
+from icse.predicates.Great import Gt
 
 
 if __name__ == '__main__':

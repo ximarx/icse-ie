@@ -1,5 +1,5 @@
-from icse.rete.predicati.Eq import Eq
-from icse.rete.predicati.Predicate import NccPredicate, PositivePredicate,\
+from icse.predicates.Eq import Eq
+from icse.predicates.Predicate import NccPredicate, PositivePredicate,\
     NegativePredicate, TestPredicate
 from icse.rete.Nodes import BetaMemory, AlphaMemory, JoinNode, NegativeNode,\
     NccNode, FilterNode

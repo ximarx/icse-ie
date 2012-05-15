@@ -3,15 +3,15 @@ Created on 10/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.predicati.Predicate import Predicate
+from icse.predicates.Predicate import Predicate
 from icse.rete.Token import Token, DummyToken
 from icse.rete.WME import WME
-from icse.rete.predicati.Variable import Variable
+from icse.predicates.Variable import Variable
 from icse.rete.JoinTest import JoinTest
 from icse.rete.NegativeJoinResult import NegativeJoinResult
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.rete.FilterTest import FilterTest
-from icse.rete.predicati.Eq import Eq
+from icse.predicates.Eq import Eq
 
 class AlphaNode(object):
     '''

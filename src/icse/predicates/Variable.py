@@ -3,8 +3,8 @@ Created on 10/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.predicati.Eq import Eq
-from icse.rete.predicati.Predicate import Predicate
+from icse.predicates.Eq import Eq
+from icse.predicates.Predicate import Predicate
 
 class Variable(object):
     '''

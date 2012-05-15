@@ -5,9 +5,9 @@ Created on 08/mag/2012
 '''
 from icse.rete.Token import Token, DummyToken
 from icse.rete.WME import WME
-from icse.rete.predicati.Predicate import Predicate
-from icse.rete.predicati.Variable import Variable
-from icse.rete.predicati.Eq import Eq
+from icse.predicates.Predicate import Predicate
+from icse.predicates.Variable import Variable
+from icse.predicates.Eq import Eq
 
 class JoinTest(object):
     '''

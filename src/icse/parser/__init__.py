@@ -7,12 +7,12 @@ import string
 
 def _compile_parser(debug=False):
     
-    from icse.rete.predicati.Predicate import PositivePredicate, TestPredicate,\
+    from icse.predicates.Predicate import PositivePredicate, TestPredicate,\
         NegativePredicate, NccPredicate
-    from icse.rete.predicati.NotEq import NotEq
-    from icse.rete.predicati.Variable import Variable
-    from icse.rete.predicati.Eq import Eq
-    from icse.rete.predicati.Great import Gt
+    from icse.predicates.NotEq import NotEq
+    from icse.predicates.Variable import Variable
+    from icse.predicates.Eq import Eq
+    from icse.predicates.Great import Gt
     
     
     import os
