@@ -7,9 +7,12 @@ Created on 10/mag/2012
 import ebnf
 import pyparsing as pp
 import string
+from icse.Function import Function
+from icse.Variable import Variable
 
 def _get_function_from_string(funcname):
-    pass
+    import icse.functions as functions
+    return functions.Proxy.get(funcname)
     
 def _get_predicate_from_string(predname):
     import icse.predicates as predicates
@@ -42,7 +45,7 @@ class ClipsEbnf(object):
             table = {}
             table['float'] = pp.Regex(r'\d+(\.\d*)?([eE]\d+)?').setParseAction(lambda s,l,t:float(t[0])) 
             table['integer'] = pp.Word(pp.nums).setParseAction(lambda s,l,t:int(t[0][:]))
-            table['string'] = pp.Word(pp.alphas, pp.alphanums)
+            table['string'] = pp.Word(pp.printables)
             table['symbol'] = pp.Word("".join( [ c for c in string.printable if c not in string.whitespace and c not in "\"'()&?|<~;" ] ))
             table['variable_symbol'] = pp.Word('?', pp.alphanums, 2)
             table['variable_undef'] = pp.Literal('?')
@@ -71,6 +74,12 @@ class ClipsEbnf(object):
             parsers['and_CE'].setParseAction(lambda s,l,t: [t[1][:]] )
             parsers['not_CE'].setParseAction(lambda s,l,t: (NegativePredicate, t[1][1]) if t[1][0] == PositivePredicate else (NccPredicate, t[1]))
             parsers['predicate_name'].setParseAction(lambda s,l,t: _get_predicate_from_string(t[0]) )
+            parsers['function_name'].setParseAction(lambda s,l,t: _get_function_from_string(t[0]) )
+            # registra la funzione per la function call
+            # per provare a riscrivere la funzione come fosse
+            # una costante se tutti i termini della funzione sono costanti
+            parsers['function_call'].setParseAction(ClipsEbnf._try_rewrite_staticfunction)
+            parsers['term_function_call'].setParseAction(lambda s,l,t: t[1] )
             parsers['deffacts_name'].setParseAction(lambda s,l,t: ('name', t[0]))
             parsers['rhs_pattern'].setParseAction(lambda s,l,t: [t[1][:]])
             parsers['rhs_pattern_group'].setParseAction(lambda s,l,t: ('facts', t[0][:]))
@@ -92,5 +101,34 @@ class ClipsEbnf(object):
             ClipsEbnf._DEBUG = debug
             
         return ClipsEbnf._CACHED_CLIPS_EBNF['CLIPS_program']          
+    
+    @staticmethod   
+    def _try_rewrite_staticfunction(s,l,t):
+        condizioni = t[2][:]
+        funcImpl = t[1]
+        need_resolution = [ ( issubclass(x, Variable) or issubclass(x, Function)) for (x,_) in condizioni]
+        #print condizioni
+        #print need_resolution  
+        if not True in need_resolution :
+            # prima ad eseguire l'operazione direttamente
+            from icse.predicates.Eq import Eq
+            return (Eq, funcImpl.sign()['handler'](*[x for (_,x) in condizioni]))
+        else:
+            return (Function.withFunction(t[1]), condizioni)
             
+if __name__ == '__main__':
+    
+    ClipsEbnf.get_parser(True)
+    
+    test_funct = '''
+    (A =(+ 1 ?a 3))
+    (A =(+ 1 2 :(max 9 10)))
+    (A =(+ 1 2 3))
+    '''
+    
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['conditional_element_group'].parseString(test_funct)
+    
+    for i in parsed[0][1]:
+        print i
+    
             

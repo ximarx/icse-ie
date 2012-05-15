@@ -20,7 +20,7 @@ class Addition(Function):
         return sign
         
     @staticmethod
-    def handler(op1, op2):
-        return (op1 + op2)
+    def handler(*args):
+        return sum(args)
     
     

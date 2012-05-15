@@ -41,7 +41,7 @@ constraint = not_term | term ;
 not_term = '~', term;
 term = constant | variable_undef | variable_symbol | term_function_call;
 constant = number | symbol;
-term_function_call = ':' | '=', function_call;
+term_function_call = (':' | '='), function_call;
 function_call = '(', function_name, (constraint, {constraint}), ')';
 function_name = string;
 

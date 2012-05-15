@@ -3,8 +3,6 @@ Created on 10/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.predicates.Eq import Eq
-from icse.Variable import Variable
 from icse.functions import Function as FuncLogicBase
 
 class Function(object):

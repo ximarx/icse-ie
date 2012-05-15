@@ -39,9 +39,16 @@ class Proxy(object):
         return func['handler'](*args)
 
         
+    @staticmethod
+    def get(nome):
+        if not Proxy._funzioni.has_key(nome):
+            raise FunctionNotFoundError("La funzione richiesta non e' definita: "+str(nome))
+        
+        func = Proxy._funzioni[nome]
+        return func['cls']
     
     @staticmethod
-    def define(funcName, handler, minParams = 0):
+    def define(funcName, handler, cls, minParams = 0):
         if Proxy._funzioni.has_key(funcName):
             raise DuplicateFunctionError("Funzione gia definita: "+funcName)
         
@@ -50,7 +57,8 @@ class Proxy(object):
         
         Proxy._funzioni[funcName] = {
                     'handler' : handler,
-                    'minParams' : minParams
+                    'minParams' : minParams,
+                    'cls': cls
                 }
         
     @staticmethod
@@ -161,7 +169,7 @@ if not Proxy.initied():
         
             if issubclass(attr, Function):
                 sign = attr.sign()
-                Proxy.define(sign['sign'], sign['handler'], sign['minParams'])
+                Proxy.define(sign['sign'], sign['handler'], attr, sign['minParams'])
         except Exception, e:
             # ignoro gli elementi che creano errori
             #raise
