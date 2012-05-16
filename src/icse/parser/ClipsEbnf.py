@@ -34,7 +34,6 @@ class ClipsEbnf(object):
             from icse.predicates.Predicate import PositivePredicate, TestPredicate,\
                 NegativePredicate, NccPredicate
             from icse.predicates.NotEq import NotEq
-            from icse.Variable import Variable
             from icse.predicates.Eq import Eq
             
             import os
@@ -121,14 +120,12 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
-    (A =(+ 1 ?a 3))
-    (A =(+ 1 2 :(max 9 10)))
-    (A =(+ 1 2 3))
+    (declare (salience 1000))
     '''
     
-    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['conditional_element_group'].parseString(test_funct)
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['declaration'].parseString(test_funct)
     
-    for i in parsed[0][1]:
+    for i in parsed:
         print i
     
             

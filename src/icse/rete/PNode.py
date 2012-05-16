@@ -95,7 +95,8 @@ class PNode(BetaMemory):
                 # il valore e' proprio l'indice della WME
                 # NON passo la reference alla wme perche
                 # provo a conservare la compatibilita' con CLIPS
-                value = wme.get_factid()
+                #value = wme.get_factid()
+                value = wme
             else:
                 # il valore e' il contenuto di un campo
                 value = wme.get_field(field_index)

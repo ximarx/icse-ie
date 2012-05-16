@@ -1,9 +1,9 @@
 
 (defrule mitico
-	(not (A C))
+	(not (data A))
 =>
 )
 
-(deffacts initial-fact
-	(A B)
+(deffacts initial-fewpojfw
+	(data B)
 )
