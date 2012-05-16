@@ -66,7 +66,7 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
     current_node = parent
     
     # ciclo per ogni condizione separatamente
-    for cc in conditions:
+    for cond_index, cc in enumerate(conditions):
         
         # il terzo campo viene usano
         # per memorizzare il nome della variabile
@@ -75,7 +75,8 @@ def network_factory(alpha_root, parent, conditions, earlier_conditions = None, b
         if len(cc) == 2:
             c_type, c = cc
         elif len(cc) == 3:
-            c_type, c, _ = cc
+            c_type, c, var_binding = cc
+            builtins[var_binding] = (cond_index, None)
             
         if issubclass(c_type, PositivePredicate):
             # siamo in una condizione positiva

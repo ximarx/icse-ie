@@ -74,8 +74,8 @@ class PNode(BetaMemory):
         
         variables = self._resolve_variables(wmes)
         
-        #from pprint import pprint
-        #pprint(variables)
+        from pprint import pprint
+        pprint(variables)
         
         for action in self.__actions:
             #TODO token linearizzato
