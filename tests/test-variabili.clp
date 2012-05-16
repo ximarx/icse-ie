@@ -33,7 +33,7 @@
 
 (defrule not-variabile-esterna-attiva "Deve essere attiva per passare il test"
 	(A B ?c D C)
-	(C ~?c D A)
+	(C ~?c ?d A)
 =>
 )
 

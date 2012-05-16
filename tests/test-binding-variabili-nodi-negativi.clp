@@ -1,0 +1,16 @@
+
+(defrule negative-primo-attivato "Questa regola deve avere riscontro per passare il test"
+	(not (C Z))
+	(not (K V))
+	(A ?b)
+	(not (Y Y))
+	(A ?b ?c)
+=>
+)
+
+(deffacts fatti-iniziali "Attivano negative-attivano, ma non negative-silente"
+	(A B)
+	(A B C)
+)
+	
+

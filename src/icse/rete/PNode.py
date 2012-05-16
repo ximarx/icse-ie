@@ -65,15 +65,41 @@ class PNode(BetaMemory):
     def factory(self, parent):
         raise NotImplementedError
     
-    
     def execute(self, token):
         
         # devo linearizzare il token
         # ed eseguire le azioni
         
+        wmes = token.linearize()
+        
+        variables = self._resolve_variables(wmes)
+        
+        #from pprint import pprint
+        #pprint(variables)
+        
         for action in self.__actions:
             #TODO token linearizzato
             action.execute()
         
+    def _resolve_variables(self, wmes):
         
-    
+        solved_builtins = {}
+        
+        for (var_name, (cond_index, field_index)) in self.__symbols.items():
+            
+            wme = wmes[cond_index]
+            if wme == None:
+                wme = wmes[cond_index + 1]
+            
+            if field_index == None:
+                # il valore e' proprio l'indice della WME
+                # NON passo la reference alla wme perche
+                # provo a conservare la compatibilita' con CLIPS
+                value = wme.get_factid()
+            else:
+                # il valore e' il contenuto di un campo
+                value = wme.get_field(field_index)
+            
+            solved_builtins[var_name] = value
+        
+        return solved_builtins

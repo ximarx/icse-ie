@@ -59,6 +59,8 @@ def execute_test(filepath):
         print "{0}: {1}".format(node.get_name(), token.linearize())
     
     
+    #node.execute(token)
+    
     
     NetworkXGraphWrapper.i().draw()
     NetworkXGraphWrapper.i().clear()

@@ -92,6 +92,9 @@ class ReteNetwork(object):
         symbols = {}
         last_node = rete.network_factory(self.__alpha_root, None, production.get_lhs(), builtins=symbols)
         
+        #from pprint import pprint
+        #pprint(symbols, indent=4)
+        
         pnode = PNode(last_node,
                       production.get_name(),
                       production.get_rhs(),

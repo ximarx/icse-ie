@@ -32,7 +32,9 @@ if __name__ == '__main__':
                         (PositivePredicate, [(Eq, 'A'), (Variable, 'var')]),
                         (PositivePredicate, [(Eq, 'A'), (Function.withFunction(Addition), [(Eq, 1), (Variable, 'var')]), (Eq, "B")]),
                         ],
-                   rhs=[],
+                   rhs=[
+                        
+                        ],
                    description=""
                    )
     

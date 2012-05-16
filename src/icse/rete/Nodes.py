@@ -949,8 +949,8 @@ class NegativeNode(JoinNode):
 
     def leftActivation(self, tok, wme):
 
-        assert isinstance(wme, WME), \
-            "wme non e' un WME"
+        #assert isinstance(wme, WME), \
+        #    "wme non e' un WME"
         
         # se il token viene da un dummyjoinnode
         # devo provvedere a convertirlo?
