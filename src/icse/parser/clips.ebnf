@@ -14,6 +14,9 @@ Altre definizioni base in icse.parser.__init__.py
 	- variable_symbol
 	- variable_undef
 	- quoted_text
+	- action_name: [una lista di azioni supportate caricate dinamicamente]
+	- function_name: [una lista di funzioni supportate caricate dinamicamente]
+	- predicate_name: [una lista di predicati supportati caricati dinamicamente]	
 ******************)
 
 (*************************
@@ -33,8 +36,18 @@ declaration = '(declare', (rule_property, {rule_property}), ')';
 rule_property = '(', string, (number | symbol ), ')';
 conditional_element_group = ({conditional_element});
 conditional_element = test_CE | assigned_pattern_CE | not_CE | and_CE | pattern_CE;
-action_group = ({action});
-action = '(', string, ')';
+action_group = ({action_call});
+action_call = '(', action_name, ({action_term | action_call | action_quoted_text | rhs_pattern }), ')';
+
+
+action_term = action_constant | variable_symbol;
+action_constant = number | symbol;
+action_quoted_text = quoted_text;
+
+(*action_call = '(', action_name, ({action_term | action_call | action_function_call | action_predicate_call | action_quoted_text | rhs_pattern }), ')';*)
+(*action_term = action_constant | variable_symbol | action_function_call;*)
+(*action_predicate_call = '(', predicate_name, (action_term, {action_term}), ')';*)
+(*action_function_call = '(', function_name, (action_term, {action_term}), ')';*)
 
 pattern_CE = '(', ({constraint}), ')';
 constraint = not_term | term ;
@@ -43,10 +56,8 @@ term = constant | variable_undef | variable_symbol | term_function_call;
 constant = number | symbol;
 term_function_call = (':' | '='), function_call;
 function_call = '(', function_name, (constraint, {constraint}), ')';
-function_name = string;
 
 predicate_call = '(', predicate_name, (constraint, {constraint}), ')';
-predicate_name = string;
 
 assigned_pattern_CE = variable_symbol, '<-', pattern_CE;
 
@@ -70,6 +81,6 @@ rhs_pattern_group = ({rhs_pattern});
 rhs_pattern = '(', (rhs_field, {rhs_field}), ')';
 
 deffacts_name = symbol;
-rhs_field = number | symbol;
+rhs_field = number | symbol | variable_symbol;
 
 CLIPS_program = ({defrule_construct | deffacts_construct});

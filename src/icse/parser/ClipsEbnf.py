@@ -18,6 +18,9 @@ def _get_predicate_from_string(predname):
     import icse.predicates as predicates
     return predicates.Proxy.get(predname)
 
+def _get_action_from_string(actionname):
+    import icse.actions as actions
+    return actions.Proxy.get(actionname)
 
 class ClipsEbnf(object):
     _CACHED_CLIPS_EBNF = None
@@ -46,10 +49,19 @@ class ClipsEbnf(object):
             table['integer'] = pp.Word(pp.nums).setParseAction(lambda s,l,t:int(t[0][:]))
             table['string'] = pp.Word(pp.printables)
             table['symbol'] = pp.Word("".join( [ c for c in string.printable if c not in string.whitespace and c not in "\"'()&?|<~;" ] ))
-            table['variable_symbol'] = pp.Word('?', pp.alphanums, 2)
+            table['variable_symbol'] = pp.Word('?', "".join( [ c for c in string.printable if c not in string.whitespace and c not in "\"'()&?|<~;" ] ), 2)
             table['variable_undef'] = pp.Literal('?')
             table['quoted_text'] = ("'" + pp.CharsNotIn("'") + "'" ^ \
                                 '"' + pp.CharsNotIn('"') + '"')
+            
+            import icse.actions as actions
+            table['action_name'] = pp.oneOf(" ".join(actions.Proxy.get_actions().keys())) 
+            
+            import icse.functions as functions
+            table['function_name'] = pp.oneOf(" ".join(functions.Proxy.get_functions().keys())) 
+
+            import icse.predicates as predicates
+            table['predicate_name'] = pp.oneOf(" ".join(predicates.Proxy.get_predicates().keys())) 
             
             
             parsers = ebnf.parse(grammar, table, debug)
@@ -83,7 +95,14 @@ class ClipsEbnf(object):
             parsers['rhs_pattern'].setParseAction(lambda s,l,t: [t[1][:]])
             parsers['rhs_pattern_group'].setParseAction(lambda s,l,t: ('facts', t[0][:]))
             parsers['deffacts_construct'].setParseAction(lambda s,l,t: ('deffacts', dict([x for x in t if isinstance(x, tuple)]).get('facts')))
+            
+            parsers['action_quoted_text'].setParseAction(lambda s,l,t: "".join(t) )
+            parsers['action_call'].setParseAction(lambda s,l,t: (t[1],t[2][:]) )
+            parsers['action_name'].setParseAction(lambda s,l,t: _get_action_from_string(t[0]) )
+            
+            
             parsers['CLIPS_program'].setParseAction(lambda s,l,t: t[0][:])
+            
         
             if debug:
                 # vistualizzo informazioni su funzioni e predicati caricati
@@ -93,6 +112,9 @@ class ClipsEbnf(object):
                 import icse.functions as funcs
                 print "Funzioni caricate:"
                 print "\t" + "\n\t".join(funcs.Proxy.get_functions().keys())
+                import icse.actions as actions
+                print "Azioni caricate:"
+                print "\t" + "\n\t".join(actions.Proxy.get_actions().keys()) 
                 raw_input()
                 
         
@@ -120,12 +142,24 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
-    (declare (salience 1000))
+    (printout t "Questa stringa e' cosi fica che quasi no la riconoscevo" crlf)
+    (assert (A B C))
+    (retract (A ?c C))
+    (retract ?a)
+    (read)
+    (bind ?variabile (read))
+    (refresh regola1)
     '''
     
-    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['declaration'].parseString(test_funct)
+    ClipsEbnf._CACHED_CLIPS_EBNF['action_quoted_text'].setParseAction(lambda s,l,t: "".join(t) )
+    ClipsEbnf._CACHED_CLIPS_EBNF['action_call'].setParseAction(lambda s,l,t: (t[1],t[2][:]) )
+    ClipsEbnf._CACHED_CLIPS_EBNF['action_name'].setParseAction(lambda s,l,t: _get_action_from_string(t[0]) )
+    #ClipsEbnf._CACHED_CLIPS_EBNF['action_predicate_call'].setParseAction()
     
-    for i in parsed:
-        print i
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['action_group'].parseString(test_funct)
+    
+    import pprint
+    
+    pprint.pprint(parsed)
     
             

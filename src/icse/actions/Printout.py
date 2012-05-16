@@ -10,23 +10,31 @@ class Printout(Action):
     Stampa una lista di simboli su una device
     '''
         
-        
-    @staticmethod
-    def get_ebnf():
-        return '''
-        '''
-        
-    @staticmethod
-    def parse_action():
-        return ('action_printout', Printout._parse_action_impl)
+    SIGN = 'printout'
+    
+    _special_chars = {
+            "crlf" : "\n"
+        }
     
     @staticmethod
-    def _parse_action_impl(s,l,t):
-        return t
+    def _translate_symbol(symbol):
+        try:
+            return Printout._special_chars[symbol]
+        except ValueError:
+            import sys
+            print >> sys.stderr, \
+                "Carattere speciale {{{0}}} non riconosciuto. Verra' interpretato come stringa".format(symbol)
+        except Exception:
+            print "Il simbolo: ", str(symbol)
     
-
     def executeImpl(self, deviceId, *args):
-        
-        pass
+        device = self._devices[deviceId]
+        args = self._resolve_args(False, True, *args)
+        changed_args = [x[1:-1] if isinstance(x, (str, unicode)) and x[0] == '"' and x[-1] == '"'
+                        else Printout._translate_symbol(x) if isinstance(x, (str, unicode))
+                        else str(x) if isinstance(x, (list, dict))
+                        else x
+                        for x in args]
+        device.writelines(changed_args)
         
     

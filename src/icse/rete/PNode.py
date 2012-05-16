@@ -78,9 +78,16 @@ class PNode(BetaMemory):
         #from icse.actions import Action as ActionProxy
         pprint(variables)
         
+        pprint(self.__actions)
+        
         for (action, args) in self.__actions:
             
-            action.execute(args, variables)
+            action.execute(args, variables,
+                            assertFunc=self.__assertFunc,
+                            retractFunc=self.__retractFunc,
+                            addProductionFunc=self.__addProduction,
+                            removeProductionFunc=self.__removeProduction
+                        )
             
         
     def _resolve_variables(self, wmes):
