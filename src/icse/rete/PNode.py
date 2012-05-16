@@ -75,11 +75,13 @@ class PNode(BetaMemory):
         variables = self._resolve_variables(wmes)
         
         from pprint import pprint
+        #from icse.actions import Action as ActionProxy
         pprint(variables)
         
-        for action in self.__actions:
-            #TODO token linearizzato
-            action.execute()
+        for (action, args) in self.__actions:
+            
+            action.execute(args, variables)
+            
         
     def _resolve_variables(self, wmes):
         

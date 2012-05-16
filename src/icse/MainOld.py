@@ -33,7 +33,7 @@ if __name__ == '__main__':
                         (PositivePredicate, [(Eq, 'A'), (Function.withFunction(Addition), [(Eq, 1), (Variable, 'var')]), (Eq, "B")]),
                         ],
                    rhs=[
-                        
+                        (Printout, ["t", (Variable, 'A'), "il mio testo", "crlf"])
                         ],
                    description=""
                    )
