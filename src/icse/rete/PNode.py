@@ -74,11 +74,11 @@ class PNode(BetaMemory):
         
         variables = self._resolve_variables(wmes)
         
-        from pprint import pprint
+        #from pprint import pprint
         #from icse.actions import Action as ActionProxy
-        pprint(variables)
+        #pprint(variables)
         
-        pprint(self.__actions)
+        #pprint(self.__actions)
         
         for (action, args) in self.__actions:
             

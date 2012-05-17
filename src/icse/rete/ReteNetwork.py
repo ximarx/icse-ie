@@ -22,8 +22,9 @@ class ReteNetwork(object):
         Constructor
         '''
         self.__wmes_map = {}
+        self.__id_fact_map = {}
         self.__rules_map = {}
-        self.__activables = set()
+        self.__activables = []
         self.__wme_nextid = 0
         
         self.__alpha_root = AlphaRootNode(self)
@@ -36,38 +37,57 @@ class ReteNetwork(object):
         
         
     def get_wmes(self):
-        return self.__wmes_map.keys()
+        return self.__wmes_map.values()
+        
+    def _get_fact_dict_key(self, fact):
+        if isinstance(fact, list):
+            return tuple(fact)
+        elif isinstance(fact, dict):
+            return tuple(fact.items())
+        else:
+            return fact
+        
+    def get_wme(self, fact_or_fact_id):
+        if isinstance(fact_or_fact_id, int):
+            # e' un id
+            fact_or_fact_id = self.__id_fact_map[fact_or_fact_id]
+            
+        return self.__wmes_map[self._get_fact_dict_key(fact_or_fact_id)]
         
     def assert_fact(self, fact):
         '''
         Asserisce un nuovo fatto nel network
         @param fact: Fact
         '''
-
-        # converte il fatto in una WME
-        wme = WME(fact)
         
-        # controllo che non sia un duplicato
-        if not self.__wmes_map.has_key(wme):
+        try:
+            wme = self.get_wme(fact)
+            # se l'ho trovato (e quindi niente eccezione
+            # significa che e' un duplicato
+            # ergo non propago nulla
+            return (wme.get_factid(), wme, False)
+            
+        except KeyError:
+            
+            # se non l'ho trovato, devo asserire realmente
+            fact_dict_key = self._get_fact_dict_key(fact)
+            
+            wme = WME(fact)
         
             # e' un nuovo WME, quindi incremento l'id...
             self.__wme_nextid += 1
 
             # inserisco nella map wme -> ID
-            self.__wmes_map[wme] = self.__wme_nextid
+            self.__wmes_map[fact_dict_key] = wme
             
             wme.set_factid(self.__wme_nextid)
+            
+            self.__id_fact_map[self.__wme_nextid] = fact_dict_key
             
             # ...e propago
             self.__alpha_root.activation(wme)
             
             return (self.__wme_nextid, wme, True)
-
-        else:
-            # e' un duplicato
-            # restituisco quella che gia c'e'
-            # indicando che non e' una nuova aggiunta
-            return (self.__wmes_map[wme], wme, False)
         
         
     def retract_fact(self, wme):
@@ -75,12 +95,21 @@ class ReteNetwork(object):
         Ritratta un fatto dal network
         @param wme: WME una wme gia presente nella rete 
         '''
+        
+        if not isinstance(wme, WME):
+            # la cerco nel dizionario wme
+            wme = self.__wmes_map[self._get_fact_dict_key(wme)]
+            
+        
         assert isinstance(wme, WME), \
             "wme non e' un WME"
             
         # rimuovo dalla mappa wme -> id
         # (questo mi assicura che la wme ci sia)
-        self.__wmes_map.pop(wme)
+        self.__wmes_map.pop(self._get_fact_dict_key(wme.get_fact()))
+        
+        #import sys
+        #print >> sys.stderr, "Sto ritrattando: ", wme
         
         wme.remove()
         
@@ -115,12 +144,25 @@ class ReteNetwork(object):
         
         NetworkXGraphWrapper.i().add_node(pnode, last_node, -1)
         
+        self.__rules_map[production.get_name] = pnode
         
-    def remove_production(self, pnode):
+        return pnode
+        
+        
+    def remove_production(self, pnode_or_rulename):
         '''
         Rimuove una produzione dal network
-        @param pnode: PNode
+        @param pnode_or_rulename: PNode
         '''
+        if not isinstance(pnode_or_rulename, PNode):
+            pnode_or_rulename = self.__rules_map[pnode_or_rulename]
+            
+        assert isinstance(pnode_or_rulename, PNode)
+        
+        del self.__rules_map[pnode_or_rulename.get_name()]
+        
+        pnode_or_rulename.delete()
+        
         
     def add_activable(self, pnode, token ):
         '''
@@ -128,7 +170,7 @@ class ReteNetwork(object):
         alla lista delle produzioni attivabili
         '''
         #print "Nuova regola attivabile: {0} => {1}".format(pnode.get_name(), token.linearize())
-        self.__activables.add( (pnode, token) )
+        self.__activables.append( (pnode, token) )
         
     def remove_activable(self, pnode, token ):
         '''

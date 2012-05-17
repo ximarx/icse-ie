@@ -11,7 +11,8 @@ class Retract(Action):
     '''
     SIGN = 'retract'
     
-    def executeImpl(self, facts, *args):
+    def executeImpl(self, *args):
+        facts = self._resolve_args(False, True, *args)
         for fact in facts:
             self.retractFact(fact)
         

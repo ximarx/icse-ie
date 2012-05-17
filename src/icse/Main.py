@@ -57,9 +57,20 @@ def execute_test(filepath):
     agenda = rete.agenda()
     for (node, token) in agenda:
         print "{0}: {1}".format(node.get_name(), token.linearize())
+        
+    print "-------------------"
+    print "Esecuzione: "
+    print
     
+    NetworkXGraphWrapper.i().draw()
     
-    node.execute(token)
+    while len(agenda) > 0:
+        node, token = agenda[0]
+        node.execute(token)
+        # non e' necessario aggiornare
+        # l'agenda visto che e' un riferimento
+        # agli attivabili
+        #agenda = rete.agenda()
     
     
     NetworkXGraphWrapper.i().draw()

@@ -49,11 +49,16 @@ class WME(object):
         # dal confronto con questa wme
         # (insieme ai discendenti in quanti non piu'
         # validi essendo venuta meno una precondizione)
-        while len(self.__tokens) > 0:
-            tok = self.__tokens.pop(0)
-            assert isinstance(tok, Token), \
-                "tok non e' un Token"
-            tok.delete()   
+        #while len(self.__tokens) > 0:
+        #    tok = self.__tokens.pop(0)
+        #    assert isinstance(tok, Token), \
+        #        "tok non e' un Token"
+        #    tok.delete()
+        
+        # la rimozione del token deve essere richiesta dal token
+        for tok in self.__tokens:
+            tok.delete()
+        
             
         for jr in self.__njresults:
             assert isinstance(jr, NegativeJoinResult), \
@@ -106,6 +111,9 @@ class WME(object):
         @return: simbol
         '''
         return self.__fields[field]
+    
+    def get_fact(self):
+        return self.__fields
     
     def get_length(self):
         return len(self.__fields)

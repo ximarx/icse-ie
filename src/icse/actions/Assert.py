@@ -11,7 +11,8 @@ class Assert(Action):
     '''
     SIGN = 'assert'
     
-    def executeImpl(self, facts, *args):
+    def executeImpl(self, *args):
+        facts = self._resolve_args(False, True, *args)
         for fact in facts:
             self.assertFact(fact)
         
