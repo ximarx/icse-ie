@@ -48,7 +48,11 @@ class Production(object):
         from icse.Function import Function
         
         specificity = 0
-        for (predicate, args) in lhs:
+        for lhs_item in lhs:
+            if len(lhs_item) == 2:
+                predicate, args = lhs_item
+            else:
+                predicate, args, _ = lhs_item
             if issubclass(predicate, (PositivePredicate, NegativePredicate)):
                 for (arg_type, arg_value) in args:
                     if issubclass(arg_type, (Eq, NotEq, Variable)):
@@ -78,7 +82,6 @@ class Production(object):
                                     if issubclass(sub_arg_type, (Eq, NotEq, Variable)):
                                         specificity += 1
                 
-            
             
         return specificity
         

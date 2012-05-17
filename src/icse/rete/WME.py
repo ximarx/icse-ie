@@ -3,7 +3,6 @@ Created on 07/mag/2012
 
 @author: Francesco Capozzo
 '''
-from icse.rete.Token import Token
 from icse.rete.NegativeJoinResult import NegativeJoinResult
 import time
 

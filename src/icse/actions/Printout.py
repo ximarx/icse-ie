@@ -33,8 +33,9 @@ class Printout(Action):
         changed_args = [x[1:-1] if isinstance(x, (str, unicode)) and x[0] == '"' and x[-1] == '"'
                         else Printout._translate_symbol(x) if isinstance(x, (str, unicode))
                         else str(x) if isinstance(x, (list, dict))
-                        else x
+                        else str(x)
                         for x in args]
+        
         device.writelines(changed_args)
         
     

@@ -42,7 +42,7 @@ class Agenda(object):
         except KeyError:
             # non c'e' ancora nessuna regola con quella salience
             # non c'e' bisogno di riordino
-            self._activations = [(pnode, token)]
+            self._activations[salience] = [(pnode, token)]
             return
         
         #devo inserire nella posizione giusta nella lista
@@ -99,15 +99,36 @@ class Agenda(object):
         
         try:
             same_salience_queue = self._activations[salience]
+            
+#            print
+#            print "---"
+#            print same_salience_queue
+#            print pnode.get_name()
+#            print token.linearize()
+            
             same_salience_queue.remove((pnode, token))
             # se non ci sono altre attivazioni
             # rimuovo
             if len(same_salience_queue) == 0:
                 del self._activations[salience]
-        except KeyError:
+        except (KeyError, ValueError):
             # non c'e' nessuna attivazione disponibile?
             # allora da dove viene questo token?
-            return
+            
+            # non c'e' questa attivazione nell'agenda
+            # suppongo che stia provando a rimuovere
+            # l'attivazione della stessa regola che ha
+            # attivato l'azione di rimozione
+            pass
+            
+        # una volta rimosso dagli attivabili
+        # devo anche prendermi cura delle attivazioni eseguite
+        # e ancora eseguibili, rimuovendolo da quella lista
+        try:
+            self._fired_activations[pnode.get_name()].remove((pnode, token))
+        except (KeyError, ValueError):
+            pass
+            
         
     def clear(self):
         '''
@@ -139,5 +160,12 @@ class Agenda(object):
                 # in base alla nuova strategia
                 for per_saliance_list in self._activations.values():
                     self._strategy.resort(per_saliance_list)
-            
+                    
+    def activations(self):
+        saliences = sorted(self._activations.keys(), reverse=True)
+        activations = []
+        for salience in saliences:
+            for (pnode, token) in self._activations[salience]:
+                activations.append((salience, pnode, token))
+        return activations
     
