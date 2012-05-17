@@ -5,6 +5,7 @@ Created on 07/mag/2012
 '''
 from icse.rete.Token import Token
 from icse.rete.NegativeJoinResult import NegativeJoinResult
+import time
 
 
 class WME(object):
@@ -23,6 +24,9 @@ class WME(object):
         self.__tokens = []
         self.__njresults = []
         self.__factid = 0
+        
+        
+        self.__time = time.time()
         
     def set_factid(self, newid):
         self.__factid = newid
@@ -111,6 +115,9 @@ class WME(object):
         @return: simbol
         '''
         return self.__fields[field]
+    
+    def get_epoch(self):
+        return self.__time
     
     def get_fact(self):
         return self.__fields

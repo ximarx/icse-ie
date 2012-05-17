@@ -18,6 +18,7 @@ class PNode(BetaMemory):
                  # informazioni sulla produzione
                  name,
                  actions,
+                 properties,
                  symbols,
                  # triggers
                  onActive=lambda pnode,token:None,
@@ -40,6 +41,7 @@ class PNode(BetaMemory):
         self.__actions = actions
         self.__name = name
         self.__symbols = symbols
+        self.__properties = properties
 
         BetaMemory.__init__(self, parent)
         
@@ -113,3 +115,9 @@ class PNode(BetaMemory):
             solved_builtins[var_name] = value
         
         return solved_builtins
+    
+    def get_property(self, propname, default=None):
+        try:
+            return self.__properties[propname]
+        except KeyError:
+            return default

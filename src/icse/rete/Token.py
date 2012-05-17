@@ -213,11 +213,12 @@ class Token(object):
         self.__children.remove(t)
         
         
-    def linearize(self):
+    def linearize(self, includeNone=True):
         current = self
         wmes = []
         while current.get_parent() != None:
-            wmes.insert(0, current.get_wme())
+            if includeNone or current.get_wme() != None:
+                wmes.insert(0, current.get_wme())
             current = current.get_parent()
         
         return wmes

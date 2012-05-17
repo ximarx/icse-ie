@@ -36,7 +36,7 @@ def execute_test(filepath):
             default_rule = {'name': '', 'lhs': [], 'rhs': [], 'declare': {'salience': 0}, 'description': ''}
             default_rule.update(rule)
             rule = default_rule
-            p = Production(rule['name'], rule['lhs'], rule['rhs'], rule['declare']['salience'], rule['description'])
+            p = Production(rule['name'], rule['lhs'], rule['rhs'], rule['declare'], rule['description'])
             rete.add_production(p)
         elif item_type == 'deffacts':
             for fact in item:

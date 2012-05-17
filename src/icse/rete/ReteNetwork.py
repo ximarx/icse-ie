@@ -8,6 +8,7 @@ from icse import rete
 from icse.rete.Nodes import AlphaRootNode, ReteNode
 from icse.rete.PNode import PNode
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
+from icse.rete.Agenda import Agenda
 
 
 class ReteNetwork(object):
@@ -24,7 +25,7 @@ class ReteNetwork(object):
         self.__wmes_map = {}
         self.__id_fact_map = {}
         self.__rules_map = {}
-        self.__activables = []
+        self.__agenda = Agenda()
         self.__wme_nextid = 0
         
         self.__alpha_root = AlphaRootNode(self)
@@ -127,9 +128,10 @@ class ReteNetwork(object):
         pnode = PNode(last_node,
                       production.get_name(),
                       production.get_rhs(),
+                      production.get_properties(),
                       symbols,
-                      onActive=self.add_activable,
-                      onDeactive=self.remove_activable,
+                      onActive=self.__agenda.insert,
+                      onDeactive=self.__agenda.remove,
                       assertFunc=self.assert_fact,
                       retractFunc=self.retract_fact,
                       addProduction=self.add_production,
@@ -162,23 +164,8 @@ class ReteNetwork(object):
         del self.__rules_map[pnode_or_rulename.get_name()]
         
         pnode_or_rulename.delete()
-        
-        
-    def add_activable(self, pnode, token ):
-        '''
-        Aggiunge un nuovo elemento <PNode, token>
-        alla lista delle produzioni attivabili
-        '''
-        #print "Nuova regola attivabile: {0} => {1}".format(pnode.get_name(), token.linearize())
-        self.__activables.append( (pnode, token) )
-        
-    def remove_activable(self, pnode, token ):
-        '''
-        Rimuove un elemento <PNode, token> dalla
-        lista di produzioni attivabili
-        '''
-        self.__activables.remove((pnode, token))
+
         
     def agenda(self):
-        return self.__activables
+        return self.__agenda
     
