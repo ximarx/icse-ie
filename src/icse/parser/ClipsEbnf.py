@@ -103,6 +103,10 @@ class ClipsEbnf(object):
             
             parsers['CLIPS_program'].setParseAction(lambda s,l,t: t[0][:])
             
+            clipsComment = ( ";" + pp.SkipTo("\n") ).setName("clips_comment")
+                                    
+            parsers['CLIPS_program'].ignore(clipsComment)
+            
         
             if debug:
                 # vistualizzo informazioni su funzioni e predicati caricati

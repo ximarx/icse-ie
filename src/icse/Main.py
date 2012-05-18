@@ -99,7 +99,7 @@ def execute_test(filepath):
     print "Post esecuzione:"
     print
     
-    for wme in rete.get_wmes():
+    for wme in sorted(rete.get_wmes(), key=lambda x: x.get_factid()):
         print "{0} ({1})".format(
                                 str("f-"+str(wme.get_factid())).ljust(5, ' '),
                                 " ".join([str(x) for x in wme.get_fact()]) if isinstance(wme.get_fact(), list) 
