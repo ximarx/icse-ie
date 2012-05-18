@@ -142,13 +142,7 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
-    (printout t "Questa stringa e' cosi fica che quasi no la riconoscevo" crlf)
-    (assert (A B C))
-    (retract (A ?c C))
-    (retract ?a)
-    (read)
-    (bind ?variabile (read))
-    (refresh regola1)
+    (retract * (A B C) ?var )
     '''
     
     ClipsEbnf._CACHED_CLIPS_EBNF['action_quoted_text'].setParseAction(lambda s,l,t: "".join(t) )

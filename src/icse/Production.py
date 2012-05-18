@@ -53,7 +53,7 @@ class Production(object):
                 predicate, args = lhs_item
             else:
                 predicate, args, _ = lhs_item
-            if issubclass(predicate, (PositivePredicate, NegativePredicate)):
+            if issubclass(predicate, (PositivePredicate, NegativePredicate, TestPredicate)):
                 for (arg_type, arg_value) in args:
                     if issubclass(arg_type, (Eq, NotEq, Variable)):
                         specificity += 1
@@ -66,10 +66,13 @@ class Production(object):
                         for (sub_arg_type, _) in arg_value:
                             if issubclass(sub_arg_type, (Eq, NotEq, Variable)):
                                 specificity += 1
-            elif issubclass(predicate, (NccPredicate, TestPredicate)):
-                for sub_predicate in args:
+            elif issubclass(predicate, NccPredicate):
+#                print "---"
+#                print predicate
+#                print args
+                for sub_predicate, sub_args in args:
                     if issubclass(sub_predicate, (PositivePredicate, NegativePredicate)):
-                        for (arg_type, arg_value) in args:
+                        for (arg_type, arg_value) in sub_args:
                             if issubclass(arg_type, (Eq, NotEq, Variable)):
                                 specificity += 1
                             elif issubclass(arg_type, Function):

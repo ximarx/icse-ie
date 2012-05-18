@@ -107,12 +107,13 @@ class ReteNetwork(object):
             
         # rimuovo dalla mappa wme -> id
         # (questo mi assicura che la wme ci sia)
-        self.__wmes_map.pop(self._get_fact_dict_key(wme.get_fact()))
+        del self.__wmes_map[self._get_fact_dict_key(wme.get_fact())]
         
         #import sys
         #print >> sys.stderr, "Sto ritrattando: ", wme
         
         wme.remove()
+        del wme
         
     def add_production(self, production):
         '''

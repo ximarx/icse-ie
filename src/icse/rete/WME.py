@@ -52,16 +52,12 @@ class WME(object):
         # dal confronto con questa wme
         # (insieme ai discendenti in quanti non piu'
         # validi essendo venuta meno una precondizione)
-        #while len(self.__tokens) > 0:
-        #    tok = self.__tokens.pop(0)
-        #    assert isinstance(tok, Token), \
-        #        "tok non e' un Token"
+                # la rimozione del token deve essere richiesta dal token
+        #for tok in self.__tokens:
         #    tok.delete()
-        
-        # la rimozione del token deve essere richiesta dal token
-        for tok in self.__tokens:
+        while len(self.__tokens) > 0:
+            tok = self.__tokens[0]
             tok.delete()
-        
             
         for jr in self.__njresults:
             assert isinstance(jr, NegativeJoinResult), \
@@ -73,7 +69,7 @@ class WME(object):
             if jr.get_owner().count_njresults() == 0:
                 # bisogna propagare
                 for child in jr.get_owner().get_node().get_children():
-                    child.leftActivation(jr.get_owner())
+                    child.leftActivation(jr.get_owner(), None)
         
     def add_token(self, t):
         '''

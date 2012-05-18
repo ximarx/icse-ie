@@ -140,8 +140,9 @@ class Token(object):
         #    child.delete()
         #    del child
 
-        for child in self.__children:
-            child.delete()
+        #for child in self.__children:
+        #    child.delete()
+        self.deleteDescendents()
             
         
         # Il nodo in self.__node per forza di cose deve
@@ -165,13 +166,16 @@ class Token(object):
             # che il riferimento a jr venga eliminato
             # dall'array
             # Penso possa essere utile per il garbage collector
+            
             while len(self.__njresults) > 0:
                 jr = self.__njresults.pop(0)
                 assert isinstance(jr, NegativeJoinResult), \
                     "jr non e' un NegativeJoinResult"
-                jr.get_wme().remove_njresult(jr)
+                #jr.get_wme().remove_njresult(jr)
+                wme_of_jr = jr.get_wme()
+                wme_of_jr.remove_njresult(jr)
                 del jr
-                    
+                
         elif isinstance(self.__node, NccNode):
             # pulisce i risultati ncc correlati all'esistenza di questo token
             while len(self.__nccresults) > 0:
@@ -200,11 +204,16 @@ class Token(object):
         Rimuove tutti i discendenti di questo token
         dalla rete
         '''
-        #while len(self.__children) > 0:
+        # la rimozione deve avvenire
+        # usando un while perche
+        # la rimzione del token dalla lista
+        # e' richiesta dal token figlio,
+        # quindi la lista e' aggiornata continuamente
+        # e quindi l'indice sballa
+        while len(self.__children) > 0:
+            tok = self.__children[0]
+            tok.delete()
             #self.__children.pop(0).delete()
-            
-        for child in self.__children:
-            child.delete()
             
     def _add_child(self, t):
         self.__children.insert(0, t)

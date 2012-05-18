@@ -95,6 +95,14 @@ class Agenda(object):
         dalla lista delle attivazioni
         e degli attivabili
         '''
+        
+#        print "----- REGOLA NON PIU' ATTIVA:"
+#        print "\tnome: ", pnode.get_name()
+#        print "\tper token: "
+#        import icse.debug as debug
+#        debug.show_token_details(token, indent=12, explodeWme=True, maxDepth=4)
+        
+        
         salience = pnode.get_property('salience', 0)
         
         try:
@@ -112,6 +120,7 @@ class Agenda(object):
             if len(same_salience_queue) == 0:
                 del self._activations[salience]
         except (KeyError, ValueError):
+            #print e
             # non c'e' nessuna attivazione disponibile?
             # allora da dove viene questo token?
             

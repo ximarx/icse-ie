@@ -67,15 +67,32 @@ def execute_test(filepath):
     print "Esecuzione: "
     print
     
-    NetworkXGraphWrapper.i().draw()
+    #NetworkXGraphWrapper.i().draw()
     
     while not agenda.isEmpty():
+#        print "\t\t\t---Stato WM---"
+#        for wme in rete.get_wmes():
+#            print "\t\t\t{0} ({1})".format(
+#                                    str("f-"+str(wme.get_factid())).ljust(5, ' '),
+#                                    " ".join([str(x) for x in wme.get_fact()]) if isinstance(wme.get_fact(), list) 
+#                                        else str(wme.get_facts()) 
+#                                )
+#        print "\t\t\t---Agenda:---"
+#        agenda = rete.agenda()
+#        for (salience, pnode, token) in agenda.activations():
+#            print "\t\t\t{0} {1}:\t{2}".format(
+#                               str(salience).ljust(6, ' '),
+#                               pnode.get_name(),
+#                               ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)])
+#                            ) 
+
         node, token = agenda.get_activation()
         node.execute(token)
         # non e' necessario aggiornare
         # l'agenda visto che e' un riferimento
         # agli attivabili
         #agenda = rete.agenda()
+
         
     print
     print "--------------------"
@@ -90,7 +107,7 @@ def execute_test(filepath):
                             )
     
     
-    NetworkXGraphWrapper.i().draw()
+    #NetworkXGraphWrapper.i().draw()
     NetworkXGraphWrapper.i().clear()
                 
 def main_loop():                

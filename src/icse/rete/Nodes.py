@@ -963,7 +963,7 @@ class NegativeNode(JoinNode):
                 njr = NegativeJoinResult(new_token, w)
                 
                 new_token.add_njresult(njr)
-                wme.add_njresult(njr)
+                w.add_njresult(njr)
                 
         # attiva solo se non ci sono match (e' un nodo negativo)
         if new_token.count_njresults() == 0 :
