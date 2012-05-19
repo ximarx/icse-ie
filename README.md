@@ -2,6 +2,7 @@ icse-ie
 =======
 
 Inference Engine in python per corso di ingegneria della conoscenza (uniba)
+basato su una implementazione dell'algoritmo Rete per il matching delle regole
 
 Programmi di esempio:
 
