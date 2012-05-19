@@ -42,6 +42,14 @@ class PNode(BetaMemory):
         self.__name = name
         self.__symbols = symbols
         self.__properties = properties
+        
+        # sanitarizza la salience
+        try:
+            if self.__properties.has_key('salience') \
+                and not isinstance(self.__properties['salience'], int):
+                self.__properties['salience'] = int(self.__properties['salience'])
+        except:
+            self.__properties['salience'] = 0
 
         BetaMemory.__init__(self, parent)
         

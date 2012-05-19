@@ -143,44 +143,10 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
-(defrule versa-tutto-due-in-uno
-    (status
-            ?id
-            ?depth 
-            ?parent 
-            ?r-primo 
-            ?r-secondo 
-            ?ultima-mossa
-        )
-    ?massimo <- (massimo-id ?nextid)
-    (capienza uno ?capienza)
-    (test (>= ?capienza (+ ?r-primo ?r-secondo)))
-    ?modalita <- (modalita ricostruzione 0)
-=>
-    (retract ?massimo)
-    (bind ?new-nextid (+ ?nextid 1))
-    (assert (massimo-id ?new-nextid ))
-    (bind ?new-depth (+ ?depth 1))
-    (bind ?new-r-primo (+ ?r-primo ?r-secondo))
-    (assert (status
-                ?nextid 
-                ?new-depth
-                ?id
-                ?new-r-primo
-                0
-                versa-tutto-due-in-uno
-            )
-        )
-)
+(declare (salience -1000))
 '''
     
-    
-    ClipsEbnf._CACHED_CLIPS_EBNF['action_quoted_text'].setParseAction(lambda s,l,t: "".join(t) )
-    ClipsEbnf._CACHED_CLIPS_EBNF['action_call'].setParseAction(lambda s,l,t: (t[1],t[2][:]) )
-    ClipsEbnf._CACHED_CLIPS_EBNF['action_name'].setParseAction(lambda s,l,t: _get_action_from_string(t[0]) )
-    #ClipsEbnf._CACHED_CLIPS_EBNF['action_predicate_call'].setParseAction()
-    
-    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['defrule_construct'].parseString(test_funct)
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['declaration'].parseString(test_funct)
     
     import pprint
     

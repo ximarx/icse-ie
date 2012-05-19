@@ -1011,7 +1011,7 @@ class NegativeNode(JoinNode):
                 "t non e' un Token"
                 
             if t.count_njresults() == 0:
-                child.leftActivation(t)
+                child.leftActivation(t, None)
 
     def delete(self):
         '''

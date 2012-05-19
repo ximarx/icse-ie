@@ -127,7 +127,7 @@ def main_loop():
     print 
     
     #print os.listdir(TESTS_DIR)
-    tests = [x for x in os.listdir(TESTS_DIR) if isfile(TESTS_DIR + "/" +x) and x[-4:] == '.clp']
+    tests = sorted([x for x in os.listdir(TESTS_DIR) if isfile(TESTS_DIR + "/" +x) and x[-4:] == '.clp'])
     
     if len(tests) < 1:
         print "Non ho trovato nessun file di test. Ciao ciao...."
