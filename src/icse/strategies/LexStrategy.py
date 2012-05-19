@@ -13,7 +13,7 @@ class LexStrategy(Strategy):
     '''
 
     def insert(self, pnode, token, per_salience_list):
-        sorted_epoch = self._get_max_epoch(token.linearize(False))
+        sorted_epoch = self._sort_epoch(token.linearize(False))
         
         for index, (_, o_token) in enumerate(per_salience_list):
             if sorted_epoch >= self._sort_epoch(o_token.linearize(False)):

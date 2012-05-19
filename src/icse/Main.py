@@ -30,6 +30,11 @@ def execute_test(filepath):
     rete = ReteNetwork()
     facts_count = 0
     
+    #agenda = rete.agenda()
+    #from icse.rete.Agenda import Agenda
+    #assert isinstance(agenda, Agenda)
+    
+    
     for (item_type, item) in parsedItems:
         if item_type == 'defrule':
             rule = item

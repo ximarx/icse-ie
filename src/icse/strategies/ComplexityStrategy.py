@@ -5,7 +5,7 @@ Created on 17/mag/2012
 '''
 from icse.strategies import Strategy
 
-class SemplicityStrategy(Strategy):
+class ComplexityStrategy(Strategy):
     '''
     Inserisce gli elementi con la stessa salience
     ordinandoli in base al loro indice di complessita'

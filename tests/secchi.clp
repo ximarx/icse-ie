@@ -1,6 +1,6 @@
 
 ; Riempie il PRIMO(4L) secchio al massimo (se non lo e' gia')
-(defrule riempi-uno
+(defrule riempi-uno "Riempie il primo secchio"
 	(capienza uno ?capienza)
 	(status
 			?id 
@@ -40,7 +40,7 @@
 
 
 ; Riempie il SECONDO(3L) secchio al massimo (se non lo e' gia')
-(defrule riempi-due
+(defrule riempi-due "Riempie il secondo secchio"
 	(capienza due ?capienza)
 	(status
 			?id
@@ -78,7 +78,7 @@
 )
 
 ; Svuota il PRIMO(4L) secchio, (se non lo e' gia)
-(defrule svuota-uno
+(defrule svuota-uno "Svuota il primo secchio"
 	(status
 			?id
 			?depth 
@@ -115,7 +115,7 @@
 )
 
 ; Svuota il SECONDO(3L) secchio, (se non lo e' gia)
-(defrule svuota-due
+(defrule svuota-due "Svuota il secondo secchio"
 	(status
 			?id
 			?depth 
@@ -153,7 +153,7 @@
 
 
 ; Versa il SECONDO(3L) secchio nel PRIMO(4L) (assicurandosi che il primo possa contenere tutto)
-(defrule versa-tutto-due-in-uno
+(defrule versa-tutto-due-in-uno "Versa tutto il contenuto del primo secchio nel secondo"
 	(status
 			?id
 			?depth 
@@ -162,6 +162,7 @@
 			?r-secondo 
 			?ultima-mossa
 		)
+	(test (> ?r-secondo 0))		
 	?massimo <- (massimo-id ?nextid)
 	(capienza uno ?capienza)
 	(test (>= ?capienza (+ ?r-primo ?r-secondo)))
@@ -192,7 +193,7 @@
 )	
 	
 ; Versa il PRIMO(4L) secchio nel SECONDO(3L) (assicurandosi che il secondo possa contenere tutto)
-(defrule versa-tutto-uno-in-due
+(defrule versa-tutto-uno-in-due "Versa tutto il contenuto del secondo secchio nel primo"
 	(status
 			?id
 			?depth 
@@ -201,6 +202,7 @@
 			?r-secondo 
 			?ultima-mossa
 		)
+	(test (> ?r-primo 0))
 	?massimo <- (massimo-id ?nextid)
 	(capienza due ?capienza)
 	(test (>= ?capienza (+ ?r-primo ?r-secondo)))
@@ -232,7 +234,7 @@
 
 
 ; Versa il SECONDO(3L) secchio nel PRIMO(4L) fino a riempirlo (conservando il resto)
-(defrule versa-due-in-uno-fino-a-pieno
+(defrule versa-due-in-uno-fino-a-pieno "Versa il contenuto del secondo secchio nel primo fino a riempirlo"
 	(status
 			?id
 			?depth 
@@ -241,9 +243,10 @@
 			?r-secondo 
 			?ultima-mossa
 		)
+	(test (> ?r-secondo 0))
 	?massimo <- (massimo-id ?nextid)
 	(capienza uno ?capienza)
-	(test (< ?capienza (+ ?r-primo ?r-secondo)))
+	(test (> ?capienza ?r-primo))
 	(not (status ~?id ? ? ?capienza =(- ?r-secondo (- ?capienza ?r-primo) ) ?))
 =>
 	(printout t "                                 [provo versa-due-in-uno-fino-a-pieno: {" crlf)
@@ -272,7 +275,7 @@
 )	
 
 ; Versa il PRIMO(4L) secchio nel SECONDO(3L) fino a riempirlo (conservando il resto)
-(defrule versa-uno-in-due-fino-a-pieno
+(defrule versa-uno-in-due-fino-a-pieno "Versa il contenuto del primo secchio nel secondo fino a riempirlo"
 	(status
 			?id
 			?depth 
@@ -281,9 +284,10 @@
 			?r-secondo 
 			?ultima-mossa
 		)
+	(test (> ?r-primo 0))
 	?massimo <- (massimo-id ?nextid)
 	(capienza due ?capienza)
-	(test (< ?capienza (+ ?r-primo ?r-secondo)))
+	(test (> ?capienza ?r-secondo))
 	(not (status ~?id ? ? =(- ?r-primo (- ?capienza ?r-secondo)) ?capienza ?))
 =>
 	(printout t "                                 [provo versa-uno-in-due-fino-a-pieno: {" crlf)
@@ -312,7 +316,7 @@
 )	
 
 
-(defrule rimozione-stati-duplicati
+(defrule rimozione-stati-duplicati "Rimuove un eventuale stato duplicato"
 	(declare (salience 100))
 	(status ?id ?depth ? ?r-primo ?r-secondo ?)
 	?duplicato <- (status ?id-duplicato ?depth-duplicato ? ?r-primo-duplicato ?r-secondo-duplicato ?)
@@ -327,17 +331,17 @@
 	(retract ?duplicato)
 )
 
-(defrule goal-trovato
+(defrule goal-trovato "Stampa il ritrovamento del goal e avvia la ricostruzione delle mosse"
 	(declare (salience 200))
 	?goal <- (status ?id ?depth ?id-prec ? 2 ?ultima-mossa )
 	(status ?id-prec ? ?parent-id-prec ? ? ?)
 =>
-	(printout t "Goal raggiunto in " ?depth " mosse" crlf)
+	(printout t "Goal raggiunto in " (- ?depth 1) " mosse" crlf)
 	(assert (modalita ricostruzione ?id-prec))
 	(assert (transizione ?id-prec ?ultima-mossa ?id))
 )
 
-(defrule ricostruzione-passo-non-primo
+(defrule ricostruzione-passo-non-primo "Ricostruisce la mossa da N-1 a N"
 	(declare (salience 200))
 	?modalita <- (modalita ricostruzione ?id)
 	(status ?id ? ?id-prec ? ? ?ultima-mossa)
@@ -352,7 +356,7 @@
 	(assert (modalita ricostruzione ?id-prec))
 )
 
-(defrule ricostruzione-primo
+(defrule ricostruzione-primo "Ricostruisce il primo passo e passa alla modalita' di stampa"
 	(declare (salience 201))
 	?modalita <- (modalita ricostruzione 0)
 	?primostato <- (status 0 1 none 0 0 none)
@@ -363,7 +367,7 @@
 	(assert (modalita stampa 0))
 )
 
-(defrule stampa-transizione
+(defrule stampa-transizione "Stampa la descrizione della mossa dallo stato N a N+1"
 	(declare (salience 300))
 	?modalita <- (modalita stampa ?id-prec)
 	?transizione <- (transizione ?id-prec ?mossa ?id-succ)
@@ -377,7 +381,7 @@
 	(assert (modalita stampa ?id-succ))
 )
 	 
-(defrule fine-stampa
+(defrule fine-stampa "Termina la modalita' di stampa e avvia la modalita' di pulizia"
 	(declare (salience 300))
 	?modalita <- (modalita stampa ?id)
 	(not (transizione ?id ? ?))
@@ -387,7 +391,7 @@
 	(assert (modalita pulizia))
 )
 
-(defrule pulisci-stati-intermedi
+(defrule pulisci-stati-intermedi "Rimuove tutti gli stati inutili rimasti, evitando il proseguo del gioco"
 	(declare (salience 400))
 	(modalita pulizia)
 	?status <- (status ? ? ? ? ? ?)
@@ -395,7 +399,7 @@
 	(retract ?status)
 )
 
-(defrule fine-gioco
+(defrule fine-gioco "Esce dalla modalita' di pulizia e mette fine al gioco"
 	(declare (salience 400))
 	?modalita <- (modalita pulizia)
 	(not (status ? ? ? ? ? ?))
@@ -403,14 +407,26 @@
 	(retract ?modalita)
 )
 
-; ogni stato del problema verra espresso come:
-; (stato #id #profondita #parent #riempimento-primo #riempimento-secondo #ultima-mossa)
+; ogni stato del problema verra' espresso come:
+; (stato 
+;		#id 
+;		#profondita
+;		#parent
+;		#riempimento-primo 
+;		#riempimento-secondo 
+;		#ultima-mossa)
 
-(deffacts stato-iniziale
+(deffacts stato-iniziale "Prepara lo stato iniziale del problema"
 	(status 0 1 none 0 0 none)
+	(massimo-id 1)
+)
+
+(deffacts capienze "Inserisce i valori di capienza massima dei secchi"
 	(capienza uno 4)
 	(capienza due 3)
-	(massimo-id 1)
+)
+
+(deffacts testi-mosse "Mappa regola -> testo azione"
 	(mossa svuota-uno "Svuota il contenuto del primo secchio")
 	(mossa svuota-due "Svuota il contenuto del secondo secchio")
 	(mossa riempi-uno "Riempri completamente il primo secchio")
@@ -420,4 +436,4 @@
 	(mossa versa-uno-in-due-fino-a-pieno "Versa il contenuto del primo secchio nel secondo fino a riempirlo")
 	(mossa versa-due-in-uno-fino-a-pieno "Versa il contenuto del secondo secchio nel primo fino a riempirlo")
 )
-	
+
