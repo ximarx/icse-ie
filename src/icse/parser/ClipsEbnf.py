@@ -51,17 +51,17 @@ class ClipsEbnf(object):
             table['symbol'] = pp.Word("".join( [ c for c in string.printable if c not in string.whitespace and c not in "\"'()&?|<~;" ] ))
             table['variable_symbol'] = pp.Word('?', "".join( [ c for c in string.printable if c not in string.whitespace and c not in "\"'()&?|<~;" ] ), 2)
             table['variable_undef'] = pp.Literal('?')
-            table['quoted_text'] = ("'" + pp.CharsNotIn("'") + "'" ^ \
-                                '"' + pp.CharsNotIn('"') + '"')
+            table['quoted_text'] = pp.Combine(("'" + pp.CharsNotIn("'") + "'" ^ \
+                                '"' + pp.CharsNotIn('"') + '"'))
             
             import icse.actions as actions
-            table['action_name'] = pp.oneOf(" ".join(actions.Proxy.get_actions().keys())) 
+            table['action_name'] = pp.Combine(pp.oneOf(" ".join(actions.Proxy.get_actions().keys())) + pp.Optional( pp.Literal(" ").suppress()) )
             
             import icse.functions as functions
-            table['function_name'] = pp.oneOf(" ".join(functions.Proxy.get_functions().keys())) 
+            table['function_name'] = pp.Combine(pp.oneOf(" ".join(functions.Proxy.get_functions().keys())) + pp.Literal(" ").suppress())
 
             import icse.predicates as predicates
-            table['predicate_name'] = pp.oneOf(" ".join(predicates.Proxy.get_predicates().keys())) 
+            table['predicate_name'] = pp.Combine(pp.oneOf(" ".join(predicates.Proxy.get_predicates().keys())) + pp.Literal(" ").suppress())
             
             
             parsers = ebnf.parse(grammar, table, debug)
@@ -70,7 +70,7 @@ class ClipsEbnf(object):
             parsers['number'].setParseAction(lambda s,l,t:t[0][0])
             parsers['rule_property'].setParseAction(lambda s,l,t: tuple([t[1], t[2][0]])) 
             parsers['declaration'].setParseAction(lambda s,l,t: ('declare', dict(t[1][:])))
-            parsers['comment'].setParseAction(lambda s,l,t: ('description', t[1]))
+            parsers['comment'].setParseAction(lambda s,l,t: ('description', t[0][1:-1]))
             parsers['rule_name'].setParseAction(lambda s,l,t: ('name', t[0]))
             parsers['conditional_element_group'].setParseAction(lambda s,l,t: ('lhs', t[0][:]))
             parsers['action_group'].setParseAction(lambda s,l,t: ('rhs', t[0][:]))
@@ -90,7 +90,7 @@ class ClipsEbnf(object):
             # per provare a riscrivere la funzione come fosse
             # una costante se tutti i termini della funzione sono costanti
             parsers['function_call'].setParseAction(ClipsEbnf._try_rewrite_staticfunction)
-            parsers['term_function_call'].setParseAction(lambda s,l,t: t[1] )
+            parsers['term_function_call'].setParseAction(lambda s,l,t: t[0] if len(t) == 1 else t[1] )
             parsers['deffacts_name'].setParseAction(lambda s,l,t: ('name', t[0]))
             parsers['rhs_pattern'].setParseAction(lambda s,l,t: [t[1][:]])
             parsers['rhs_pattern_group'].setParseAction(lambda s,l,t: ('facts', t[0][:]))
@@ -110,13 +110,10 @@ class ClipsEbnf(object):
         
             if debug:
                 # vistualizzo informazioni su funzioni e predicati caricati
-                import icse.predicates as preds
                 print "Predicati caricati:"
-                print "\t" + "\n\t".join(preds.Proxy.get_predicates().keys())
-                import icse.functions as funcs
+                print "\t" + "\n\t".join(predicates.Proxy.get_predicates().keys())
                 print "Funzioni caricate:"
-                print "\t" + "\n\t".join(funcs.Proxy.get_functions().keys())
-                import icse.actions as actions
+                print "\t" + "\n\t".join(functions.Proxy.get_functions().keys())
                 print "Azioni caricate:"
                 print "\t" + "\n\t".join(actions.Proxy.get_actions().keys()) 
                 raw_input()
@@ -146,15 +143,44 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
-    (retract * (A B C) ?var )
-    '''
+(defrule versa-tutto-due-in-uno
+    (status
+            ?id
+            ?depth 
+            ?parent 
+            ?r-primo 
+            ?r-secondo 
+            ?ultima-mossa
+        )
+    ?massimo <- (massimo-id ?nextid)
+    (capienza uno ?capienza)
+    (test (>= ?capienza (+ ?r-primo ?r-secondo)))
+    ?modalita <- (modalita ricostruzione 0)
+=>
+    (retract ?massimo)
+    (bind ?new-nextid (+ ?nextid 1))
+    (assert (massimo-id ?new-nextid ))
+    (bind ?new-depth (+ ?depth 1))
+    (bind ?new-r-primo (+ ?r-primo ?r-secondo))
+    (assert (status
+                ?nextid 
+                ?new-depth
+                ?id
+                ?new-r-primo
+                0
+                versa-tutto-due-in-uno
+            )
+        )
+)
+'''
+    
     
     ClipsEbnf._CACHED_CLIPS_EBNF['action_quoted_text'].setParseAction(lambda s,l,t: "".join(t) )
     ClipsEbnf._CACHED_CLIPS_EBNF['action_call'].setParseAction(lambda s,l,t: (t[1],t[2][:]) )
     ClipsEbnf._CACHED_CLIPS_EBNF['action_name'].setParseAction(lambda s,l,t: _get_action_from_string(t[0]) )
     #ClipsEbnf._CACHED_CLIPS_EBNF['action_predicate_call'].setParseAction()
     
-    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['action_group'].parseString(test_funct)
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['defrule_construct'].parseString(test_funct)
     
     import pprint
     

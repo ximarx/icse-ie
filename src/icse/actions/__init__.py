@@ -1,3 +1,4 @@
+from icse.predicates.Eq import Eq
 
 
 
@@ -175,6 +176,7 @@ class Action(object):
 
     def _resolve_args(self, unquote=False, recursive=True, *args):
         from icse.Variable import Variable
+        from icse.Function import Function
         filtered = []
         for arg in list(args):
             if isinstance(arg, tuple):
@@ -197,6 +199,17 @@ class Action(object):
                                 removeProductionFunc=self._removeProduction
                             )
                     filtered.append(returned)
+                    
+                elif issubclass(arg[0], Function):
+                    func_class = arg[0]
+                    parametri = arg[1]
+                    # risolvo i parametri interni della funzione
+                    parametri = self._resolve_args(True, True, *parametri)
+                    filtered.append(func_class.get_function().sign()['handler'](*parametri))
+                    
+                elif issubclass(arg[0], Eq):
+                    filtered.append(arg[1])
+                    
                 # TODO
                 # potremmo inserire il processo delle funzioni
                 # e dei condizionarli!!!

@@ -22,15 +22,16 @@ class LessThan(PositivePredicate, NumberPredicate):
         @return: boolean
         '''
         try:
-            values = NumberPredicate.cast_numbers(args)
+            values = NumberPredicate.cast_numbers(*args)
             value1 = values[0]
             for valueN in values[1:]:
                 if value1 >= valueN:
                     return False
                 
             return True
-            
-        except:
+        except Exception, e:
+            #import sys
+            #print >> sys.stderr, "Ho intercettato roba: ", repr(e)
             return False
     
     

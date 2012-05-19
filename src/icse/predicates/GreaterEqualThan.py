@@ -22,7 +22,7 @@ class GreaterEqualThan(PositivePredicate, NumberPredicate):
         @return: boolean
         '''
         try:
-            values = NumberPredicate.cast_numbers(args)
+            values = NumberPredicate.cast_numbers(*args)
             value1 = values[0]
             for valueN in values[1:]:
                 if value1 < valueN:

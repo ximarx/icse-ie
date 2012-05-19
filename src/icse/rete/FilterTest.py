@@ -8,6 +8,8 @@ from icse.rete.WME import WME
 from icse.predicates.Predicate import Predicate, TestPredicate
 from icse.Variable import Variable
 from icse.predicates.Eq import Eq
+from icse.Function import Function
+from icse.rete.JoinTest import DynamicOperand
 
 
 class FilterTest(object):
@@ -86,14 +88,21 @@ class FilterTest(object):
             # se ho una wme, allora il campo e' un indice di campo
             # altrimenti e' proprio il valore
             if wme1 == None:
-                arg1 = self.__cond1_field
+                if isinstance(self.__cond1_field, DynamicOperand):
+                    assert isinstance(self.__cond1_field, DynamicOperand)
+                    arg1 = self.__cond1_field.valutate(tok, tok.get_wme())
+                else:
+                    arg1 = self.__cond1_field
             else:
                 arg1 = wme1.get_field(self.__cond1_field)
             
             # se ho una wme, allora il campo e' un indice di campo
             # altrimenti e' proprio il valore
             if wme2 == None:
-                arg2 = self.__cond2_field
+                if isinstance(self.__cond2_field, DynamicOperand):
+                    arg2 = self.__cond2_field.valutate(tok, tok.get_wme())
+                else:
+                    arg2 = self.__cond2_field
             else:
                 arg2 = wme2.get_field(self.__cond2_field)
             
@@ -121,6 +130,12 @@ class FilterTest(object):
                 cond_index, cond_field = builtins[atom_value]
                 # eseguo aggiustamento relativo
                 cond_index = len(prec_conditions) - cond_index
+            elif issubclass(atom_type, Function):
+                
+                dynop = DynamicOperand(atom_type.get_function(), atom_value, len(prec_conditions), builtins)
+                cond_index = None
+                cond_field = dynop
+                
             else:
                 # e' un valore reale di confronto
                 cond_index = None

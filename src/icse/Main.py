@@ -62,12 +62,11 @@ def execute_test(filepath):
                            ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)])
                         ) 
 
+    #NetworkXGraphWrapper.i().draw()
         
     print "-------------------"
     print "Esecuzione: "
     print
-    
-    #NetworkXGraphWrapper.i().draw()
     
     while not agenda.isEmpty():
 #        print "\t\t\t---Stato WM---"
@@ -85,7 +84,10 @@ def execute_test(filepath):
 #                               pnode.get_name(),
 #                               ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)])
 #                            ) 
-
+#
+#        raw_input() # attende invio
+#        
+        
         node, token = agenda.get_activation()
         node.execute(token)
         # non e' necessario aggiornare

@@ -18,7 +18,7 @@ class Bind(Action):
         
         _,varname = vartuple
         args = self._resolve_args(False, True, *args)
-        
+
         # controllo la lunghezza:
         # se len(args) == 1, allora semplicemente salvo il valore
 

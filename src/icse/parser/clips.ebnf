@@ -37,10 +37,10 @@ rule_property = '(', string, (number | symbol ), ')';
 conditional_element_group = ({conditional_element});
 conditional_element = test_CE | assigned_pattern_CE | not_CE | and_CE | pattern_CE;
 action_group = ({action_call});
-action_call = '(', action_name, ({action_term | action_call | action_quoted_text | rhs_pattern }), ')';
+action_call = '(', action_name, ({action_call | action_term | action_quoted_text | rhs_pattern }), ')';
 
 
-action_term = action_constant | variable_symbol;
+action_term = action_constant | variable_symbol | term_function_call;
 action_constant = number | symbol;
 action_quoted_text = quoted_text;
 
@@ -54,7 +54,7 @@ constraint = not_term | term ;
 not_term = '~', term;
 term = constant | variable_undef | variable_symbol | term_function_call;
 constant = number | symbol;
-term_function_call = (':' | '='), function_call;
+term_function_call = {(':' | '=')}, function_call;
 function_call = '(', function_name, (constraint, {constraint}), ')';
 
 predicate_call = '(', predicate_name, (constraint, {constraint}), ')';
@@ -81,6 +81,6 @@ rhs_pattern_group = ({rhs_pattern});
 rhs_pattern = '(', (rhs_field, {rhs_field}), ')';
 
 deffacts_name = symbol;
-rhs_field = number | symbol | variable_symbol;
+rhs_field = number | symbol | variable_symbol | quoted_text;
 
 CLIPS_program = ({defrule_construct | deffacts_construct});
