@@ -47,7 +47,7 @@
 	(test (< ?r-secondo ?capienza))  ; questo assicura che non sia gia' al massimo
 =>
 	(retract ?massimo)
-	(bind ?new-nextid =(+ ?nextid 1))
+	(bind ?new-nextid (+ ?nextid 1))
 	(assert (massimo-id ?new-nextid ))
 	(bind ?new-depth (+ ?depth 1))
 	(assert (status
