@@ -3,7 +3,7 @@ from icse.Production import Production
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 
 import icse.parser as clipsparser
-from genericpath import isfile
+from genericpath import isfile, exists
 import traceback
 import sys
 
@@ -28,34 +28,74 @@ def execute_test(filepath):
     NetworkXGraphWrapper.i().set_debug(DEBUG)
     
     rete = ReteNetwork()
-    facts_count = 0
     
     #agenda = rete.agenda()
     #from icse.rete.Agenda import Agenda
     #assert isinstance(agenda, Agenda)
     
+    parseQueue = []
+    parsedModuleCache = {}
     
-    for (item_type, item) in parsedItems:
-        if item_type == 'defrule':
-            rule = item
-            default_rule = {'name': '', 'lhs': [], 'rhs': [], 'declare': {'salience': 0}, 'description': ''}
-            default_rule.update(rule)
-            rule = default_rule
-            p = Production(rule['name'], rule['lhs'], rule['rhs'], rule['declare'], rule['description'])
-            rete.add_production(p)
-        elif item_type == 'deffacts':
-            for fact in item:
-                facts_count += 1
-                rete.assert_fact(fact)
-        elif item_type == 'set-strategy':
-            rete.agenda().changeStrategy(item)
+    stats_defrule = 0
+    stats_deffacts = 0
+    stats_facts = 0
+    stats_modules = 0
+    
+    current_file = filepath
+    
+    while len(parsedItems) > 0 or len(parseQueue) > 0:
+    
+        for (item_type, item) in parsedItems:
+            if item_type == 'defrule':
+                rule = item
+                default_rule = {'name': '', 'lhs': [], 'rhs': [], 'declare': {'salience': 0}, 'description': ''}
+                default_rule.update(rule)
+                rule = default_rule
+                p = Production(rule['name'], rule['lhs'], rule['rhs'], rule['declare'], rule['description'])
+                rete.add_production(p)
+                stats_defrule += 1
+            elif item_type == 'deffacts':
+                stats_deffacts += 1
+                for fact in item:
+                    stats_facts += 1
+                    rete.assert_fact(fact)
+            elif item_type == 'set-strategy':
+                rete.agenda().changeStrategy(item)
+            elif item_type == 'myclips-directive':
+                # processo le direttive
+                dir_type, dir_arg = item
+                if dir_type == 'include':
+                    # inclusione di file al termine della lettura di questo
+                    import os
+                    module_path = os.path.dirname(current_file) + '/' + dir_arg
+                    if isfile( module_path ):
+                        parseQueue.append(module_path)
+                        #print "Modulo preparato alla lettura: ", os.path.dirname(filepath) + '/' + dir_arg
+                    else:
+                        print "File non valido: ", module_path
+            
+        parsedItems = []
+                
+        if len(parseQueue) > 0:
+            pmodule = parseQueue.pop(0)
+            if not parsedModuleCache.has_key(pmodule):
+                parsedModuleCache[pmodule] = True
+                stats_modules += 1
+                try:
+                    current_file = pmodule
+                    parsedItems = clipsparser.parseFile(pmodule, DEBUG)
+                except:
+                    print "Errore durante il caricamento del modulo: ", pmodule
+                    parsedModuleCache[pmodule] = False
+    
 
     print
     print "-------------------"
     print "Statistiche:"
-    print "    defrule:     ", len([x for (x,_) in parsedItems if x == 'defrule' ])
-    print "    deffacts:    ", len([x for (x,_) in parsedItems if x == 'deffacts' ])
-    print "    facts:       ", facts_count
+    print "    defrule:            ", stats_defrule
+    print "    deffacts:           ", stats_deffacts
+    print "    facts:              ", stats_facts
+    print "    myclips-modules:    ", stats_modules
     
     
     print

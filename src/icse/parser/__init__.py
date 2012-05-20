@@ -10,7 +10,7 @@ def parse(text, debug=False, strict=False):
     if not strict:
         parser = ClipsEbnf.get_parser(debug)
     
-    return parser.parseString(text, True)
+    return parser.parseString(text, True)[:]
     
     
 def parseFile(filepath, debug=False):

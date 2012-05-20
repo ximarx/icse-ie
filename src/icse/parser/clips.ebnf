@@ -93,4 +93,4 @@ strategy_name = 'depth' | 'lex' | 'mea' | 'breadth' | 'semplicity' | 'complexity
 
 
 
-CLIPS_program = ({defrule_construct | deffacts_construct | setstrategy_construct});
+CLIPS_program = ({defrule_construct | deffacts_construct | setstrategy_construct | MYCLIPS_directive });

@@ -78,6 +78,7 @@ class ClipsEbnf(object):
             import icse.predicates as predicates
             table['predicate_name'] = pp.Combine(pp.oneOf(" ".join(predicates.Proxy.get_predicates().keys())) + pp.Literal(" ").suppress())
             
+            table['MYCLIPS_directive'] =  pp.Regex(r'\;\@(?P<command>\w+)\((?P<params>.+?)\)').setParseAction(lambda s,l,t: ('myclips-directive', (t['command'], t['params'])))
             
             parsers = ebnf.parse(grammar, table, debug)
             
@@ -117,10 +118,11 @@ class ClipsEbnf(object):
             
             parsers['setstrategy_construct'].setParseAction(lambda s,l,t: ('set-strategy', _get_strategy_from_string(t[1]) ))
             
-            parsers['CLIPS_program'].setParseAction(lambda s,l,t: t[0][:])
+            #parsers['MYCLIPS_directive'].setParseAction(lambda s,l,t: ('myclips-directive', (t[0], t[1][:]) ))
             
-            clipsComment = ( ";" + pp.SkipTo("\n") ).setName("clips_comment")
-                                    
+            clipsComment = ( ";" + pp.NotAny('@') + pp.SkipTo("\n") ).setName("clips_comment")
+
+            parsers['CLIPS_program'].setParseAction(lambda s,l,t: t[0][:])
             parsers['CLIPS_program'].ignore(clipsComment)
             
         
@@ -159,10 +161,14 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
+;commento generico ignorato
 (set-strategy depth)
+;@include(../moduli/domande.clp)
+;@debug(activation=True)
+(set-strategy breadth)
 '''
     
-    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['CLIPS_program'].parseString(test_funct)
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['CLIPS_program'].parseString(test_funct)[:]
     
     import pprint
     
