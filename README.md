@@ -12,6 +12,8 @@ Programmi di esempio:
 			Gioco nel mondo dei blocchi
 	- /tests/secchi.clp:
 			Problema dei secchi
+	- /tests/diagnosi.clp:
+			Esempio di sistema di diagnosi delle malattie del fegato
 
 Tutti gli altri programmi nella directory /tests/test_* sono singoli test su
 funzionalita' del sistema e del parser
