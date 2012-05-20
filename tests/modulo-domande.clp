@@ -104,7 +104,7 @@
 
 (defrule Domanda_rimozione-spiegazione-inutili
 	(declare (salience 1200))
-	?f-spiegazione-domanda <- (spiegazione-domanda ?id-domanda ?)
+	?f-spiegazione-domanda <- (testo-spiegazione ?id-domanda ?)
 	(not (domanda ?id-domanda))	
 =>
 	(retract ?f-spiegazione-domanda)

@@ -899,7 +899,7 @@ class NegativeNode(JoinNode):
             for child in parent.get_children():
                 if  isinstance(child, NegativeNode):
                     if child._amem == amem:
-                        if child.__tests == tests:
+                        if child._tests == tests:
                             # stessi test, testa amem... condivido il nodo
                             return child
                 

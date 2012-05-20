@@ -94,6 +94,7 @@ def execute_test(filepath):
 #        
         
         node, token = agenda.get_activation()
+        print "\t\t\t\t\t\t[{0}]".format(node.get_name())
         node.execute(token)
         # non e' necessario aggiornare
         # l'agenda visto che e' un riferimento
@@ -119,7 +120,7 @@ def execute_test(filepath):
                 
 def main_loop():                
                 
-    import os            
+    import os
     
     TESTS_DIR = os.getcwd()+'/../../tests'
     
