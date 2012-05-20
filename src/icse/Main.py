@@ -47,6 +47,8 @@ def execute_test(filepath):
             for fact in item:
                 facts_count += 1
                 rete.assert_fact(fact)
+        elif item_type == 'set-strategy':
+            rete.agenda().changeStrategy(item)
 
     print
     print "-------------------"

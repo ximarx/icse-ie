@@ -83,4 +83,14 @@ rhs_pattern = '(', (rhs_field, {rhs_field}), ')';
 deffacts_name = symbol;
 rhs_field = number | symbol | variable_symbol | quoted_text;
 
-CLIPS_program = ({defrule_construct | deffacts_construct});
+
+(***************************
+	SET-STRATEGY
+****************************)
+
+setstrategy_construct = '(set-strategy', strategy_name, ')';
+strategy_name = 'depth' | 'lex' | 'mea' | 'breadth' | 'semplicity' | 'complexity' | 'random';
+
+
+
+CLIPS_program = ({defrule_construct | deffacts_construct | setstrategy_construct});

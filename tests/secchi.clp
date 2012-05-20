@@ -1,4 +1,6 @@
 
+(set-strategy breadth)
+
 ; Riempie il PRIMO(4L) secchio al massimo (se non lo e' gia')
 (defrule riempi-uno "Riempie il primo secchio"
 	(capienza uno ?capienza)

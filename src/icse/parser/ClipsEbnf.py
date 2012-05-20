@@ -22,6 +22,21 @@ def _get_action_from_string(actionname):
     import icse.actions as actions
     return actions.Proxy.get(actionname)
 
+def _get_strategy_from_string(strategyname):
+    try:
+        if strategyname != 'depth':
+            import icse.utils as utils
+            strategyname = strategyname.capitalize() + "Strategy"
+            return utils.new_object_from_complete_classname("icse.strategies.{0}.{1}".format(strategyname, strategyname))
+        else:
+            from icse.strategies import DepthStrategy
+            return DepthStrategy()
+    except Exception, e:
+        print e
+        import sys
+        print >> sys.stderr, "Nome strategia {0} non valido".format(strategyname)
+    
+
 class ClipsEbnf(object):
     _CACHED_CLIPS_EBNF = None
     _DEBUG = False
@@ -100,6 +115,7 @@ class ClipsEbnf(object):
             parsers['action_call'].setParseAction(lambda s,l,t: (t[1],t[2][:]) )
             parsers['action_name'].setParseAction(lambda s,l,t: _get_action_from_string(t[0]) )
             
+            parsers['setstrategy_construct'].setParseAction(lambda s,l,t: ('set-strategy', _get_strategy_from_string(t[1]) ))
             
             parsers['CLIPS_program'].setParseAction(lambda s,l,t: t[0][:])
             
@@ -143,10 +159,10 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
-(declare (salience -1000))
+(set-strategy depth)
 '''
     
-    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['declaration'].parseString(test_funct)
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['CLIPS_program'].parseString(test_funct)
     
     import pprint
     
