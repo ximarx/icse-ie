@@ -4,6 +4,7 @@ Created on 17/mag/2012
 @author: Francesco Capozzo
 '''
 from icse.strategies import StrategyManager
+from icse.debug import EventManager
 
 class Agenda(object):
     '''
@@ -36,6 +37,8 @@ class Agenda(object):
         assert isinstance(pnode, PNode)
 
         salience = pnode.get_property('salience', 0)
+
+        EventManager.trigger(EventManager.E_RULE_ACTIVATED, pnode, token)
 
         try:
             same_salience_queue = self._activations[salience]
@@ -105,6 +108,8 @@ class Agenda(object):
         
         salience = pnode.get_property('salience', 0)
         
+        EventManager.trigger(EventManager.E_RULE_DEACTIVATED, pnode, token)
+        
         try:
             same_salience_queue = self._activations[salience]
             
@@ -162,6 +167,7 @@ class Agenda(object):
         return len(self._activations) == 0
     
     def changeStrategy(self, strategy):
+        EventManager.trigger(EventManager.E_STRATEGY_CHANGED, strategy)
         if self._strategy != strategy:
             self._strategy = strategy
             if not self.isEmpty():

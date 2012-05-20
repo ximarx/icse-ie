@@ -26,4 +26,4 @@ class MeaStrategy(Strategy):
         return list_of_wme[0].get_epoch()
     
     def resort(self, per_saliance_list):
-        per_saliance_list.sort(key=lambda x: self._get_first_epoch(x[1]), reverse=True)
+        per_saliance_list.sort(key=lambda x: self._get_first_epoch(x[1].linearize(False)), reverse=True)

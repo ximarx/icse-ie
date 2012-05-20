@@ -1,5 +1,12 @@
+;@debug(watch_rule_fire=True)
+;@debug(watch_fact_assert=True)
+;@debug(watch_fact_retract=True)
+;@debug(watch_rule_activation=True)
+;@debug(watch_rule_deactivation=True)
+;@debug(watch_strategy_change=True)
 
-(set-strategy breadth)
+(set-strategy mea)
+
 
 ; Riempie il PRIMO(4L) secchio al massimo (se non lo e' gia')
 (defrule riempi-uno "Riempie il primo secchio"
@@ -364,4 +371,3 @@
 	(mossa versa-uno-in-due-fino-a-pieno "Versa il contenuto del primo secchio nel secondo fino a riempirlo")
 	(mossa versa-due-in-uno-fino-a-pieno "Versa il contenuto del secondo secchio nel primo fino a riempirlo")
 )
-

@@ -1,14 +1,17 @@
 from icse.rete.ReteNetwork import ReteNetwork
 from icse.Production import Production
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
-
+from icse.debug import EventManager, ConsoleDebugMonitor
 import icse.parser as clipsparser
-from genericpath import isfile, exists
+
+from genericpath import isfile
 import traceback
 import sys
 
 
 def execute_test(filepath):
+    
+    EventManager.reset()
     
     DEBUG = False
     try:
@@ -29,9 +32,8 @@ def execute_test(filepath):
     
     rete = ReteNetwork()
     
-    #agenda = rete.agenda()
-    #from icse.rete.Agenda import Agenda
-    #assert isinstance(agenda, Agenda)
+    DM = ConsoleDebugMonitor()
+    DM.linkToEventManager(EventManager)
     
     parseQueue = []
     parsedModuleCache = {}
@@ -67,12 +69,24 @@ def execute_test(filepath):
                 if dir_type == 'include':
                     # inclusione di file al termine della lettura di questo
                     import os
-                    module_path = os.path.dirname(current_file) + '/' + dir_arg
+                    module_path = os.path.realpath( os.path.dirname(current_file) + '/' + dir_arg )
                     if isfile( module_path ):
                         parseQueue.append(module_path)
                         #print "Modulo preparato alla lettura: ", os.path.dirname(filepath) + '/' + dir_arg
                     else:
                         print "File non valido: ", module_path
+                elif dir_type == 'debug':
+                    #argomenti di debug nella forma:
+                    #    chiave=valore,chiave2=valore2,ecc
+                    try:
+                        debug_infos = dict([tuple(x.strip().split('=')) for x in dir_arg.strip().split(',')])
+                        EventManager.trigger( EventManager.E_DEBUG_OPTIONS_CHANGED, debug_infos)
+                    except:
+                        #ignora la direttiva se il formato non e' corretto
+                        print >> sys.stderr, "Direttiva debug ignorata: ", dir_arg  
+                    
+                    
+                    
             
         parsedItems = []
                 
@@ -82,8 +96,10 @@ def execute_test(filepath):
                 parsedModuleCache[pmodule] = True
                 stats_modules += 1
                 try:
+                    print "Caricamento modulo: ", pmodule
                     current_file = pmodule
                     parsedItems = clipsparser.parseFile(pmodule, DEBUG)
+                    EventManager.trigger( EventManager.E_MODULE_INCLUDED, pmodule)
                 except:
                     print "Errore durante il caricamento del modulo: ", pmodule
                     parsedModuleCache[pmodule] = False
@@ -136,7 +152,7 @@ def execute_test(filepath):
 #        
         
         node, token = agenda.get_activation()
-        print "\t\t\t\t\t\t[{0}]".format(node.get_name())
+        #print "\t\t\t\t\t\t[{0}]".format(node.get_name())
         node.execute(token)
         # non e' necessario aggiornare
         # l'agenda visto che e' un riferimento

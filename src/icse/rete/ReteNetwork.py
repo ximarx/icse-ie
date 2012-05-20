@@ -9,6 +9,7 @@ from icse.rete.Nodes import AlphaRootNode, ReteNode
 from icse.rete.PNode import PNode
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.rete.Agenda import Agenda
+from icse.debug import EventManager
 
 
 class ReteNetwork(object):
@@ -66,6 +67,8 @@ class ReteNetwork(object):
             # se l'ho trovato (e quindi niente eccezione
             # significa che e' un duplicato
             # ergo non propago nulla
+            EventManager.trigger(EventManager.E_FACT_ASSERTED, wme, False)
+            
             return (wme.get_factid(), wme, False)
             
         except KeyError:
@@ -84,6 +87,8 @@ class ReteNetwork(object):
             wme.set_factid(self.__wme_nextid)
             
             self.__id_fact_map[self.__wme_nextid] = fact_dict_key
+
+            EventManager.trigger(EventManager.E_FACT_ASSERTED, wme, True)
             
             # ...e propago
             self.__alpha_root.activation(wme)
@@ -113,6 +118,9 @@ class ReteNetwork(object):
         #print >> sys.stderr, "Sto ritrattando: ", wme
         
         wme.remove()
+        
+        EventManager.trigger(EventManager.E_FACT_RETRACTD, wme)
+        
         del wme
         
     def add_production(self, production):
@@ -148,6 +156,12 @@ class ReteNetwork(object):
         NetworkXGraphWrapper.i().add_node(pnode, last_node, -1)
         
         self.__rules_map[production.get_name] = pnode
+
+        EventManager.trigger( EventManager.E_NODE_ADDED, pnode)
+        
+        EventManager.trigger( EventManager.E_NODE_LINKED, pnode, last_node, -1)
+        
+        EventManager.trigger( EventManager.E_RULE_ADDED, production, pnode)
         
         return pnode
         
@@ -166,6 +180,7 @@ class ReteNetwork(object):
         
         pnode_or_rulename.delete()
 
+        EventManager.trigger( EventManager.E_RULE_REMOVED, pnode_or_rulename)
         
     def agenda(self):
         return self.__agenda

@@ -5,6 +5,7 @@ Created on 08/mag/2012
 '''
 from icse.rete.Token import Token
 from icse.rete.Nodes import BetaMemory
+from icse.debug import EventManager
 
 
 class PNode(BetaMemory):
@@ -79,6 +80,8 @@ class PNode(BetaMemory):
         
         # devo linearizzare il token
         # ed eseguire le azioni
+        
+        EventManager.trigger(EventManager.E_RULE_FIRED, self, token)
         
         wmes = token.linearize()
         

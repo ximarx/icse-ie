@@ -95,4 +95,147 @@ def show_token_details(token, indent=4, explodeWme=False, maxDepth=2):
         print IP, "     :  |- token: ", res.get_owner()
     
     
+class ConsoleDebugMonitor(object):
     
+    def __init__(self):
+        self._em = None
+    
+    def linkToEventManager(self, em):
+        if self._em != None:
+            em.unregister(EventManager.E_DEBUG_OPTIONS_CHANGED, self.onDebugOptionsChange)
+            
+        if issubclass(em, EventManager):
+            self._em = em
+            self._em.register(EventManager.E_DEBUG_OPTIONS_CHANGED, self.onDebugOptionsChange)
+            
+        
+    def onDebugOptionsChange(self, changedOptions, *args):
+        if isinstance(changedOptions, dict):
+            for (key, value) in changedOptions.items():
+                print key, ' = ', value
+                method = "_option_"+key
+                if hasattr(self, method) \
+                        and callable(getattr(self, method)):
+                    getattr(self, method)(value)
+    
+    def _option_watch_rule_fire(self, value):
+        if bool(value):
+            self._em.register(EventManager.E_RULE_FIRED, self.onRuleFired)
+        else:
+            self._em.unregister(EventManager.E_RULE_FIRED, self.onRuleFired)
+
+    def _option_watch_rule_activation(self, value):
+        if bool(value):
+            self._em.register(EventManager.E_RULE_ACTIVATED, self.onRuleActivated)
+        else:
+            self._em.unregister(EventManager.E_RULE_ACTIVATED, self.onRuleActivated)
+
+    def _option_watch_rule_deactivation(self, value):
+        if bool(value):
+            self._em.register(EventManager.E_RULE_DEACTIVATED, self.onRuleDeactivated)
+        else:
+            self._em.unregister(EventManager.E_RULE_DEACTIVATED, self.onRuleDeactivated)
+            
+    def _option_watch_fact_assert(self, value):
+        if bool(value):
+            self._em.register(EventManager.E_FACT_ASSERTED, self.onFactAsserted)
+        else:
+            self._em.unregister(EventManager.E_FACT_ASSERTED, self.onFactAsserted)
+
+    def _option_watch_fact_retract(self, value):
+        if bool(value):
+            self._em.register(EventManager.E_FACT_RETRACTD, self.onFactRetracted)
+        else:
+            self._em.unregister(EventManager.E_FACT_RETRACTD, self.onFactRetracted)
+            
+    def _option_watch_strategy_change(self, value):
+        if bool(value):
+            self._em.register(EventManager.E_STRATEGY_CHANGED, self.onStrategyChanged)
+        else:
+            self._em.unregister(EventManager.E_STRATEGY_CHANGED, self.onStrategyChanged)
+    
+            
+    def onRuleFired(self, pnode, token, *args):
+        print "\n\t\t\t\t\t[{0}: {1}]".format(pnode.get_name(), ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)]))
+
+    def onRuleActivated(self, pnode, token, *args):
+        print "\t\t\t\t\t\t+ [{0}: {1}]".format(pnode.get_name(), ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)]))
+        
+    def onRuleDeactivated(self, pnode, token, *args):
+        print "\t\t\t\t\t\t- [{0}: {1}]".format(pnode.get_name(), ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)]))
+    
+    def onFactAsserted(self, wme, isNew, *args):
+        print "\t\t\t\t\t\t{0} f-{1}: {2}]".format(
+                                                "+" if isNew else "=",
+                                                wme.get_factid(),
+                                                wme.get_fact()
+                                            )
+    def onFactRetracted(self, wme, *args):
+        print "\t\t\t\t\t\t- f-{0}: {1}]".format(
+                                                wme.get_factid(),
+                                                wme.get_fact()
+                                            )
+        
+    def onStrategyChanged(self, strategy, *args):
+        print "\t\t\t\t\t\t# Strategia: {0}".format(
+                                                strategy.__class__.__name__
+                                            )
+    
+class EventManager(object):
+    
+    E_RULE_FIRED = 'rule-fired'
+    E_RULE_ACTIVATED = 'rule-activated'
+    E_RULE_DEACTIVATED = 'rule-deactivated'
+    E_RULE_ADDED = 'rule-added'
+    E_RULE_REMOVED = 'rule-removed'
+    
+    E_NODE_ADDED = 'node-added'
+    E_NODE_REMOVED = 'node-removed' 
+    E_NODE_LINKED = 'node-linked'
+    E_NODE_UNLINKED = 'node-unlinked'
+    E_NODE_ACTIVATED = 'node-activated'
+
+    E_FACT_ASSERTED = 'fact-asserted'
+    E_FACT_RETRACTD = 'fact-retractd'
+    
+    E_ACTION_PERFORMED = 'action-performed'
+    
+    E_STRATEGY_CHANGED = 'strategy-changed'
+
+    E_DEBUG_OPTIONS_CHANGED = 'debug-options-changed'
+    
+    E_MODULE_INCLUDED = 'module-included'
+    
+    __observers = {}
+    
+    @staticmethod
+    def trigger(event, *args ):
+        if EventManager.__observers.has_key(event):
+            for observer in EventManager.__observers[event]:
+                observer(*args)
+                
+    @staticmethod
+    def register(event, handler):
+        if not EventManager.__observers.has_key(event):
+            EventManager.__observers[event] = set()
+        if handler not in EventManager.__observers[event]: 
+            EventManager.__observers[event].add(handler)
+
+    @staticmethod
+    def unregister(event, handler):
+        try:
+            EventManager.__observers[event].remove(handler)
+        except:
+            # handler non era registrato
+            pass
+            
+    @staticmethod
+    def isRegistered(event, handler):
+        try:
+            return (handler in EventManager.__observers[event])
+        except:
+            return False
+        
+    @staticmethod
+    def reset():
+        EventManager.__observers = {}
