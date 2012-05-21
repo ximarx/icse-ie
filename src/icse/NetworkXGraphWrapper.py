@@ -210,8 +210,11 @@ class NetworkXGraphWrapper(object):
         lbothlabels=dict([(n,"\n".join([d['dyn_label'](d['ref']), d['label']])) for (n,d) in G.nodes(data=True) if d.has_key('label') and d.has_key('dyn_label') and callable(d['dyn_label'])])
         ldynlabels=dict([(n,d['dyn_label'](d['ref'])) for (n,d) in G.nodes(data=True) if d.has_key('dyn_label') and ( not d.has_key('label') ) and callable(d['dyn_label'])])
 
-        
-        pos=nx.graphviz_layout(G, root=nroots[0]) # positions for all nodes
+        try:
+            pos = nx.graphviz_layout(G, root=nroots[0]) # positions for all nodes
+        except ImportError:
+            pos = nx.spring_layout(G)
+            
         
         # nodes
         #nx.draw_networkx_nodes(G,pos,node_size=600)
