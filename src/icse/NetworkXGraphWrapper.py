@@ -298,10 +298,10 @@ class NetworkXGraphWrapper(object):
         if not self.is_ready():
             return
         
-        import networkx as nx
+        #import networkx as nx
         import matplotlib.pyplot as plt
         
         plt.clf()
     
-        self._G = nx.DiGraph()
+        self._G.clear()
             
