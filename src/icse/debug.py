@@ -4,12 +4,11 @@ Created on 17/mag/2012
 @author: Francesco Capozzo
 '''
 
-from icse.rete.Token import Token
-from icse.rete.WME import WME
-from icse.rete.Nodes import AlphaMemory, AlphaRootNode
+from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 
 def show_wme_details(wme, indent=4, explodeToken=False, maxDepth=3, explodeAMem=False):
 
+    from icse.rete.WME import WME
     
     assert isinstance(wme, WME)
 
@@ -32,6 +31,9 @@ def show_wme_details(wme, indent=4, explodeToken=False, maxDepth=3, explodeAMem=
             show_alphamemory_details(am, indent+8, False, maxDepth-1)
             
 def show_alphamemory_details(am, indent=4, explodeWme=False, maxDepth=2):
+
+    from icse.rete.Nodes import AlphaMemory, AlphaRootNode
+
     
     IP = "".rjust(indent, ' ')
     if maxDepth <= 0:
@@ -60,6 +62,9 @@ def show_alphamemory_details(am, indent=4, explodeWme=False, maxDepth=2):
         
     
 def show_token_details(token, indent=4, explodeWme=False, maxDepth=2):
+
+    from icse.rete.Token import Token
+
     
     IP = "".rjust(indent, ' ')
     
@@ -112,10 +117,10 @@ class ConsoleDebugMonitor(object):
     def onDebugOptionsChange(self, changedOptions, *args):
         if isinstance(changedOptions, dict):
             for (key, value) in changedOptions.items():
-                print key, ' = ', value
                 method = "_option_"+key
                 if hasattr(self, method) \
                         and callable(getattr(self, method)):
+                    print key, ' = ', value
                     getattr(self, method)(value)
     
     def _option_watch_rule_fire(self, value):
@@ -180,7 +185,99 @@ class ConsoleDebugMonitor(object):
         print "\t\t\t\t\t\t# Strategia: {0}".format(
                                                 strategy.__class__.__name__
                                             )
+        
+
+class ReteRenderer(object):
     
+    def __init__(self):
+        self._em = None
+        self._gWrapper = None
+        self._prevStatus = False
+    
+    def linkToEventManager(self, em):
+        if self._em != None:
+            em.unregister(EventManager.E_DEBUG_OPTIONS_CHANGED, self.onDebugOptionsChange)
+            
+        if issubclass(em, EventManager):
+            self._em = em
+            self._em.register(EventManager.E_DEBUG_OPTIONS_CHANGED, self.onDebugOptionsChange)
+            
+        self._gWrapper = NetworkXGraphWrapper.i()
+        
+    def onDebugOptionsChange(self, changedOptions, rete, *args):
+        if isinstance(changedOptions, dict):
+            for (key, value) in changedOptions.items():
+                method = "_option_"+key
+                if hasattr(self, method) \
+                        and callable(getattr(self, method)):
+                    print key, ' = ', value
+                    getattr(self, method)(value, rete)
+
+    def _option_draw_graph(self, value, rete):
+        if self._prevStatus != value:
+            if bool(value):
+                self._em.register(EventManager.E_NODE_ADDED, self.onNodeAdded)
+                self._em.register(EventManager.E_NODE_REMOVED, self.onNodeRemoved)
+                self._em.register(EventManager.E_NODE_LINKED, self.onNodeLinked)
+                self._em.register(EventManager.E_NODE_UNLINKED, self.onNodeUnlinked)
+                self._em.register(EventManager.E_NETWORK_READY, self.onNetworkReady)
+                # ho bisogno di costruire la rete creata fino a questo punto
+                self._browseCreatedNetwork(rete)
+            else:
+                self._em.unregister(EventManager.E_NODE_ADDED, self.onNodeAdded)
+                self._em.unregister(EventManager.E_NODE_REMOVED, self.onNodeRemoved)
+                self._em.unregister(EventManager.E_NODE_LINKED, self.onNodeLinked)
+                self._em.unregister(EventManager.E_NODE_UNLINKED, self.onNodeUnlinked)
+                self._em.unregister(EventManager.E_NETWORK_READY, self.onNetworkReady)
+                self._gWrapper.clear()
+
+
+    def onNodeAdded(self, node):
+        self._gWrapper.add_node(node)
+        
+    def onNodeRemoved(self, node):
+        #self._gWrapper.remove_node(node)
+        pass
+    
+    def onNodeLinked(self, node, parent, linkType=0, *args):
+        self._gWrapper.add_edge(parent, node, linkType)
+        
+    def onNodeUnlinked(self, node, parent):
+        #self._gWrapper.remove_edge(node, parent)
+        pass
+
+    def onNetworkReady(self, *args):
+        self._gWrapper.draw()
+        
+    def _browseCreatedNetwork(self, rete):
+        from icse.rete.ReteNetwork import ReteNetwork
+        from icse.rete.Nodes import ReteNode
+        assert isinstance(rete, ReteNetwork)
+        nodeQueue = [(rete.get_root(), None, 0)]
+        while len(nodeQueue) > 0:
+            node, parent, linkType = nodeQueue.pop(0)
+            EventManager.trigger(EventManager.E_NODE_ADDED, node)
+            if parent != None:
+                EventManager.trigger(EventManager.E_NODE_LINKED, node, parent, linkType)
+                
+            # per AlphaRoot, ConstantTestNode, LengthTestNode e ReteNode
+            if hasattr(node, 'get_children'):
+                linkType = -1 if node is ReteNode else 0
+                for succ in node.get_children():
+                    nodeQueue.append( (succ, node, linkType ) )
+            # per ConstantTestNode, JoinNode e NegativeNode
+            if hasattr(node, 'get_alphamemory'):
+                linkType = 1 if node is ReteNode else 0
+                if node.get_alphamemory() != None:
+                    nodeQueue.append( (node.get_alphamemory(), node, 0 ) )
+            # per AlphaMemory
+            if hasattr(node, 'get_successors'):
+                for succ in node.get_successors():
+                    nodeQueue.append( (succ, node, 0 ) )
+            if hasattr(node, 'get_partner'):
+                nodeQueue.append( (node.get_partner(), node, 0 ) )
+                
+            
 class EventManager(object):
     
     E_RULE_FIRED = 'rule-fired'
@@ -205,6 +302,8 @@ class EventManager(object):
     E_DEBUG_OPTIONS_CHANGED = 'debug-options-changed'
     
     E_MODULE_INCLUDED = 'module-included'
+    
+    E_NETWORK_READY = 'network-ready'
     
     __observers = {}
     

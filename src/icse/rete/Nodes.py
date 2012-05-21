@@ -9,10 +9,11 @@ from icse.rete.WME import WME
 from icse.Variable import Variable
 from icse.rete.JoinTest import JoinTest
 from icse.rete.NegativeJoinResult import NegativeJoinResult
-from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
+#from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.rete.FilterTest import FilterTest
 from icse.predicates.Eq import Eq
 from icse.Function import Function
+from icse.debug import EventManager
 
 class AlphaNode(object):
     '''
@@ -139,7 +140,10 @@ class ConstantTestNode(AlphaNode):
         
         #print "Creo un ConstantTestNode "+repr(ctn)+" (linkandolo a: "+repr(node)
         
-        NetworkXGraphWrapper.i().add_node(ctn, node)
+        #NetworkXGraphWrapper.i().add_node(ctn, node)
+        
+        EventManager.trigger(EventManager.E_NODE_ADDED, ctn)
+        EventManager.trigger(EventManager.E_NODE_LINKED, ctn, node, 0)
         
         # il ctn non conserva wme, quindi non devo aggiornarlo
         
@@ -190,11 +194,17 @@ class ConstantTestNode(AlphaNode):
         Esegue la rimozione del nodo
         dalla rete
         '''
+        
+        EventManager.trigger(EventManager.E_NODE_UNLINKED, self, self._parent, 0)
+        
         #il parent di questo e' per forza un ConstantTestNode
         self._parent._remove_child(self)
         
-        # rimuovo l'eventuale riferimento all'alpha memory
-        self._alphamemory = None
+        if self.has_alphamemory():
+            EventManager.trigger(EventManager.E_NODE_UNLINKED, self, self._alphamemory, 0)
+            # rimuovo l'eventuale riferimento all'alpha memory
+            self._alphamemory = None
+
         
     def add_child(self, child):
         '''
@@ -258,7 +268,10 @@ class LengthTestNode(ConstantTestNode):
         
         #print "Creo un ConstantTestNode "+repr(ctn)+" (linkandolo a: "+repr(node)
         
-        NetworkXGraphWrapper.i().add_node(ctn, node)
+        #NetworkXGraphWrapper.i().add_node(ctn, node)
+        
+        EventManager.trigger(EventManager.E_NODE_ADDED, ctn)
+        EventManager.trigger(EventManager.E_NODE_LINKED, ctn, node, 0)
         
         # il ctn non conserva wme, quindi non devo aggiornarlo
         
@@ -363,6 +376,10 @@ class AlphaMemory(AlphaNode):
         
         # a questo punto devo forzare l'aggiornamento dell'intera rete
         # ora capisco perche il factory aveva come condizione l'intera rete di condizioni...
+
+        EventManager.trigger(EventManager.E_NODE_ADDED, am)
+        EventManager.trigger(EventManager.E_NODE_LINKED, am, node, 0)
+
         
         # ricostruisco semplicemente la sequenza di test node che porta a questa alpha-memory
         stack = []
@@ -395,7 +412,7 @@ class AlphaMemory(AlphaNode):
                 # stata appena aggiunta normalmente
                 am.activation(w)
                 
-        NetworkXGraphWrapper.i().add_node(am, node)
+        #NetworkXGraphWrapper.i().add_node(am, node)
                 
         return am
         
@@ -443,7 +460,10 @@ class AlphaMemory(AlphaNode):
         assert isinstance(parent, ConstantTestNode), \
             "parent non e' un ConstantTestNode"
             
-        parent.delete() 
+        EventManager.trigger(EventManager.E_NODE_REMOVED, self)
+        EventManager.trigger(EventManager.E_NODE_UNLINKED, self, parent)
+            
+        parent.delete()
         
     def remove_wme(self, w):
         '''
@@ -567,6 +587,9 @@ class ReteNode(object):
             - rimozione del riferimento dalla lista di figli del padre
             - rimozione di tutti i nodi sopra questo che non abbiano utilita'
         '''
+        
+        EventManager.trigger(EventManager.E_NODE_LINKED, self, self._parent)        
+        
         self._parent._remove_child(self)
         self._parent._delete_useless()
         
@@ -610,6 +633,8 @@ class JoinNode(ReteNode):
         self._tests = [x for x in tests if isinstance(x, JoinTest)]
         ReteNode.__init__(self, parent)
         
+    def get_alphamemory(self):
+        return self._amem
     
     def leftActivation(self, tok, wme = None):
         
@@ -703,10 +728,16 @@ class JoinNode(ReteNode):
         # trova (se join normale o dummy)
         amem.add_successor(jn)
         
-        NetworkXGraphWrapper.i().add_node(jn, amem, 1)
-        
+        EventManager.trigger(EventManager.E_NODE_ADDED, jn)
+        EventManager.trigger(EventManager.E_NODE_LINKED, jn, amem, 1)
         if parent != None:
-            NetworkXGraphWrapper.i().add_edge(parent, jn, -1)
+            EventManager.trigger(EventManager.E_NODE_LINKED, jn, parent, -1)
+        
+        
+        #NetworkXGraphWrapper.i().add_node(jn, amem, 1)
+        
+        #if parent != None:
+            #NetworkXGraphWrapper.i().add_edge(parent, jn, -1)
         
         
         return jn
@@ -720,9 +751,10 @@ class JoinNode(ReteNode):
         
         self._amem.remove_successor(self)
         
+        EventManager.trigger(EventManager.E_NODE_UNLINKED, self, self._amem)
+        
         if self._amem.is_useless():
             self._amem.delete()
-        
         
         ReteNode.delete(self)
         
@@ -846,7 +878,10 @@ class BetaMemory(ReteNode):
         parent.add_child(bm)
         parent.update(bm)
         
-        NetworkXGraphWrapper.i().add_node(bm, parent, -1)
+        EventManager.trigger(EventManager.E_NODE_ADDED, bm)
+        EventManager.trigger(EventManager.E_NODE_LINKED, bm, parent, -1)        
+        
+        #NetworkXGraphWrapper.i().add_node(bm, parent, -1)
 
         return bm
     
@@ -940,10 +975,15 @@ class NegativeNode(JoinNode):
                 # nella memory di questo nodo (che integra
                 # una beta-memory)
                 njn.rightActivation(w)
-        
-        NetworkXGraphWrapper.i().add_node(njn, amem, 1)
+                
+        EventManager.trigger(EventManager.E_NODE_ADDED, njn)
+        EventManager.trigger(EventManager.E_NODE_LINKED, njn, amem, 1)        
         if parent != None:
-            NetworkXGraphWrapper.i().add_edge(njn, parent, -1)
+            EventManager.trigger(EventManager.E_NODE_LINKED, njn, parent, -1)
+        
+        #NetworkXGraphWrapper.i().add_node(njn, amem, 1)
+        #if parent != None:
+            #NetworkXGraphWrapper.i().add_edge(njn, parent, -1)
         
         return njn
 
@@ -1101,10 +1141,15 @@ class NccNode(BetaMemory):
         parent.update(ncc)
         last_node.update(ncc.get_partner())
         
+        EventManager.trigger(EventManager.E_NODE_ADDED, ncc)
+        EventManager.trigger(EventManager.E_NODE_ADDED, ncc.get_partner())
+        EventManager.trigger(EventManager.E_NODE_LINKED, ncc, parent, -1)
+        EventManager.trigger(EventManager.E_NODE_LINKED, ncc.get_partner(), ncc)
+        EventManager.trigger(EventManager.E_NODE_LINKED, ncc.get_partner(), last_node, -1)        
 
-        NetworkXGraphWrapper.i().add_node(ncc, parent, -1)
-        NetworkXGraphWrapper.i().add_node(ncc.get_partner(), last_node, -1)
-        NetworkXGraphWrapper.i().add_edge(ncc.get_partner(), ncc)
+        #NetworkXGraphWrapper.i().add_node(ncc, parent, -1)
+        #NetworkXGraphWrapper.i().add_node(ncc.get_partner(), last_node, -1)
+        #NetworkXGraphWrapper.i().add_edge(ncc.get_partner(), ncc)
         
         
         
@@ -1152,6 +1197,8 @@ class NccNode(BetaMemory):
         del partner (e dei padre inutile del partner)
         '''
         self.get_partner().delete()
+        
+        EventManager.trigger(EventManager.E_NODE_UNLINKED, self.get_partner(), self)
         
         # chiamo la rimozione di BetaMemory (che se la vedra'
         # per quanto riguarda la rimozione dei token)
@@ -1393,8 +1440,9 @@ class FilterNode(ReteNode):
         fn = FilterNode(parent, tests)
         parent.add_child(fn)
 
-        NetworkXGraphWrapper.i().add_node(fn, parent, -1)
-        
+        EventManager.trigger(EventManager.E_NODE_ADDED, fn)
+        EventManager.trigger(EventManager.E_NODE_LINKED, fn, parent, -1)
+
         return fn
         
     def delete(self):

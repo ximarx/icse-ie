@@ -48,18 +48,17 @@ class NetworkXGraphWrapper(object):
     def is_ready(self):
         return self._isReady
 
-    def add_node(self, node, parent, linkType=0):
+    def add_node(self, node, parent=None, linkType=0):
         if not self.is_ready() or self._debug:
             return self._fallback_add_node(node, parent, linkType)
         
-        assert not isinstance(node, int) 
-        assert not isinstance(parent, int)
+        #assert not isinstance(node, int) 
+        #assert not isinstance(parent, int)
         
         if not self._nodemap.has_key(node):
             
             # nuovo nodo
             self._nodemap[node] = self._nodeid
-            parent_id = self._nodemap.get(parent, None)
             self._G.add_node(self._nodeid,attr_dict={
                     'type': str(node.__class__.__name__).split(".")[-1],
                     'ref': node
@@ -82,7 +81,11 @@ class NetworkXGraphWrapper(object):
 
             if getattr(node, 'get_items', None) != None:
                 self._G.node[self._nodeid]['dyn_label'] = lambda ref:'[{0}]'.format(len(ref.get_items()))
-             
+
+
+            parent_id = None
+            if parent != None:
+                parent_id = self._nodemap.get(parent, None)
             if parent_id != None:
                 self.add_edge(parent_id, self._nodeid, linkType )
             
@@ -185,6 +188,8 @@ class NetworkXGraphWrapper(object):
         eleft=[(u,v) for (u,v,d) in G.edges(data=True) if d['type'] < 0]
         enormal=[(u,v) for (u,v,d) in G.edges(data=True) if d['type'] == 0]
         
+        #import pprint
+        #pprint.pprint(G.nodes(data=True))
         
         nroots=[n for (n,d) in G.nodes(data=True) if d['type'] == 'AlphaRootNode']
         namems=[n for (n,d) in G.nodes(data=True) if d['type'] == 'AlphaMemory']

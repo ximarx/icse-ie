@@ -5,8 +5,8 @@
 ;@debug(watch_rule_deactivation=True)
 ;@debug(watch_strategy_change=True)
 
-(set-strategy mea)
 
+(set-strategy mea)
 
 ; Riempie il PRIMO(4L) secchio al massimo (se non lo e' gia')
 (defrule riempi-uno "Riempie il primo secchio"

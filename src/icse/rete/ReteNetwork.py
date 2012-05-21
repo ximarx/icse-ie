@@ -33,10 +33,14 @@ class ReteNetwork(object):
         #self.__beta_root = BetaRootNode(self, self.__alpha_root)
         #self.__alpha_root.get_alphamemory().add_successor(self.__beta_root)
         
-        NetworkXGraphWrapper.i().add_node(self.__alpha_root, None)
+        EventManager.trigger(EventManager.E_NODE_ADDED, self.__alpha_root)        
+        
+        #NetworkXGraphWrapper.i().add_node(self.__alpha_root, None)
         #Ubigraph.i().add_node(self.__alpha_root.get_alphamemory(), self.__alpha_root)
         #Ubigraph.i().add_node(self.__beta_root, self.__alpha_root, 1)
         
+    def get_root(self):
+        return self.__alpha_root
         
     def get_wmes(self):
         return self.__wmes_map.values()

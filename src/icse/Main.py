@@ -1,12 +1,13 @@
 from icse.rete.ReteNetwork import ReteNetwork
 from icse.Production import Production
 from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
-from icse.debug import EventManager, ConsoleDebugMonitor
+from icse.debug import EventManager, ConsoleDebugMonitor, ReteRenderer
 import icse.parser as clipsparser
 
 from genericpath import isfile
 import traceback
 import sys
+from pyparsing import ParseException
 
 
 def execute_test(filepath):
@@ -16,24 +17,43 @@ def execute_test(filepath):
     DEBUG = False
     try:
         parsedItems = clipsparser.parseFile(filepath, DEBUG)
-    except Exception:
+    except ParseException, e:
+        
+        print "Errore nel file: ", filepath
+        print "    [dopo] Riga:         ", e.lineno
+        print "    [dopo] Colonna:      ", e.col
+        print "    [dopo] Testo:        ", e.line
+        print "    Messaggio:           ", str(e)
+        print
+    
+    except Exception, e2:
+        print e2
+        
+    finally:
+
         # in caso di eccezione del parser, e debug falso
         # eseguo nuovamente
         if not DEBUG:
-            parsedItems = clipsparser.parseFile(filepath, True)            
+            
+            print "Vuoi attivare la modalita' debug del parser? (si/no)"
+            risposta = raw_input()
+            if risposta.lower() == "si":
+                parsedItems = clipsparser.parseFile(filepath, True)
+            else:
+                return            
         else:
             raise    
         
     if DEBUG:
         clipsparser.debug_parsed(parsedItems)
-            
-    
-    NetworkXGraphWrapper.i().set_debug(DEBUG)
-    
+
     rete = ReteNetwork()
     
     DM = ConsoleDebugMonitor()
     DM.linkToEventManager(EventManager)
+    
+    RR = ReteRenderer()
+    RR.linkToEventManager(EventManager)
     
     parseQueue = []
     parsedModuleCache = {}
@@ -80,9 +100,10 @@ def execute_test(filepath):
                     #    chiave=valore,chiave2=valore2,ecc
                     try:
                         debug_infos = dict([tuple(x.strip().split('=')) for x in dir_arg.strip().split(',')])
-                        EventManager.trigger( EventManager.E_DEBUG_OPTIONS_CHANGED, debug_infos)
-                    except:
+                        EventManager.trigger( EventManager.E_DEBUG_OPTIONS_CHANGED, debug_infos, rete)
+                    except Exception, e:
                         #ignora la direttiva se il formato non e' corretto
+                        print e
                         print >> sys.stderr, "Direttiva debug ignorata: ", dir_arg  
                     
                     
@@ -126,38 +147,17 @@ def execute_test(filepath):
                         ) 
 
     #NetworkXGraphWrapper.i().draw()
+    
+    EventManager.trigger(EventManager.E_NETWORK_READY, rete)
         
     print "-------------------"
     print "Esecuzione: "
     print
     
     while not agenda.isEmpty():
-#        print "\t\t\t---Stato WM---"
-#        for wme in rete.get_wmes():
-#            print "\t\t\t{0} ({1})".format(
-#                                    str("f-"+str(wme.get_factid())).ljust(5, ' '),
-#                                    " ".join([str(x) for x in wme.get_fact()]) if isinstance(wme.get_fact(), list) 
-#                                        else str(wme.get_facts()) 
-#                                )
-#        print "\t\t\t---Agenda:---"
-#        agenda = rete.agenda()
-#        for (salience, pnode, token) in agenda.activations():
-#            print "\t\t\t{0} {1}:\t{2}".format(
-#                               str(salience).ljust(6, ' '),
-#                               pnode.get_name(),
-#                               ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)])
-#                            ) 
-#
-#        raw_input() # attende invio
-#        
-        
+        # il get_activation rimuove la regola dall'agenda automaticamente
         node, token = agenda.get_activation()
-        #print "\t\t\t\t\t\t[{0}]".format(node.get_name())
         node.execute(token)
-        # non e' necessario aggiornare
-        # l'agenda visto che e' un riferimento
-        # agli attivabili
-        #agenda = rete.agenda()
 
         
     print
