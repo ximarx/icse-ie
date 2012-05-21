@@ -15,9 +15,12 @@ def execute_test(filepath):
     EventManager.reset()
     
     DEBUG = False
+    parseError = False
     try:
         parsedItems = clipsparser.parseFile(filepath, DEBUG)
     except ParseException, e:
+        
+        parseError = True
         
         print "Errore nel file: ", filepath
         print "    [dopo] Riga:         ", e.lineno
@@ -27,22 +30,24 @@ def execute_test(filepath):
         print
     
     except Exception, e2:
+        parseError = True
+        
         print e2
         
     finally:
 
         # in caso di eccezione del parser, e debug falso
         # eseguo nuovamente
-        if not DEBUG:
-            
-            print "Vuoi attivare la modalita' debug del parser? (si/no)"
-            risposta = raw_input()
-            if risposta.lower() == "si":
-                parsedItems = clipsparser.parseFile(filepath, True)
+        if parseError: 
+            if not DEBUG:
+                print "Vuoi attivare la modalita' debug del parser? (si/no)"
+                risposta = raw_input()
+                if risposta.lower() == "si":
+                    parsedItems = clipsparser.parseFile(filepath, True)
+                else:
+                    return
             else:
                 return            
-        else:
-            raise    
         
     if DEBUG:
         clipsparser.debug_parsed(parsedItems)

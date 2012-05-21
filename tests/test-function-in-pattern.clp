@@ -4,7 +4,7 @@
 ;@debug(watch_rule_activation=True)
 ;@debug(watch_rule_deactivation=True)
 ;@debug(watch_strategy_change=True)
-;@debug(draw_graph=True)
+
 
 
 (defrule function-attiva "Deve essere attiva per superare il test"
@@ -23,3 +23,5 @@
 	(A 1)
 	(A 2 B)
 )
+
+;@debug(draw_graph=True)

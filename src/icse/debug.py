@@ -247,36 +247,47 @@ class ReteRenderer(object):
         pass
 
     def onNetworkReady(self, *args):
-        self._gWrapper.draw()
+        try:
+            self._gWrapper.draw()
+        except Exception, e:
+            import sys
+            print >> sys.stderr, "Impossibile visualizzare il grafico: ", repr(e)
         
     def _browseCreatedNetwork(self, rete):
         from icse.rete.ReteNetwork import ReteNetwork
         from icse.rete.Nodes import ReteNode
         assert isinstance(rete, ReteNetwork)
         nodeQueue = [(rete.get_root(), None, 0)]
+        readed_saw = set()
+        readed_exploded = set( )
         while len(nodeQueue) > 0:
             node, parent, linkType = nodeQueue.pop(0)
-            EventManager.trigger(EventManager.E_NODE_ADDED, node)
+            if node not in readed_saw:
+                readed_saw.add(node)
+                EventManager.trigger(EventManager.E_NODE_ADDED, node)
             if parent != None:
                 EventManager.trigger(EventManager.E_NODE_LINKED, node, parent, linkType)
                 
-            # per AlphaRoot, ConstantTestNode, LengthTestNode e ReteNode
-            if hasattr(node, 'get_children'):
-                linkType = -1 if node is ReteNode else 0
-                for succ in node.get_children():
-                    nodeQueue.append( (succ, node, linkType ) )
-            # per ConstantTestNode, JoinNode e NegativeNode
-            if hasattr(node, 'get_alphamemory'):
-                linkType = 1 if node is ReteNode else 0
-                if node.get_alphamemory() != None:
-                    nodeQueue.append( (node.get_alphamemory(), node, 0 ) )
-            # per AlphaMemory
-            if hasattr(node, 'get_successors'):
-                for succ in node.get_successors():
-                    nodeQueue.append( (succ, node, 0 ) )
-            if hasattr(node, 'get_partner'):
-                nodeQueue.append( (node.get_partner(), node, 0 ) )
-                
+            if node not in readed_exploded:
+                readed_exploded.add(node)
+                # per AlphaRoot, ConstantTestNode, LengthTestNode e ReteNode
+                if hasattr(node, 'get_children'):
+                    linkType = -1 if isinstance(node, ReteNode) else 0
+                    for succ in node.get_children():
+                        nodeQueue.append( (succ, node, linkType ) )
+                # per ConstantTestNode, JoinNode e NegativeNode
+                if hasattr(node, 'get_alphamemory'):
+                    if not isinstance(node, ReteNode):
+                        if node.get_alphamemory() != None:
+                            nodeQueue.append( (node.get_alphamemory(), node, 0 ) )
+                # per AlphaMemory
+                if hasattr(node, 'get_successors'):
+                    for succ in node.get_successors():
+                        linkType = 1 if isinstance(succ, ReteNode) else 0
+                        nodeQueue.append( (succ, node, linkType ) )
+                if hasattr(node, 'get_partner'):
+                    nodeQueue.append( (node.get_partner(), node, 0 ) )
+                    
             
 class EventManager(object):
     

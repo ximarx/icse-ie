@@ -4,7 +4,6 @@
 ;@debug(watch_rule_activation=True)
 ;@debug(watch_rule_deactivation=True)
 ;@debug(watch_strategy_change=True)
-;@debug(draw_graph=True)
 
 
 (defrule nnc-primo-attiva "Regola con NccPredicate come primo nodo"
@@ -49,3 +48,5 @@
 	(G A C Z E)
 	(A B C)
 )
+
+;@debug(draw_graph=True)
