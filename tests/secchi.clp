@@ -1,6 +1,5 @@
 ;@include(moduli/halt-on-end.clp)
 
-
 (set-strategy mea)
 
 ; Riempie il PRIMO(4L) secchio al massimo (se non lo e' gia')
