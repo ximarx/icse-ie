@@ -1,6 +1,6 @@
 from icse.rete.ReteNetwork import ReteNetwork
 from icse.Production import Production
-from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
+#from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.debug import EventManager, ConsoleDebugMonitor, ReteRenderer
 import icse.parser as clipsparser
 
@@ -178,8 +178,10 @@ def execute_test(filepath):
                             )
     
     
+    EventManager.trigger(EventManager.E_NETWORK_SHUTDOWN, rete)
+    
     #NetworkXGraphWrapper.i().draw()
-    NetworkXGraphWrapper.i().clear()
+    #NetworkXGraphWrapper.i().clear()
                 
 def main_loop():                
                 

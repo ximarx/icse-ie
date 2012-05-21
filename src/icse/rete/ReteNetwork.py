@@ -7,7 +7,7 @@ from icse.rete.WME import WME
 from icse import rete
 from icse.rete.Nodes import AlphaRootNode, ReteNode
 from icse.rete.PNode import PNode
-from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
+#from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
 from icse.rete.Agenda import Agenda
 from icse.debug import EventManager
 
@@ -157,7 +157,7 @@ class ReteNetwork(object):
         
         last_node.update(pnode)
         
-        NetworkXGraphWrapper.i().add_node(pnode, last_node, -1)
+        #NetworkXGraphWrapper.i().add_node(pnode, last_node, -1)
         
         self.__rules_map[production.get_name] = pnode
 

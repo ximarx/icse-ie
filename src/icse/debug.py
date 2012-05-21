@@ -4,7 +4,7 @@ Created on 17/mag/2012
 @author: Francesco Capozzo
 '''
 
-from icse.rete.NetworkXGraphWrapper import NetworkXGraphWrapper
+from icse.NetworkXGraphWrapper import NetworkXGraphWrapper
 
 def show_wme_details(wme, indent=4, explodeToken=False, maxDepth=3, explodeAMem=False):
 
@@ -201,8 +201,9 @@ class ReteRenderer(object):
         if issubclass(em, EventManager):
             self._em = em
             self._em.register(EventManager.E_DEBUG_OPTIONS_CHANGED, self.onDebugOptionsChange)
-            
-        self._gWrapper = NetworkXGraphWrapper.i()
+         
+        self._gWrapper = None   
+        #self._gWrapper = NetworkXGraphWrapper.i()
         
     def onDebugOptionsChange(self, changedOptions, rete, *args):
         if isinstance(changedOptions, dict):
@@ -221,6 +222,7 @@ class ReteRenderer(object):
                 self._em.register(EventManager.E_NODE_LINKED, self.onNodeLinked)
                 self._em.register(EventManager.E_NODE_UNLINKED, self.onNodeUnlinked)
                 self._em.register(EventManager.E_NETWORK_READY, self.onNetworkReady)
+                self._em.register(EventManager.E_NETWORK_SHUTDOWN, self.onNetworkShutdown)
                 # ho bisogno di costruire la rete creata fino a questo punto
                 self._browseCreatedNetwork(rete)
             else:
@@ -229,7 +231,13 @@ class ReteRenderer(object):
                 self._em.unregister(EventManager.E_NODE_LINKED, self.onNodeLinked)
                 self._em.unregister(EventManager.E_NODE_UNLINKED, self.onNodeUnlinked)
                 self._em.unregister(EventManager.E_NETWORK_READY, self.onNetworkReady)
-                self._gWrapper.clear()
+                self._em.unregister(EventManager.E_NETWORK_SHUTDOWN, self.onNetworkShutdown)
+                try:
+                    self._gWrapper.clear()
+                except:
+                    pass
+                finally:    
+                    self._gWrapper = None
 
 
     def onNodeAdded(self, node):
@@ -252,8 +260,15 @@ class ReteRenderer(object):
         except Exception, e:
             import sys
             print >> sys.stderr, "Impossibile visualizzare il grafico: ", repr(e)
+            
+    def onNetworkShutdown(self, *args):
+        try:
+            self._gWrapper.clear()
+        except:
+            pass
         
     def _browseCreatedNetwork(self, rete):
+        self._gWrapper = NetworkXGraphWrapper.i()
         from icse.rete.ReteNetwork import ReteNetwork
         from icse.rete.Nodes import ReteNode
         assert isinstance(rete, ReteNetwork)
@@ -315,6 +330,7 @@ class EventManager(object):
     E_MODULE_INCLUDED = 'module-included'
     
     E_NETWORK_READY = 'network-ready'
+    E_NETWORK_SHUTDOWN = 'network-shutdown'
     
     __observers = {}
     
