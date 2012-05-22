@@ -130,8 +130,17 @@ class ReteNetwork(object):
     def add_production(self, production):
         '''
         Aggiunge una nuova produzione al network
+        (solo se un'altra con lo stesso nome non sia gia
+        stata definita, nel qual caso viene restituito
+        un riferimento al vecchio PNode)
         @param production: Production
         '''
+        
+        if self.__rules_map.has_key(production.get_name()):
+            import sys
+            print >> sys.stderr, "Redefinizione di una regola gia definita: ", production.get_name()
+            return self.__rules_map[production.get_name()]
+        
         symbols = {}
         last_node = rete.network_factory(self.__alpha_root, None, production.get_lhs(), builtins=symbols)
         
