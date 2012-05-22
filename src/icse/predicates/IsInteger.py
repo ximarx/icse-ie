@@ -11,7 +11,7 @@ class IsInteger(PositivePredicate):
         controlla se un valore e' uguale ad un altro
     '''
         
-    SIGN = 'numberp'
+    SIGN = 'integerp'
         
     @staticmethod
     def compare(value1):
