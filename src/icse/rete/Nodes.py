@@ -14,6 +14,7 @@ from icse.rete.FilterTest import FilterTest
 from icse.predicates.Eq import Eq
 from icse.Function import Function
 from icse.debug import EventManager
+from collections import deque
 
 class AlphaNode(object):
     '''
@@ -67,7 +68,8 @@ class ConstantTestNode(AlphaNode):
         self._field = field
         
         # list aid figli ConstantTestNode
-        self._children = []
+        #self._children = []
+        self._children = deque()
         
         self._alphamemory = None
         
@@ -210,7 +212,9 @@ class ConstantTestNode(AlphaNode):
         '''
         Aggiunge un nuovo figlio alla lista
         '''
-        self._children.insert(0, child)
+        #self._children.insert(0, child)
+        #self._children.append(child)
+        self._children.appendleft(child)
         
     def _remove_child(self, child):
         self._children.remove(child)
@@ -292,9 +296,10 @@ class AlphaMemory(AlphaNode):
         # prepara il parent
         AlphaNode.__init__(self, parent)
         # contiene i riferimenti a tutte le wme
-        self._items = []
+        self._items = {}
         # contiene i riferimenti a tutti i nodi successori (nodi beta [JoinNode])
-        self._successors = []
+        #self._successors = []
+        self._successors = deque()
 
     def get_items(self):
         '''
@@ -302,7 +307,7 @@ class AlphaMemory(AlphaNode):
         nella AlphaMemory
         @return: WME[]
         '''
-        return self._items
+        return self._items.values()
     
     def add_successor(self, succ):
         '''
@@ -315,7 +320,8 @@ class AlphaMemory(AlphaNode):
         # la duplicazione.
         # Riferimento:
         #    paragrafo 2.4.1 pagina 25
-        self._successors.insert(0, succ)
+        #self._successors.insert(0, succ)
+        self._successors.appendleft(succ)
         
     def get_successors(self):
         return self._successors
@@ -432,7 +438,10 @@ class AlphaMemory(AlphaNode):
         #    "w non di tipo WME"
         
         # inserisce il nuovo elemento in testa della lista di elementi
-        self._items.insert(0, w)
+        #self._items.insert(0, w)
+        #self._items.append(w)
+        self._items[w.get_factid()] = w
+        
         # inserisce questa amem nella lista delle amem di w
         # in modo che realizzare una tree-based removal
         w.add_alphamemory(self)
@@ -475,7 +484,8 @@ class AlphaMemory(AlphaNode):
         #assert isinstance(w, WME), \
         #    "w non di tipo WME"
         
-        self._items.remove(w)
+        #self._items.remove(w)
+        del self._items[w.get_factid()]
                     
             
 class AlphaRootNode(ConstantTestNode):
@@ -537,7 +547,7 @@ class ReteNode(object):
         #    "parent non e' un ReteNode"
         
         # @ivar __children: [ReteNode] 
-        self._children = []
+        self._children = deque()
         self._parent = parent
         
     def get_parent(self):
@@ -553,7 +563,8 @@ class ReteNode(object):
         assert isinstance(child, ReteNode), \
             "child non e' un ReteNode"
             
-        self._children.insert(0, child)
+        #self._children.insert(0, child)
+        self._children.appendleft(child)
         
     def append_child(self, child):
         '''
@@ -798,22 +809,25 @@ class BetaMemory(ReteNode):
         ReteNode.__init__(self, parent)
         
         # lista di token mantenuti nella beta memory
-        self._items = []
+        #self._items = []
+        self._items = {}
         
     def get_items(self):
-        return self._items
+        return self._items.values()
     
     def remove_item(self, tok):
         '''
         Rimuove un token dagli items
         '''
-        self._items.remove(tok)
+        #self._items.remove(tok)
+        del self._items[tok]
     
     def leftActivation(self, tok, wme):
         
         new_token = Token(self, tok, wme)
         
-        self._items.insert(0, new_token)
+        #self._items.insert(0, new_token)
+        self._items[new_token] = new_token
         
         for child in self._children:
             assert isinstance(child, ReteNode), \
@@ -898,7 +912,7 @@ class NegativeNode(JoinNode):
         '''
         
         # lista di Token
-        self._items = []
+        self._items = {}
         
         # amem e tests dal JoinNode come proprieta' "protette"
         # self._amem
@@ -910,13 +924,14 @@ class NegativeNode(JoinNode):
         Restituisce la lista di match (come fosse una beta-memory)
         @return: Token[]
         '''
-        return self._items
+        return self._items.values()
     
     def remove_item(self, tok):
         '''
         Rimuove un token dagli items
         '''
-        self._items.remove(tok)
+        #self._items.remove(tok)
+        del self._items[tok]
     
         
     @staticmethod
@@ -996,7 +1011,8 @@ class NegativeNode(JoinNode):
         # devo provvedere a convertirlo?
         new_token = Token(self, tok, wme)
         
-        self._items.insert(0, new_token)
+        #self._items.insert(0, new_token)
+        self._items[new_token] = new_token
         
         for w in self._amem.get_items():
             if self._perform_tests(w, new_token):
@@ -1022,7 +1038,7 @@ class NegativeNode(JoinNode):
         assert isinstance(wme, WME), \
             "wme non e' un WME"
             
-        for t in self._items:
+        for t in self.get_items():
             assert isinstance(t, Token), \
                 "t non e' un Token"
                 
@@ -1046,7 +1062,7 @@ class NegativeNode(JoinNode):
         se vengono trovati token che non hanno match per njresult
         (il nodo e' negativo)
         '''
-        for t in self._items:
+        for t in self.get_items():
             assert isinstance(t, Token), \
                 "t non e' un Token"
                 
@@ -1063,8 +1079,9 @@ class NegativeNode(JoinNode):
         # a quello per la pulizia della BetaMemory
         # ma questo elemento non e' derivato
         # ho cercato di evitare da doppia ereditariera'
-        while len(self._items) > 0:
-            tok = self._items.pop(0)
+        #while len(self._items) > 0:
+        while len(self.get_items()) > 0:
+            tok = self.get_items().pop(0)
             assert isinstance(tok, Token), \
                 "tok non e' un Token"
                 
@@ -1158,7 +1175,8 @@ class NccNode(BetaMemory):
     def leftActivation(self, tok, wme):
         
         new_token = Token(self, tok, wme)
-        self._items.insert(0, new_token)
+        #self._items.insert(0, new_token)
+        self._items[new_token] = new_token
         
         results = self.get_partner().flush_resultbuffer()
         for r in results:
@@ -1181,7 +1199,7 @@ class NccNode(BetaMemory):
         se vengono trovati token che non hanno match per nccresult
         (il nodo e' negativo)
         '''
-        for t in self._items:
+        for t in self.get_items():
             assert isinstance(t, Token), \
                 "t non e' un Token"
                 
@@ -1225,12 +1243,12 @@ class NccPartnerNode(ReteNode):
         
         # list of partial-match wating to be read from
         # the ncc-node
-        self._resultbuffer = []
+        self._resultbuffer = deque()
         
         
     def flush_resultbuffer(self):
         rb = self._resultbuffer
-        self._resultbuffer = []
+        self._resultbuffer = deque()
         return rb
     
     def get_nccnode(self):
@@ -1293,7 +1311,8 @@ class NccPartnerNode(ReteNode):
         # memorizzo il risultato nel buffer e aspetto
         # pazientemente l'attivazione
         # del ncc-node
-        self._resultbuffer.insert(0, new_result)
+        #self._resultbuffer.insert(0, new_result)
+        self._resultbuffer.appendleft(new_result)
         
         
     def delete(self):
@@ -1306,7 +1325,8 @@ class NccPartnerNode(ReteNode):
             # il contenuto del buffer
             # sono token... e per eliminarli
             # chiamo la delete direttamente 
-            self._resultbuffer.pop(0).delete()
+            #self._resultbuffer.pop(0).delete()
+            self._resultbuffer.popleft().delete()
 
         # propago la chiamata al metodo
         # base per pulizia di base

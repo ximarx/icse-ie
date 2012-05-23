@@ -70,6 +70,9 @@ def execute_test(filepath):
     
     current_file = filepath
     
+    import time
+    starttime = time.time()
+    
     while len(parsedItems) > 0 or len(parseQueue) > 0:
     
         for (item_type, item) in parsedItems:
@@ -130,10 +133,10 @@ def execute_test(filepath):
                     print "Errore durante il caricamento del modulo: ", pmodule
                     parsedModuleCache[pmodule] = False
     
-
     print
     print "-------------------"
     print "Statistiche:"
+    print "    tempo compilazione: ", (time.time() - starttime)
     print "    defrule:            ", stats_defrule
     print "    deffacts:           ", stats_deffacts
     print "    facts:              ", stats_facts

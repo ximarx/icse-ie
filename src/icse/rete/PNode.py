@@ -57,7 +57,8 @@ class PNode(BetaMemory):
     def leftActivation(self, tok, wme=None):
         
         new_token = Token(self, tok, wme)
-        self._items.insert(0, new_token)
+        #self._items.insert(0, new_token)
+        self._items[new_token] = new_token
             
         self.__onActive(self, new_token )
         
