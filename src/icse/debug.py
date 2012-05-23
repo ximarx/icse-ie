@@ -170,13 +170,13 @@ class ConsoleDebugMonitor(object):
         print "\t\t\t\t\t\t- [{0}: {1}]".format(pnode.get_name(), ", ".join(['f-'+str(w.get_factid()) for w in token.linearize(False)]))
     
     def onFactAsserted(self, wme, isNew, *args):
-        print "\t\t\t\t\t\t{0} f-{1}: {2}]".format(
+        print "\t\t\t\t\t\t{0} f-{1}: {2}".format(
                                                 "+" if isNew else "=",
                                                 wme.get_factid(),
                                                 wme.get_fact()
                                             )
     def onFactRetracted(self, wme, *args):
-        print "\t\t\t\t\t\t- f-{0}: {1}]".format(
+        print "\t\t\t\t\t\t- f-{0}: {1}".format(
                                                 wme.get_factid(),
                                                 wme.get_fact()
                                             )
