@@ -76,7 +76,8 @@ class Token(object):
 #        assert isinstance(njr, NegativeJoinResult), \
 #            "njr non e' un NegativeJoinResult"
             
-        self.__njresults.insert(0, njr)
+        #self.__njresults.insert(0, njr)
+        self.__njresults.append(njr)
         
     def remove_njresult(self, njr):
         '''
@@ -97,7 +98,8 @@ class Token(object):
         '''
         assert isinstance(nccr, Token), \
             "nccr non e' un Token"
-        self.__nccresults.insert(0, nccr)
+        #self.__nccresults.insert(0, nccr)
+        self.__nccresults.append(nccr)
     
     def remove_nccresult(self, nccr):
         '''
@@ -168,7 +170,8 @@ class Token(object):
             # Penso possa essere utile per il garbage collector
             
             while len(self.__njresults) > 0:
-                jr = self.__njresults.pop(0)
+                #jr = self.__njresults.pop(0)
+                jr = self.__njresults.pop()
                 assert isinstance(jr, NegativeJoinResult), \
                     "jr non e' un NegativeJoinResult"
                 #jr.get_wme().remove_njresult(jr)
@@ -179,7 +182,8 @@ class Token(object):
         elif isinstance(self.__node, NccNode):
             # pulisce i risultati ncc correlati all'esistenza di questo token
             while len(self.__nccresults) > 0:
-                rtok = self.__nccresults.pop(0)
+                #rtok = self.__nccresults.pop(0)
+                rtok = self.__nccresults.pop()
                 rtok.__wme.remove_token(rtok)
                 rtok.__parent._remove_child(rtok)
                 del rtok
@@ -216,7 +220,8 @@ class Token(object):
             #self.__children.pop(0).delete()
             
     def _add_child(self, t):
-        self.__children.insert(0, t)
+        #self.__children.insert(0, t)
+        self.__children.append(t)
         
     def _remove_child(self, t):
         self.__children.remove(t)

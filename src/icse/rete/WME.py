@@ -76,7 +76,8 @@ class WME(object):
         Aggiunge un nuovo token alla lista dei riferimenti
         dei tokens in cui questa WME e' rappresentata
         '''
-        self.__tokens.insert(0, t)
+        #self.__tokens.insert(0, t)
+        self.__tokens.append(t)
         
     def remove_token(self, t):
         '''
@@ -86,7 +87,8 @@ class WME(object):
         self.__tokens.remove(t)
         
     def add_alphamemory(self, am):
-        self.__alphamemories.insert(0, am)
+        #self.__alphamemories.insert(0, am)
+        self.__alphamemories.append(am)
         
     def remove_alphamemory(self, am):
         self.__alphamemories.remove(am)
@@ -95,7 +97,8 @@ class WME(object):
         '''
         Aggiunge una NegativeJoinResult alla lista
         '''
-        self.__njresults.insert(0, njr)
+        #self.__njresults.insert(0, njr)
+        self.__njresults.append(njr)
         
     def remove_njresult(self, njr):
         '''
