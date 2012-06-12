@@ -108,7 +108,7 @@ class Action(object):
     
     SIGN = None
 
-    def __init__(self, symbols, devices, 
+    def __init__(self, symbols, devices, reteNetwork, 
                                     assertFunc=lambda fact:(None,None,False),
                                     retractFunc=lambda wme:None,
                                     addProductionFunc=lambda production:None,
@@ -119,6 +119,7 @@ class Action(object):
         '''
         self._symbols = symbols
         self._devices = devices
+        self._reteNetwork = reteNetwork
         self._assert = assertFunc
         self._retract = retractFunc
         self._addProduction = addProductionFunc
@@ -136,12 +137,16 @@ class Action(object):
     def removeProduction(self, pnode):
         self._removeProduction(pnode)
         
+    def getReteNetwork(self):
+        '''@return: ReteNetwork'''
+        return self._reteNetwork
+        
     def executeImpl(self, *args):
         #esegue realmente l'azione
         pass
         
     @classmethod
-    def execute(cls, args, variables,
+    def execute(cls, args, variables, reteNetwork,
                                  assertFunc=lambda fact:(None,None,False),
                                  retractFunc=lambda wme:None,
                                  addProductionFunc=lambda production:None,
@@ -158,7 +163,7 @@ class Action(object):
         #            classe per fare in modo di rendere possibile
         #            il binding di nuove variabili all'interno delle classi]
         #    - il dizionario dei dispositivi disponibili
-        instance = cls(variables, Action._DEVICES,
+        instance = cls(variables, Action._DEVICES, reteNetwork,
                             assertFunc=assertFunc,
                             retractFunc=retractFunc,
                             addProductionFunc=addProductionFunc,
@@ -192,7 +197,7 @@ class Action(object):
                     # di ritorno come parametro
                     # della funzione
                     actClass = arg[0]
-                    returned = actClass.execute(arg[1], self._symbols,
+                    returned = actClass.execute(arg[1], self._symbols, self._reteNetwork,
                                 assertFunc=self._assert,
                                 retractFunc=self._retract,
                                 addProductionFunc=self._addProduction,

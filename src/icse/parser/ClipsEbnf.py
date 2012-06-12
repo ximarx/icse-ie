@@ -12,15 +12,15 @@ from icse.Variable import Variable
 
 def _get_function_from_string(funcname):
     import icse.functions as functions
-    return functions.Proxy.get(funcname)
+    return functions.Proxy.get(funcname.rstrip())
     
 def _get_predicate_from_string(predname):
     import icse.predicates as predicates
-    return predicates.Proxy.get(predname)
+    return predicates.Proxy.get(predname.rstrip())
 
 def _get_action_from_string(actionname):
     import icse.actions as actions
-    return actions.Proxy.get(actionname)
+    return actions.Proxy.get(actionname.rstrip())
 
 def _get_strategy_from_string(strategyname):
     try:
@@ -70,7 +70,8 @@ class ClipsEbnf(object):
                                 '"' + pp.CharsNotIn('"') + '"'))
             
             import icse.actions as actions
-            table['action_name'] = pp.Combine(pp.oneOf(" ".join(actions.Proxy.get_actions().keys())) + pp.Optional( pp.Literal(" ").suppress()) )
+            #table['action_name'] = pp.Combine(pp.oneOf(" ".join(actions.Proxy.get_actions().keys())) + pp.Optional( pp.Literal(" ").suppress()) )
+            table['action_name'] = pp.Combine(pp.oneOf(actions.Proxy.get_actions().keys()) + pp.FollowedBy( pp.White() |  pp.Literal(")") ) + pp.Optional( pp.Literal(" ").suppress()) )
             
             import icse.functions as functions
             table['function_name'] = pp.Combine(pp.oneOf(" ".join(functions.Proxy.get_functions().keys())) + pp.Literal(" ").suppress())
@@ -161,14 +162,10 @@ if __name__ == '__main__':
     ClipsEbnf.get_parser(True)
     
     test_funct = '''
-;commento generico ignorato
-(set-strategy depth)
-;@include(../moduli/domande.clp)
-;@debug(activation=True)
-(set-strategy breadth)
+(set-strategy random)
 '''
     
-    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['CLIPS_program'].parseString(test_funct)[:]
+    parsed = ClipsEbnf._CACHED_CLIPS_EBNF['action_group'].parseString(test_funct)[:]
     
     import pprint
     

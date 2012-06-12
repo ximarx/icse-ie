@@ -22,6 +22,7 @@ class PNode(BetaMemory):
                  properties,
                  symbols,
                  # triggers
+                 reteNetwork,
                  onActive=lambda pnode,token:None,
                  onDeactive=lambda pnode,token:None,
                  assertFunc=lambda fact:(None,None,False),
@@ -43,6 +44,7 @@ class PNode(BetaMemory):
         self.__name = name
         self.__symbols = symbols
         self.__properties = properties
+        self.__reteNetwork = reteNetwork
         
         # sanitarizza la salience
         try:
@@ -96,7 +98,7 @@ class PNode(BetaMemory):
         
         for (action, args) in self.__actions:
             
-            action.execute(args, variables,
+            action.execute(args, variables, self.__reteNetwork,
                             assertFunc=self.__assertFunc,
                             retractFunc=self.__retractFunc,
                             addProductionFunc=self.__addProduction,

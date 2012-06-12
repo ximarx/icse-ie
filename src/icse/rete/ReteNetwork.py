@@ -57,7 +57,6 @@ class ReteNetwork(object):
         if isinstance(fact_or_fact_id, int):
             # e' un id
             fact_or_fact_id = self.__id_fact_map[fact_or_fact_id]
-            
         return self.__wmes_map[self._get_fact_dict_key(fact_or_fact_id)]
         
     def assert_fact(self, fact):
@@ -152,6 +151,7 @@ class ReteNetwork(object):
                       production.get_rhs(),
                       production.get_properties(),
                       symbols,
+                      self,
                       onActive=self.__agenda.insert,
                       onDeactive=self.__agenda.remove,
                       assertFunc=self.assert_fact,
