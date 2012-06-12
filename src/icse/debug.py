@@ -99,9 +99,75 @@ def show_token_details(token, indent=4, explodeWme=False, maxDepth=2):
         print IP, "     :  |- wme: ", res.get_wme()
         print IP, "     :  |- token: ", res.get_owner()
     
-def draw_network_fragment(self, lastnode):
-    self._gWrapper = NetworkXGraphWrapper.i()
-
+def draw_network_fragment(pnodes, rete, g = None):
+    
+    from icse.rete.Nodes import AlphaNode, AlphaRootNode, \
+                             JoinNode, NegativeNode, NccNode, \
+                             DummyJoinNode, DummyNegativeNode
+    
+    if g == None:
+        g = NetworkXGraphWrapper.i()
+        g.clear()
+        
+    
+    visited = set()
+    links = set()
+    nodeStack = pnodes 
+    
+    while len(nodeStack) > 0:
+        child = nodeStack.pop()
+        # navigo prima verso il padre da sinistra
+        if not isinstance(child, AlphaRootNode):
+            parent_left = child.get_parent()
+        else:
+            parent_left = None
+            
+        if isinstance(child, (AlphaNode)):
+            left_linkType = 0
+        else:
+            left_linkType = -1
+        # devo prendere la memory
+        # per join
+        if isinstance(child, (JoinNode, NegativeNode, DummyJoinNode, DummyNegativeNode)):
+            parent_right = child.get_alphamemory()
+            right_linkType = 1
+        elif isinstance(child, (NccNode)):
+            parent_right = child.get_partner()
+            right_linkType = 0
+        else:
+            parent_right = None
+            right_linkType = 0
+        
+        
+        if child not in visited:
+            g.add_node(child)
+            visited.add(child)
+        if parent_left != None:
+            if parent_left not in visited:
+                g.add_node(parent_left)
+                visited.add(parent_left)
+            if (child, parent_left) not in links:
+                g.add_edge(parent_left, child, left_linkType )
+                links.add((child, parent_left))
+        if parent_right != None:
+            if parent_right not in visited:
+                g.add_node(parent_right)
+                visited.add(parent_right)
+            if (child, parent_right) not in links:
+                g.add_edge(parent_right, child, right_linkType )
+                links.add((child, parent_right))
+                
+        # inserisco prima il padre destro e poi il sinistro
+        # perche voglio che la navigazione proceda prima
+        # risalendo a sinistra
+        if parent_right != None and child != rete.get_root():
+            nodeStack.append(parent_right)
+            
+        if parent_left != None and child != rete.get_root():
+            nodeStack.append(parent_left)
+            
+    g.draw()
+        
     
 class ConsoleDebugMonitor(object):
     
@@ -274,12 +340,13 @@ class ReteRenderer(object):
         self._gWrapper = NetworkXGraphWrapper.i()
         from icse.rete.ReteNetwork import ReteNetwork
         from icse.rete.Nodes import ReteNode
+        from collections import deque
         assert isinstance(rete, ReteNetwork)
-        nodeQueue = [(rete.get_root(), None, 0)]
+        nodeQueue = deque([(rete.get_root(), None, 0)])
         readed_saw = set()
-        readed_exploded = set( )
+        readed_exploded = set()
         while len(nodeQueue) > 0:
-            node, parent, linkType = nodeQueue.pop(0)
+            node, parent, linkType = nodeQueue.popleft()
             if node not in readed_saw:
                 readed_saw.add(node)
                 EventManager.trigger(EventManager.E_NODE_ADDED, node)

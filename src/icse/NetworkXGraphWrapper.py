@@ -12,9 +12,9 @@ class NetworkXGraphWrapper(object):
     _instance = None
 
     def __init__(self):
-        '''
-        Constructor
-        '''
+        self._reinit()
+
+    def _reinit(self):
         
         self._isReady = True
         self._nodemap = {}
@@ -30,7 +30,6 @@ class NetworkXGraphWrapper(object):
         except:
             print "NetworkX init fallito"
             self._isReady = False
-
         
     @staticmethod
     def i():
@@ -303,5 +302,5 @@ class NetworkXGraphWrapper(object):
         
         plt.clf()
     
-        self._G.clear()
+        self._reinit()
             

@@ -13,10 +13,10 @@ class TraceRule(Action):
         
     SIGN = 'trace-rule'
     
-    def executeImpl(self, rulename):
+    def executeImpl(self, *rules):
         rete = self.getReteNetwork()
-        pnode = rete.get_production(rulename)
-        debug.draw_network_fragment(pnode)
+        pnodes = [rete.get_production(rulename) for rulename in list(rules)]
+        debug.draw_network_fragment(pnodes, rete)
         
         
     
