@@ -1,6 +1,6 @@
 ;@include(moduli/halt-on-end.clp)
 
-(set-strategy mea)
+(set-strategy random)
 
 ; Riempie il PRIMO(4L) secchio al massimo (se non lo e' gia')
 (defrule riempi-uno "Riempie il primo secchio"

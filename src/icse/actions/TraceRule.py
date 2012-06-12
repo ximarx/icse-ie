@@ -19,4 +19,5 @@ class TraceRule(Action):
         debug.draw_network_fragment(pnodes, rete)
         
         
+        
     

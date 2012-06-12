@@ -31,6 +31,7 @@
 		(2 ? ? ? E)
 	))
 =>
+	(trace-rule nnc-primo-attiva)
 )
 
 (defrule nnc-silente "Regola con NccPredicate come primo nodo"
