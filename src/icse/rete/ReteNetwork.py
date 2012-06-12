@@ -58,6 +58,9 @@ class ReteNetwork(object):
             # e' un id
             fact_or_fact_id = self.__id_fact_map[fact_or_fact_id]
         return self.__wmes_map[self._get_fact_dict_key(fact_or_fact_id)]
+    
+    def get_production(self, rulename):
+        return self.__rules_map[rulename]
         
     def assert_fact(self, fact):
         '''
@@ -168,7 +171,7 @@ class ReteNetwork(object):
         
         #NetworkXGraphWrapper.i().add_node(pnode, last_node, -1)
         
-        self.__rules_map[production.get_name] = pnode
+        self.__rules_map[production.get_name()] = pnode
 
         EventManager.trigger( EventManager.E_NODE_ADDED, pnode)
         

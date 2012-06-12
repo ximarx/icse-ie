@@ -99,6 +99,9 @@ def show_token_details(token, indent=4, explodeWme=False, maxDepth=2):
         print IP, "     :  |- wme: ", res.get_wme()
         print IP, "     :  |- token: ", res.get_owner()
     
+def draw_network_fragment(self, lastnode):
+    self._gWrapper = NetworkXGraphWrapper.i()
+
     
 class ConsoleDebugMonitor(object):
     
@@ -302,7 +305,7 @@ class ReteRenderer(object):
                         nodeQueue.append( (succ, node, linkType ) )
                 if hasattr(node, 'get_partner'):
                     nodeQueue.append( (node.get_partner(), node, 0 ) )
-                    
+        
             
 class EventManager(object):
     
