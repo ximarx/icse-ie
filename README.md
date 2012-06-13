@@ -18,4 +18,5 @@ Programmi di esempio:
 Tutti gli altri programmi nella directory /tests/test_* sono singoli test su
 funzionalita' del sistema e del parser
 
-Documentazione completa del sistema disponibile su http://www.scribd.com/doc/96927954/MyClips-Documentazione-Di-Sistema 
+Documentazione completa del sistema disponibile su http://www.scribd.com/doc/96927954/MyClips-Documentazione-Di-Sistema
+
