@@ -6,7 +6,7 @@
 ;@debug(watch_strategy_change=True)
 ;@debug(draw_graph=True)
 
-(defrule test-trigger-event
+(defrule test-trace-wme
 	?f <- (A B ?)
 =>
 	(trace-wme ?f)
