@@ -1,4 +1,4 @@
-icse-ie
+MyClips
 =======
 
 Inference Engine in python per corso di ingegneria della conoscenza (uniba)
