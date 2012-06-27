@@ -20,3 +20,13 @@ funzionalita' del sistema e del parser
 
 Documentazione completa del sistema disponibile su http://www.scribd.com/doc/96927954/MyClips-Documentazione-Di-Sistema
 
+
+Requisiti
+---------
+
+ *  Eclipse
+ *  Python 2.7
+ *  PyDev
+ *  PyParsing (>= 1.5)
+ *  MathplotLib (>= 1.1)
+ *  NetworkX   
