@@ -2,6 +2,7 @@
 from icse.parser.ClipsEbnf import ClipsEbnf
 
 
+
 def parse(text, debug=False, strict=False):
     '''
     Legge una stringa
@@ -46,3 +47,15 @@ def debug_parsed(items):
     
     
     
+def new_parser_bridge(text, debug=False):
+    
+    from myclips.parser.Parser import Parser
+    
+    parser = Parser(debug, None, True, True)
+
+    parsed = parser.getSParser("CLIPSProgramParser").parseString(text)
+    
+    print parsed
+    
+#override normal parse function
+#parse = new_parser_bridge

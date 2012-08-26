@@ -3,6 +3,7 @@
 	<name>icse-ie</name>
 	<comment></comment>
 	<projects>
+		<project>myclips-parser</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
